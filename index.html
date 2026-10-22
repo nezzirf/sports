@@ -9,7 +9,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
-    <title>Hall of Legends</title>
+    <title>Sports TCG Elite - Jeu de Booster & Équipements</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -367,6 +367,46 @@
         .fx-shake { animation: fxshake .6s; }
         @keyframes fxshake { 10%, 90% { transform: translate(-2px, 1px); } 30%, 70% { transform: translate(4px, -3px); } 50% { transform: translate(-5px, 3px); } }
         @media (prefers-reduced-motion: reduce) { .fx-flash, .fx-shake { animation: none; } }
+
+        /* ===== RÉVÉLATION CINÉMATIQUE (cartes Mythiques & Vintage) ===== */
+        .mx-myt{--c1:#f472b6;--c2:#fbcfe8;--c3:#a855f7;--h1:rgba(255,60,170,.6);--h2:rgba(60,200,255,.55);--h3:rgba(255,235,90,.6);--h4:rgba(110,255,170,.5)}
+        .mx-vin{--c1:#f59e0b;--c2:#fde68a;--c3:#b45309;--h1:rgba(255,196,80,.6);--h2:rgba(255,140,50,.55);--h3:rgba(255,242,180,.65);--h4:rgba(214,150,60,.5)}
+        #pack-opening-modal > .text-center { position: relative; z-index: 1; }
+        .mx-bg, .mx-top { position: fixed; inset: 0; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity .35s; }
+        .mx-bg { z-index: 0; background: radial-gradient(60% 55% at var(--mx-x,50%) var(--mx-y,46%), color-mix(in srgb, var(--c3) 32%, transparent), transparent 72%); }
+        .mx-top { z-index: 2; }
+        .mx-bg.on, .mx-top.on { opacity: 1; }
+        .mx-bg > *, .mx-top > * { position: absolute; }
+        .mx-rays { left: var(--mx-x,50%); top: var(--mx-y,46%); width: 130vmax; aspect-ratio: 1; translate: -50% -50%; opacity: 0; transition: opacity 1.2s;
+            background: repeating-conic-gradient(color-mix(in srgb, var(--c1) 38%, transparent) 0 5deg, transparent 5deg 15deg);
+            -webkit-mask-image: radial-gradient(circle, #000 0, transparent 55%); mask-image: radial-gradient(circle, #000 0, transparent 55%); animation: mxspin 26s linear infinite; }
+        .mx-bg.live .mx-rays { opacity: 1; }
+        @keyframes mxspin { to { rotate: 360deg; } }
+        .mx-halo { left: var(--mx-x,50%); top: var(--mx-y,46%); width: calc(var(--mx-w,250px) * 1.8); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; opacity: 0;
+            background: radial-gradient(circle, color-mix(in srgb, var(--c1) 80%, transparent), color-mix(in srgb, var(--c3) 28%, transparent) 45%, transparent 70%); }
+        .mx-ring { left: var(--mx-x,50%); top: var(--mx-y,46%); width: 120px; height: 120px; translate: -50% -50%; border-radius: 50%; border: 3px solid var(--c2); opacity: 0; }
+        .mx-top canvas { inset: 0; width: 100%; height: 100%; }
+        .mx-flash { inset: 0; opacity: 0; background: radial-gradient(circle at var(--mx-x,50%) var(--mx-y,46%), #fff 0, color-mix(in srgb, var(--c1) 70%, transparent) 35%, transparent 70%); }
+        .mx-cap { left: 0; right: 0; bottom: calc(18px + env(safe-area-inset-bottom)); text-align: center; padding-left: .5em; font: 700 18px 'Rajdhani', sans-serif; letter-spacing: .5em; color: var(--c2);
+            text-shadow: 0 0 14px var(--c1); opacity: 0; transform: translateY(8px); transition: opacity .8s .5s, transform .8s .5s; }
+        .mx-top.live .mx-cap { opacity: 1; transform: none; }
+        #pack-single-card-container.mx-on { transform: none !important; scale: none !important; }
+        .mx-wrap { display: block; width: fit-content; margin: 0 auto; position: relative; perspective: 1100px; }
+        .mx-intro, .mx-tilt { transform-style: preserve-3d; }
+        .mx-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .mx-front { position: relative; }
+        .mx-back { position: absolute; inset: 0; transform: rotateY(180deg); border-radius: 16px; display: grid; place-items: center; color: var(--c1); border: 5px solid var(--c1); overflow: hidden;
+            background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--c1) 14%, transparent) 0 8px, transparent 8px 16px), linear-gradient(145deg, #1b1f3a, #0b0d1c); }
+        .mx-wrap .pokemon-card { transform: none !important; --gl: 1; }
+        .mx-wrap .holo-sheen { display: none; }
+        .mx-wrap .card-image-container img { transform: translate(calc(var(--ry,0) * -.7px), calc(var(--rx,0) * .7px)) scale(1.1); }
+        .mx-holo, .mx-glitter, .mx-glare { position: absolute; inset: 0; z-index: 12; pointer-events: none; }
+        .mx-holo { background: linear-gradient(115deg, transparent 18%, var(--h1) 32%, var(--h2) 44%, var(--h3) 56%, var(--h4) 68%, transparent 82%); background-size: 260% 260%; background-position: var(--hx,50%) var(--hy,50%); mix-blend-mode: color-dodge; opacity: .55; }
+        .mx-glitter { background-image: radial-gradient(circle, #fff 0 1px, transparent 1.6px), radial-gradient(circle, var(--c2) 0 1px, transparent 1.6px); background-size: 13px 13px, 17px 17px;
+            background-position: calc(var(--ry,0) * 1.5px) calc(var(--rx,0) * 1.5px), calc(6px + var(--ry,0) * -1.1px) calc(8px + var(--rx,0) * -1.1px); mix-blend-mode: screen; opacity: .6;
+            -webkit-mask-image: radial-gradient(circle at var(--gx,50%) var(--gy,40%), #000, transparent 55%); mask-image: radial-gradient(circle at var(--gx,50%) var(--gy,40%), #000, transparent 55%); }
+        .mx-glare { background: radial-gradient(circle at var(--gx,50%) var(--gy,40%), rgba(255,255,255,.5), transparent 46%); mix-blend-mode: overlay; }
+        @media (prefers-reduced-motion: reduce) { .mx-rays { animation: none; } }
         @media (max-width: 767px) { [class*="text-[8px]"] { font-size: 10px !important; } [class*="text-[9px]"] { font-size: 10.5px !important; } }
     </style>
 </head>
@@ -384,7 +424,7 @@
                     <i class="fa-solid fa-bolt text-white text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-wider uppercase font-sport text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 leading-tight">Hall of Legends</h1>
+                    <h1 class="text-xl font-black tracking-wider uppercase font-sport text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 leading-tight">SPORTS TCG</h1>
                     <p class="text-[10px] text-slate-400 font-medium">ATHLÈTES &amp; LÉGENDES</p>
                 </div>
             </div>
@@ -516,7 +556,7 @@
                 <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                     <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase">Gestion de l'équipe</h2>
                     <div class="bg-cyan-500/10 border border-cyan-500/30 px-4 py-1.5 rounded-xl text-cyan-400 font-sport font-bold text-sm">
-                        Moyenne Équipe : <span id="deck-average-ovr" class="text-amber-400 font-black text-base">---</span> OVR
+                        Moyenne Équipe : <span id="deck-average-ovr" class="text-amber-400 font-black text-base">0</span> OVR
                     </div>
                 </div>
                 
@@ -657,6 +697,8 @@
 
     <!-- Modal Ouverture -->
     <div id="pack-opening-modal" role="dialog" aria-modal="true" aria-label="Ouverture de booster" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div id="mx-bg" class="mx-bg" aria-hidden="true"><div class="mx-rays"></div><div class="mx-halo"></div><div class="mx-ring"></div></div>
+        <div id="mx-top" class="mx-top" aria-hidden="true"><canvas id="mx-cv"></canvas><div class="mx-flash"></div><div id="mx-cap" class="mx-cap"></div></div>
         <div class="text-center space-y-6 max-w-5xl w-full flex flex-col items-center">
             <h4 id="pack-progress-title" class="text-lg font-bold font-sport text-cyan-400 uppercase tracking-widest bg-cyan-900/30 px-6 py-2 rounded-full border border-cyan-500/30"></h4>
             <button id="skip-pack-btn" onclick="showPackSummaryModal()" class="hidden px-4 py-1.5 rounded-xl border border-slate-600 text-slate-300 hover:text-white text-xs font-bold uppercase tracking-wider">Tout révéler</button>
@@ -1245,6 +1287,7 @@
             saveUser(); playSparkleSound();
             showToast("Félicitations ! Légende historique acquise !", "success");
             renderVintageShop();
+            const vc = vintageAthletes.find(c => c.id === cardId); if (vc) openSingleReveal(vc);
         }
 
         // --- GESTION DES TAUX DE DROP (AVEC VINTAGE EXTRÊMEMENT RARE) ---
@@ -1308,15 +1351,25 @@
 
         async function showCurrentCardInModal() {
             const item = currentPackCards[currentCardIndex];
-            document.getElementById('pack-progress-title').innerText = `Carte ${currentCardIndex + 1} sur ${currentPackCards.length}`;
+            MX.stop();
+            document.getElementById('pack-progress-title').innerText = currentPackCards.length === 1 ? 'Légende acquise !' : `Carte ${currentCardIndex + 1} sur ${currentPackCards.length}`;
             const photoUrl = await fetchWikiPhoto(item.card.wikiSlug);
-            document.getElementById('pack-single-card-container').innerHTML = getCardHTML(item.card, photoUrl, true, false, true, item.isNew, true);
-            document.getElementById('finish-pack-btn').classList.add('hidden');
+            if (packInSummary) return;
+            const container = document.getElementById('pack-single-card-container');
+            container.innerHTML = getCardHTML(item.card, photoUrl, true, false, true, item.isNew, true);
+            document.getElementById('finish-pack-btn').classList.toggle('hidden', currentPackCards.length !== 1);
             document.getElementById('skip-pack-btn').classList.toggle('hidden', currentPackCards.length < 2);
-            revealFx(item.card.rarityId);
+            if (MX.is(item.card)) MX.start(item, container); else revealFx(item.card.rarityId);
+        }
+
+        function openSingleReveal(card) {
+            currentPackCards = [{ card, isNew: true }]; currentCardIndex = 0; packInSummary = false;
+            document.getElementById('pack-opening-modal').classList.remove('hidden');
+            showCurrentCardInModal();
         }
 
         async function showPackSummaryModal() {
+            MX.stop();
             document.getElementById('pack-progress-title').innerText = 'RÉCAPITULATIF DU PACK';
             const container = document.getElementById('pack-single-card-container');
             packInSummary = true;
@@ -1332,11 +1385,13 @@
 
         let revealBusy = false, packInSummary = false;
         async function revealNextCardInPack() {
+            if (MX.busy()) { MX.skip(); return; }
             if (revealBusy || packInSummary) return; revealBusy = true;
-            try { if (currentCardIndex < currentPackCards.length - 1) { currentCardIndex++; await showCurrentCardInModal(); } else { await showPackSummaryModal(); } } finally { revealBusy = false; }
+            try { if (currentPackCards.length === 1) { closePackOpening(); } else if (currentCardIndex < currentPackCards.length - 1) { currentCardIndex++; await showCurrentCardInModal(); } else { await showPackSummaryModal(); } } finally { revealBusy = false; }
         }
 
         function closePackOpening() {
+            MX.stop();
             document.getElementById('pack-opening-modal').classList.add('hidden');
             const container = document.getElementById('pack-single-card-container');
             container.className = "cursor-pointer transition-transform hover:scale-105"; packInSummary = false;
@@ -1576,20 +1631,10 @@
                 }
             }
             container.innerHTML = htmlContent;
-            
-            // Affichage de la note moyenne uniquement si l'équipe compte exactement 5 athlètes
-            const avgEl = document.getElementById('deck-average-ovr');
+            const avg = activeCount > 0 ? Math.round(totalOvr / activeCount) : 0, tb = getTeamBonus();
+            const avgEl = document.getElementById('deck-average-ovr'); if (avgEl) avgEl.textContent = avg + tb.bonus;
             const bonusEl = document.getElementById('deck-bonus-info');
-            
-            if (activeCount === 5) {
-                const avg = Math.round(totalOvr / 5);
-                const tb = getTeamBonus();
-                if (avgEl) avgEl.textContent = avg + tb.bonus;
-                if (bonusEl) bonusEl.innerHTML = tb.bonus > 0 ? `<span class="font-bold text-emerald-300"><i class="fa-solid fa-link"></i> Bonus +${tb.bonus}</span>` : `<span class="text-slate-400">Aucun bonus</span>`;
-            } else {
-                if (avgEl) avgEl.textContent = "---";
-                if (bonusEl) bonusEl.innerHTML = `<span class="text-slate-400"><i class="fa-solid fa-circle-info mr-1 text-cyan-400"></i> Placez 5 athlètes pour calculer la note d'équipe</span>`;
-            }
+            if (bonusEl) bonusEl.innerHTML = tb.bonus > 0 ? `<span class="font-bold text-emerald-300"><i class="fa-solid fa-link"></i> Bonus +${tb.bonus}</span>` : `<span class="text-slate-400">Aucun bonus</span>`;
         }
 
         async function renderDeckQuickAdd() {
@@ -1647,14 +1692,14 @@
 
         document.addEventListener('mousemove', (e) => {
             const card = e.target.closest('.pokemon-card');
-            if (!card) return;
+            if (!card || card.closest('.mx-wrap')) return;
             const rect = card.getBoundingClientRect();
             applyCardTilt(card, e.clientX - rect.left - rect.width / 2, e.clientY - rect.top - rect.height / 2, rect.width, rect.height);
         });
 
         document.addEventListener('mouseout', (e) => {
             const card = e.target.closest('.pokemon-card');
-            if (!card || card.contains(e.relatedTarget)) return;
+            if (!card || card.closest('.mx-wrap') || card.contains(e.relatedTarget)) return;
             card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
         });
 
@@ -1798,6 +1843,100 @@
             f.className = 'fx-flash'; f.style.setProperty('--fx', { 3: '#a855f7', 4: '#facc15', 5: '#f43f5e' }[rid] || '#fff'); m.appendChild(f); setTimeout(() => f.remove(), 900);
             if (rid >= R_LEG) { m.classList.add('fx-shake'); setTimeout(() => m.classList.remove('fx-shake'), 600); playLegendSound(); }
         }
+
+        /* ===== RÉVÉLATION CINÉMATIQUE : cartes Mythiques & Vintage ===== */
+        const MX = (() => {
+            const THEMES = {
+                myt: { cls: 'mx-myt', cap: 'MYTHIQUE', parts: ['255,255,255', '249,168,212', '251,191,36', '125,211,252'] },
+                vin: { cls: 'mx-vin', cap: 'VINTAGE', parts: ['255,255,255', '253,230,138', '245,158,11', '217,119,6'] }
+            };
+            const RM = matchMedia('(prefers-reduced-motion: reduce)').matches, D = RM ? 700 : 2600;
+            const BACK = '<svg width="92" height="92" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 5l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 15.8l-4.2 2.2.8-4.7L5.2 10l4.7-.7z"/></svg>';
+            const el = id => document.getElementById(id), kind = c => c.rarityId === R_VINTAGE ? 'vin' : c.rarityId === R_MYT ? 'myt' : null;
+            let S = null, raf = 0;
+
+            function burst(n) { const s = S; for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, v = 2 + Math.random() * 7; s.P.push({ x: s.ox, y: s.oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, l: 1, d: .012 + Math.random() * .014, r: 1 + Math.random() * 2.6, c: s.th.parts[i % 4], g: .06 }); } }
+            function ambient() { const s = S, a = Math.random() * 6.283, r = 90 + Math.random() * 130; s.P.push({ x: s.ox + Math.cos(a) * r * .9, y: s.oy + Math.sin(a) * r * 1.1, vx: (Math.random() - .5) * .4, vy: -.3 - Math.random() * .6, l: 1, d: .009 + Math.random() * .01, r: .8 + Math.random() * 1.8, c: s.th.parts[(Math.random() * 4) | 0], g: 0 }); }
+            function draw() {
+                const s = S, g = s.g; g.clearRect(0, 0, s.W, s.H); g.globalCompositeOperation = 'lighter';
+                for (let i = s.P.length - 1; i >= 0; i--) {
+                    const p = s.P[i]; p.x += p.vx; p.y += p.vy; p.vx *= .97; p.vy = p.vy * .97 + p.g; p.l -= p.d;
+                    if (p.l <= 0) { s.P.splice(i, 1); continue; }
+                    g.fillStyle = 'rgba(' + p.c + ',' + p.l.toFixed(2) + ')'; g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.283); g.fill();
+                }
+            }
+            function ring() { el('mx-bg').querySelector('.mx-ring').animate([{ opacity: .9, scale: .3 }, { opacity: 0, scale: 5 }], { duration: 900, easing: 'ease-out' }); }
+            function boom() {
+                const s = S; if (!s || s.burst) return; s.burst = true;
+                burst(90); playSparkleSound(); ring();
+                el('mx-top').querySelector('.mx-flash').animate([{ opacity: 0 }, { opacity: .95, offset: .15 }, { opacity: 0 }], { duration: 700 });
+            }
+            function land() {
+                const s = S; if (!s || s.live) return; s.live = true;
+                el('mx-bg').classList.add('live'); el('mx-top').classList.add('live'); el('mx-cap').textContent = s.th.cap;
+                if (RM) return;
+                burst(40); ring(); playLegendSound();
+                const m = el('pack-opening-modal'); m.classList.add('fx-shake'); setTimeout(() => m.classList.remove('fx-shake'), 600);
+            }
+            function frame(now) {
+                const s = S; if (!s) return;
+                const t = (now - s.t0) / 1000; s.fr++;
+                s.amp += ((s.live ? 1 : 0) - s.amp) * .05;
+                let tx = Math.sin(t * 1.1) * (RM ? 4 : 17), ty = Math.cos(t * .8) * (RM ? 2 : 9);
+                if (s.px !== null) { tx = (s.px - .5) * 52; ty = (.5 - s.py) * 38; }
+                s.ry += (tx * s.amp - s.ry) * .12; s.rx += (ty * s.amp - s.rx) * .12;
+                const f = s.live && !RM ? Math.sin(t * 1.6) * 6 * s.amp : 0, st = s.tilt.style;
+                st.transform = 'translateY(' + f.toFixed(1) + 'px) rotateX(' + s.rx.toFixed(2) + 'deg) rotateY(' + s.ry.toFixed(2) + 'deg)';
+                st.setProperty('--rx', s.rx.toFixed(2)); st.setProperty('--ry', s.ry.toFixed(2));
+                st.setProperty('--gx', (50 + s.ry * 2.6).toFixed(1) + '%'); st.setProperty('--gy', (38 - s.rx * 3).toFixed(1) + '%');
+                st.setProperty('--hx', (50 + s.ry * 2.8).toFixed(1) + '%'); st.setProperty('--hy', (50 - s.rx * 2.8).toFixed(1) + '%');
+                if (s.live && !RM && s.fr % 7 === 0) ambient();
+                draw(); raf = requestAnimationFrame(frame);
+            }
+            function play() {
+                const s = S, I = s.intro, T = s.timers;
+                if (RM) { s.anims.push(I.animate([{ opacity: 0 }, { opacity: 1 }], { duration: D, fill: 'both' })); T.push(setTimeout(land, D)); return; }
+                s.anims.push(I.animate([
+                    { opacity: 0, transform: 'translateY(60px) scale(.3) rotateY(900deg)', easing: 'ease-out' },
+                    { opacity: 1, transform: 'translateY(0) scale(.6) rotateY(900deg)', offset: .2, easing: 'linear' },
+                    { transform: 'translateY(0) scale(.64) rotateY(900deg)', offset: .3, easing: 'cubic-bezier(.15,.7,.2,1)' },
+                    { transform: 'translateY(0) scale(1.14) rotateY(-10deg)', offset: .88, easing: 'ease-in-out' },
+                    { transform: 'translateY(0) scale(1) rotateY(0deg)' }
+                ], { duration: D, fill: 'both' }));
+                s.anims.push(el('mx-bg').querySelector('.mx-halo').animate([{ opacity: 0, scale: .3 }, { opacity: 1, scale: 1, offset: .3 }, { opacity: .55, scale: 1.1 }], { duration: D, fill: 'forwards' }));
+                T.push(setTimeout(boom, D * .3), setTimeout(land, D * .88));
+            }
+            function start(item, container) {
+                stop();
+                const th = THEMES[kind(item.card)], card = container.querySelector('.pokemon-card'); if (!th || !card) return;
+                const wrap = document.createElement('div');
+                wrap.className = 'mx-wrap ' + th.cls;
+                wrap.innerHTML = '<div class="mx-intro"><div class="mx-tilt"><div class="mx-face mx-back">' + BACK + '</div><div class="mx-face mx-front"></div></div></div>';
+                card.insertAdjacentHTML('beforeend', '<div class="mx-holo"></div><div class="mx-glitter"></div><div class="mx-glare"></div>');
+                wrap.querySelector('.mx-front').appendChild(card);
+                container.textContent = ''; container.appendChild(wrap); container.classList.add('mx-on');
+                const bg = el('mx-bg'), top = el('mx-top'), cv = el('mx-cv'), r = wrap.getBoundingClientRect(), tr = top.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+                const W = top.clientWidth, H = top.clientHeight, ox = r.left - tr.left + r.width / 2, oy = r.top - tr.top + r.height / 2;
+                [bg, top].forEach(n => { n.classList.remove('mx-myt', 'mx-vin', 'live'); n.classList.add(th.cls, 'on'); n.style.setProperty('--mx-x', ox + 'px'); n.style.setProperty('--mx-y', oy + 'px'); n.style.setProperty('--mx-w', r.width + 'px'); });
+                cv.width = W * d; cv.height = H * d; const g = cv.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0);
+                S = { th, g, W, H, ox, oy, intro: wrap.querySelector('.mx-intro'), tilt: wrap.querySelector('.mx-tilt'), live: false, burst: false, amp: 0, rx: 0, ry: 0, px: null, py: null, P: [], timers: [], anims: [], fr: 0, t0: performance.now() };
+                el('mx-cap').textContent = '';
+                play(); raf = requestAnimationFrame(frame);
+            }
+            function stop() {
+                const s = S; if (!s) return; S = null;
+                s.timers.forEach(clearTimeout); s.anims.forEach(a => { try { a.cancel(); } catch (e) {} });
+                cancelAnimationFrame(raf);
+                ['mx-bg', 'mx-top'].forEach(id => el(id).classList.remove('on', 'live'));
+                s.g.clearRect(0, 0, s.W, s.H);
+                el('pack-single-card-container').classList.remove('mx-on');
+            }
+            function skip() { const s = S; if (!s || s.live) return false; s.timers.forEach(clearTimeout); s.timers = []; s.anims.forEach(a => a.finish()); boom(); land(); return true; }
+            const modal = el('pack-opening-modal');
+            modal.addEventListener('pointermove', e => { if (S) { S.px = e.clientX / innerWidth; S.py = e.clientY / innerHeight; } });
+            ['pointerleave', 'pointercancel', 'pointerup'].forEach(n => modal.addEventListener(n, () => { if (S) S.px = S.py = null; }));
+            return { is: c => !!kind(c), busy: () => !!S && !S.live, start, stop, skip };
+        })();
 
         fillTargetValues();
         initUser();
