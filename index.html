@@ -1287,10 +1287,11 @@
                 userState.pityLegendary = pack.some(c => c.rarityId >= R_LEG) ? 0 : pity + 1;
                 raw.push(...pack);
             }
+            // Tri croissant : communes d'abord, la plus rare en dernier (suspense). Vintage tout à la fin.
+            const rk = c => c.rarityId === R_VINTAGE ? 99 : c.rarityId;
+            raw.sort((a, b) => rk(a) - rk(b));
             const seen = {};
             const dropped = raw.map(card => { const isNew = !((userState.collection[card.id] || 0) > 0 || seen[card.id]); seen[card.id] = 1; return { card, isNew }; });
-            if (dropped.some(d => d.card.rarityId >= R_ULT || d.card.rarityId === R_VINTAGE)) playSparkleSound();
-            dropped.sort((a, b) => b.card.rarityId - a.card.rarityId);
             dropped.forEach(d => { userState.collection[d.card.id] = (userState.collection[d.card.id] || 0) + 1; });
             saveUser(); updatePackSystem();
 
@@ -1298,7 +1299,7 @@
             laser.classList.add('anim-cut-laser'); topPiece.classList.add('anim-top-tear'); pack.classList.add('anim-pack-open');
 
             setTimeout(() => {
-                currentPackCards = dropped; currentCardIndex = 0;
+                currentPackCards = dropped; currentCardIndex = 0; packInSummary = false;
                 laser.classList.remove('anim-cut-laser'); topPiece.classList.remove('anim-top-tear'); pack.classList.remove('anim-pack-open');
                 isOpening = false; document.getElementById('pack-opening-modal').classList.remove('hidden');
                 showCurrentCardInModal();
@@ -1318,8 +1319,8 @@
         async function showPackSummaryModal() {
             document.getElementById('pack-progress-title').innerText = 'RÉCAPITULATIF DU PACK';
             const container = document.getElementById('pack-single-card-container');
+            packInSummary = true;
             container.className = "grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 w-full my-4 max-w-5xl px-2";
-            container.onclick = null;
             const cardsHtmlList = await Promise.all(currentPackCards.map(async (item) => {
                 const photoUrl = await fetchWikiPhoto(item.card.wikiSlug);
                 return `<div class="w-full flex items-center justify-center">${getCardHTML(item.card, photoUrl, true, true, false, item.isNew, false)}</div>`;
@@ -1329,16 +1330,16 @@
             document.getElementById('skip-pack-btn').classList.add('hidden');
         }
 
-        let revealBusy = false;
+        let revealBusy = false, packInSummary = false;
         async function revealNextCardInPack() {
-            if (revealBusy) return; revealBusy = true;
+            if (revealBusy || packInSummary) return; revealBusy = true;
             try { if (currentCardIndex < currentPackCards.length - 1) { currentCardIndex++; await showCurrentCardInModal(); } else { await showPackSummaryModal(); } } finally { revealBusy = false; }
         }
 
         function closePackOpening() {
             document.getElementById('pack-opening-modal').classList.add('hidden');
             const container = document.getElementById('pack-single-card-container');
-            container.className = "cursor-pointer transition-transform hover:scale-105"; container.onclick = null;
+            container.className = "cursor-pointer transition-transform hover:scale-105"; packInSummary = false;
             updateUI();
         }
 
@@ -1387,7 +1388,7 @@
             const finalScore = getAthleteCalculatedScore(athlete), eqList = userState.athleteEquipments[athlete.id] || [];
             const countryCode = (athlete.country || 'fr').toLowerCase(), flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
 
-            let clickAction = isOpeningMode ? `onclick="revealNextCardInPack()"` : (!isSummary && isOwned ? `onclick="openZoomCard('${athlete.id}')"` : '');
+            let clickAction = isOpeningMode ? `onclick="event.stopPropagation(); revealNextCardInPack()"` : (!isSummary && isOwned ? `onclick="openZoomCard('${athlete.id}')"` : '');
             let equipmentBadgesHTML = '';
             if (eqList.length > 0 && isOwned) {
                 equipmentBadgesHTML = `<div class="absolute top-2.5 left-14 z-[25] flex items-center gap-1">`;
@@ -1782,6 +1783,7 @@
 
         function revealFx(rid) {
             if (rid < R_ULT) return;
+            playSparkleSound();
             const m = document.getElementById('pack-opening-modal'), f = document.createElement('div');
             f.className = 'fx-flash'; f.style.setProperty('--fx', { 3: '#a855f7', 4: '#facc15', 5: '#f43f5e' }[rid] || '#fff'); m.appendChild(f); setTimeout(() => f.remove(), 900);
             if (rid >= R_LEG) { m.classList.add('fx-shake'); setTimeout(() => m.classList.remove('fx-shake'), 600); playLegendSound(); }
