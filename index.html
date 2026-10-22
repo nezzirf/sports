@@ -9,7 +9,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
-    <title>Sports TCG Elite - Jeu de Booster & Équipements</title>
+    <title>Hall of Legends</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -384,7 +384,7 @@
                     <i class="fa-solid fa-bolt text-white text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black tracking-wider uppercase font-sport text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 leading-tight">SPORTS TCG</h1>
+                    <h1 class="text-xl font-black tracking-wider uppercase font-sport text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 leading-tight">Hall of Legends</h1>
                     <p class="text-[10px] text-slate-400 font-medium">ATHLÈTES &amp; LÉGENDES</p>
                 </div>
             </div>
@@ -682,6 +682,46 @@
         const sportsNames = ['Football', 'Basketball', 'Cyclisme', 'Tennis', 'F1', 'Rugby', 'Athlétisme', 'Natation', 'Sports de combat', 'Handball'];
         const raritiesNames = ['Commune', 'Peu commune', 'Rare', 'Ultra rare', 'Légendaire', 'Mythique', 'Vintage'];
 
+        const R_COM = 0, R_PEU = 1, R_RAR = 2, R_ULT = 3, R_LEG = 4, R_MYT = 5, R_VINTAGE = 6;
+        const spRecycleValues = { [R_COM]: 10, [R_PEU]: 25, [R_RAR]: 60, [R_ULT]: 150, [R_LEG]: 400, [R_MYT]: 1000, [R_VINTAGE]: 2500 };
+
+        const vintageAthletes = [
+            { id: 'v_pele', name: 'Pelé', sport: 'Football', rarity: 'Vintage', rarityId: R_VINTAGE, score: 99, wikiSlug: 'Pelé', country: 'BR', price: 8000 },
+            { id: 'v_maradona', name: 'Diego Maradona', sport: 'Football', rarity: 'Vintage', rarityId: R_VINTAGE, score: 98, wikiSlug: 'Diego_Maradona', country: 'AR', price: 8000 },
+            { id: 'v_jordan', name: 'Michael Jordan', sport: 'Basketball', rarity: 'Vintage', rarityId: R_VINTAGE, score: 99, wikiSlug: 'Michael_Jordan', country: 'US', price: 8000 },
+            { id: 'v_merckx', name: 'Eddy Merckx', sport: 'Cyclisme', rarity: 'Vintage', rarityId: R_VINTAGE, score: 99, wikiSlug: 'Eddy_Merckx', country: 'BE', price: 8000 },
+            { id: 'v_ali', name: 'Muhammad Ali', sport: 'Sports de combat', rarity: 'Vintage', rarityId: R_VINTAGE, score: 99, wikiSlug: 'Muhammad_Ali', country: 'US', price: 8000 },
+            { id: 'v_senna', name: 'Ayrton Senna', sport: 'F1', rarity: 'Vintage', rarityId: R_VINTAGE, score: 98, wikiSlug: 'Ayrton_Senna', country: 'BR', price: 8000 },
+            { id: 'v_roger_federer', name: 'Roger Federer', sport: 'Tennis', rarity: 'Vintage', rarityId: R_VINTAGE, score: 98, wikiSlug: 'Roger_Federer', country: 'CH', price: 8000 },
+            { id: 'v_usain_bolt', name: 'Usain Bolt', sport: 'Athlétisme', rarity: 'Vintage', rarityId: R_VINTAGE, score: 99, wikiSlug: 'Usain_Bolt', country: 'JM', price: 8000 },
+            { id: 'v_michael_phelps', name: 'Michael Phelps', sport: 'Natation', rarity: 'Vintage', rarityId: R_VINTAGE, score: 99, wikiSlug: 'Michael_Phelps', country: 'US', price: 8000 },
+            { id: 'v_dan_carter', name: 'Dan Carter', sport: 'Rugby', rarity: 'Vintage', rarityId: R_VINTAGE, score: 98, wikiSlug: 'Dan_Carter', country: 'NZ', price: 8000 },
+            { id: 'v_nikola_karabatic', name: 'Nikola Karabatic', sport: 'Handball', rarity: 'Vintage', rarityId: R_VINTAGE, score: 98, wikiSlug: 'Nikola_Karabatic', country: 'FR', price: 8000 }
+        ];
+
+        const equipmentDefinitions = [
+            { id: 'eq_foot_1', name: 'Crampons d\'Or', sport: 'Football', bonus: 5 },
+            { id: 'eq_foot_2', name: 'Gants de Gardien Pro', sport: 'Football', bonus: 5 },
+            { id: 'eq_cycl_1', name: 'Casque Aéro Carbon', sport: 'Cyclisme', bonus: 5 },
+            { id: 'eq_cycl_2', name: 'Maillot Jaune Légendaire', sport: 'Cyclisme', bonus: 5 },
+            { id: 'eq_bask_1', name: 'Ballon Pro Grip', sport: 'Basketball', bonus: 5 },
+            { id: 'eq_bask_2', name: 'Sneakers High-Top Air', sport: 'Basketball', bonus: 5 },
+            { id: 'eq_tenn_1', name: 'Raquette Graphène Pro', sport: 'Tennis', bonus: 5 },
+            { id: 'eq_tenn_2', name: 'Balle de Match Officielle', sport: 'Tennis', bonus: 5 },
+            { id: 'eq_f1_1', name: 'Aileron Aéro V2', sport: 'F1', bonus: 5 },
+            { id: 'eq_f1_2', name: 'Pneus Slick Tendres', sport: 'F1', bonus: 5 },
+            { id: 'eq_rugb_1', name: 'Ballon de Match Pro', sport: 'Rugby', bonus: 5 },
+            { id: 'eq_rugb_2', name: 'Casque de Protection Pro', sport: 'Rugby', bonus: 5 },
+            { id: 'eq_athl_1', name: 'Chaussures à Pointes Sprint', sport: 'Athlétisme', bonus: 5 },
+            { id: 'eq_athl_2', name: 'Chronomètre de Précision', sport: 'Athlétisme', bonus: 5 },
+            { id: 'eq_nata_1', name: 'Lunettes de Natation Hydro', sport: 'Natation', bonus: 5 },
+            { id: 'eq_nata_2', name: 'Bonnet Aérodynamique', sport: 'Natation', bonus: 5 },
+            { id: 'eq_comb_1', name: 'Gants de Combat Pro', sport: 'Sports de combat', bonus: 5 },
+            { id: 'eq_comb_2', name: 'Kimono de Compétition', sport: 'Sports de combat', bonus: 5 },
+            { id: 'eq_hand_1', name: 'Résine Pro Handball', sport: 'Handball', bonus: 5 },
+            { id: 'eq_hand_2', name: 'Chaussures Indoor High Grip', sport: 'Handball', bonus: 5 }
+        ];
+
         const sportIcons = {
             'Football': 'fa-futbol', 'Basketball': 'fa-basketball', 'Cyclisme': 'fa-bicycle',
             'Tennis': 'fa-table-tennis-paddle-ball', 'F1': 'fa-flag-checkered', 'Rugby': 'fa-football',
@@ -742,7 +782,8 @@
                             else if (res.status !== 404) transient = true;
                         } catch (e) { transient = true; }
                     }
-                } finally { wikiFree(); }
+                } border { transient = true; }
+                finally { wikiFree(); }
                 if (!transient) { wikiImageCache[slug] = fallbackImage; saveWikiCache(); }
                 return fallbackImage;
             })();
