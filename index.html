@@ -693,12 +693,6 @@
                     <p class="text-xs text-slate-400 mt-0.5">Affrontez vos amis en créant ou en rejoignant un salon privé avec un code.</p>
                 </div>
 
-                <!-- CHAMP POUR LE PSEUDO DU JOUEUR -->
-                <div class="textured-panel p-4 rounded-2xl border border-slate-800 max-w-md mx-auto">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5"><i class="fa-solid fa-user text-cyan-400 mr-1"></i> Votre Pseudo PvP</label>
-                    <input type="text" id="pvp-username-input" placeholder="Ex: Champion91" maxlength="15" value="Joueur" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white font-bold outline-none focus:border-cyan-500 transition-colors">
-                </div>
-
                 <!-- BOÎTE DE CRÉATION ET REJOINTE DE SALON -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="pvp-lobby-panel">
                     <!-- Créer Salon -->
@@ -865,7 +859,7 @@
                             else if (res.status !== 404) transient = true;
                         } catch (e) { transient = true; }
                     }
-                } fontFinally { wikiFree(); }
+                } finally { wikiFree(); }
                 if (!transient) { wikiImageCache[slug] = fallbackImage; saveWikiCache(); }
                 return fallbackImage;
             })();
@@ -2057,9 +2051,6 @@
                 return null;
             }
 
-            const usernameInput = document.getElementById('pvp-username-input');
-            const customName = usernameInput && usernameInput.value.trim() !== '' ? usernameInput.value.trim() : "Joueur_" + (socket.id ? socket.id.substring(0, 4) : "1234");
-
             let totalOvr = 0;
             userState.deck.forEach(id => {
                 const athlete = allCardsData.find(a => a.id === id);
@@ -2072,7 +2063,7 @@
             const averageOvr = Math.round(totalOvr / 5) + getTeamBonus().bonus;
 
             return {
-                name: customName,
+                name: "Joueur_" + socket.id.substring(0, 4),
                 deck: userState.deck,
                 equipments: userState.athleteEquipments,
                 ovr: averageOvr
