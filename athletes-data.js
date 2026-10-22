@@ -43,6 +43,9 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             { id: 'v_bolt', name: "Usain Bolt", sport: 'Athlétisme', rarity: 'Vintage', rarityId: R_VINTAGE, score: 'VINTAGE', wikiSlug: "Usain_Bolt", price: 15000, country: 'JM' },
             { id: 'v_federer', name: "Roger Federer", sport: 'Tennis', rarity: 'Vintage', rarityId: R_VINTAGE, score: 'VINTAGE', wikiSlug: "Roger_Federer", price: 15000, country: 'ch' },
             { id: 'v_senna', name: "Ayrton Senna", sport: 'F1', rarity: 'Vintage', rarityId: R_VINTAGE, score: 'VINTAGE', wikiSlug: "Ayrton_Senna", price: 15000, country: 'BR' }
+            { id: 'v_phelps', name: "Michael Phelps", sport: 'F1', rarity: 'Vintage', rarityId: R_VINTAGE, score: 'VINTAGE', wikiSlug: "Michael_Phelps", price: 15000, country: 'BR' }
+            { id: 'v_carter', name: "Dan Carter", sport: 'F1', rarity: 'Vintage', rarityId: R_VINTAGE, score: 'VINTAGE', wikiSlug: "Dan_Carter", price: 15000, country: 'BR' }
+            { id: 'v_Karabatic', name: "Nikola Karabatic", sport: 'F1', rarity: 'Vintage', rarityId: R_VINTAGE, score: 'VINTAGE', wikiSlug: "Nikola_Karabatic", price: 15000, country: 'BR' }
         ];
 
         // RÈGLES : ne jamais renommer un athlète sans mettre son ANCIEN nom en 7e colonne (id stable).
