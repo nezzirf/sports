@@ -43,7 +43,7 @@
         .a2{width:44vw;height:44vw;right:-10vw;bottom:-14vw;background:#0ea5e9;animation:drift2 32s ease-in-out infinite alternate}
         .a3{width:34vw;height:34vw;left:38vw;top:30vh;background:#ec4899;opacity:.22;animation:drift3 36s ease-in-out infinite alternate}
         @keyframes drift1{to{transform:translate(9vw,7vw) scale(1.15)}}
-        @keyframes drift2{to{transform:translate(-8vw,-6vw) scale(1.1)}}
+        @keyframes drift2{to{transform:translate(-8vw,-6vw) scale(.85)}}
         @keyframes drift3{to{transform:translate(6vw,-8vw) scale(.85)}}
         .bg-dots{position:absolute;inset:0;background:radial-gradient(rgba(255,255,255,.07) 1.2px,transparent 1.6px) 0 0/28px 28px}
         .bg-dots::after{content:"";position:absolute;inset:0;background:radial-gradient(rgba(253,224,71,.95) 1.6px,transparent 2.2px) 0 0/28px 28px;
@@ -528,11 +528,47 @@
                     </h3>
                     <div id="active-deck-slots" class="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 relative z-10"></div>
                 </div>
+
+                <!-- SECTION SÉLECTION DE CARTES AVEC BARRE DE FILTRES -->
                 <div class="textured-panel p-6 rounded-3xl space-y-4">
                     <h4 class="text-sm font-bold font-sport uppercase text-amber-300 flex items-center gap-2">
                         <i class="fa-solid fa-plus-circle"></i> Ajouter un athlète possédé
                     </h4>
-                    <div id="deck-quick-add-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-h-[55vh] overflow-y-auto pr-2"></div>
+
+                    <!-- BARRE DE FILTRES DÉDIÉE À L'ÉQUIPE -->
+                    <div class="bg-slate-950/80 p-4 rounded-2xl space-y-3 border border-slate-800">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800/50 pb-3">
+                            <div class="flex flex-wrap items-center gap-3 w-full">
+                                <div class="relative w-full sm:w-48">
+                                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-xs"></i>
+                                    <input id="deck-search-input" oninput="renderDeckQuickAdd()" type="text" placeholder="Rechercher un titulaire..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white outline-none focus:border-cyan-500 transition-colors">
+                                </div>
+                                <select id="deck-country-select-filter" onchange="renderDeckQuickAdd()" class="bg-slate-900 border border-slate-700 text-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
+                                    <option value="all">Toutes nationalités</option>
+                                </select>
+                                <select id="deck-sort-order-select" onchange="renderDeckQuickAdd()" class="bg-slate-900 border border-slate-700 text-cyan-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
+                                    <option value="desc">Note : Plus haut au plus bas</option>
+                                    <option value="asc">Note : Plus bas au plus haut</option>
+                                    <option value="name">Nom : A à Z</option>
+                                </select>
+                                <button onclick="toggleDeckFavFilter()" id="btn-toggle-deck-fav" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition">★ Favoris</button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1" id="deck-sports-tabs-bar"></div>
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1" id="deck-rarity-filters-bar">
+                            <button onclick="switchDeckRarityFilter('all')" class="deck-rarity-pill px-3 py-1 bg-cyan-500 text-slate-950 rounded-lg text-xs font-bold whitespace-nowrap transition">Toutes raretés</button>
+                            <button onclick="switchDeckRarityFilter('Mythique')" class="deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-pink-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Mythiques</button>
+                            <button onclick="switchDeckRarityFilter('Légendaire')" class="deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-yellow-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Légendaires</button>
+                            <button onclick="switchDeckRarityFilter('Ultra rare')" class="deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-orange-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Ultra rares</button>
+                            <button onclick="switchDeckRarityFilter('Rare')" class="deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-sky-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Rares</button>
+                            <button onclick="switchDeckRarityFilter('Peu commune')" class="deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-emerald-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Peu communes</button>
+                            <button onclick="switchDeckRarityFilter('Commune')" class="deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Communes</button>
+                            <button onclick="switchDeckRarityFilter('Vintage')" class="deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-amber-500 rounded-lg text-xs font-bold whitespace-nowrap transition">Vintage</button>
+                        </div>
+                    </div>
+
+                    <div id="deck-quick-add-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-h-[55vh] overflow-y-auto pr-2 pt-2"></div>
                 </div>
             </section>
 
@@ -773,6 +809,9 @@
         }
 
         let currentSportTab = 'all', currentRarityFilter = 'all', showOwnedOnly = false;
+        /* Variables de filtres dédiées à l'équipe */
+        let currentDeckSportTab = 'all', currentDeckRarityFilter = 'all', showDeckFavOnly = false;
+
         let userState = { collection: {}, deck: [null, null, null, null, null], packsCount: 20, lastPackTime: Date.now(), sportsPoints: 0, ownedEquipments: [], athleteEquipments: {}, totalPacksOpened: 0 };
         let currentPackCards = [], currentCardIndex = 0, isOpening = false;
         const MAX_PACKS = 20, REFILL_INTERVAL_MS = 3600 * 1000;
@@ -931,8 +970,13 @@
             }
             userState = main || migrateState({});
             try {
-                const sel = document.getElementById('country-select-filter'), dn = new Intl.DisplayNames(['fr'], { type: 'region' }), sp = { 'GB-ENG': 'Angleterre', 'GB-SCT': 'Écosse', 'GB-WLS': 'Pays de Galles' };
-                [...new Set(allCardsData.map(c => c.country))].map(c => { let n = c; try { n = sp[c] || dn.of(c); } catch(e) {} return [c, n]; }).sort((a, b) => a[1].localeCompare(b[1], 'fr')).forEach(([c, n]) => sel.add(new Option(n + ' (' + c + ')', c)));
+                const selCollection = document.getElementById('country-select-filter');
+                const selDeck = document.getElementById('deck-country-select-filter');
+                const dn = new Intl.DisplayNames(['fr'], { type: 'region' }), sp = { 'GB-ENG': 'Angleterre', 'GB-SCT': 'Écosse', 'GB-WLS': 'Pays de Galles' };
+                [...new Set(allCardsData.map(c => c.country))].map(c => { let n = c; try { n = sp[c] || dn.of(c); } catch(e) {} return [c, n]; }).sort((a, b) => a[1].localeCompare(b[1], 'fr')).forEach(([c, n]) => {
+                    if (selCollection) selCollection.add(new Option(n + ' (' + c + ')', c));
+                    if (selDeck) selDeck.add(new Option(n + ' (' + c + ')', c));
+                });
             } catch(e) {}
             
             if (!userState.ownedEquipments || !Array.isArray(userState.ownedEquipments)) userState.ownedEquipments = [];
@@ -942,6 +986,7 @@
             initPackSystem();
             saveUser();
             renderSportTabsBar();
+            renderDeckSportTabsBar();
             fillTargetValues();
             renderEquipmentShop();
             renderVintageShop();
@@ -1022,7 +1067,7 @@
 
         function switchSportTab(sport) {
             currentSportTab = sport;
-            document.querySelectorAll('.sport-pill').forEach(b => b.className = "sport-pill px-4 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold whitespace-nowrap transition");
+            document.querySelectorAll('#sports-tabs-bar .sport-pill').forEach(b => b.className = "sport-pill px-4 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold whitespace-nowrap transition");
             const activeBtn = document.getElementById(sport === 'all' ? 'sport-pill-all' : `sport-pill-${sport.replace(/\s+/g, '-')}`);
             if (activeBtn) activeBtn.className = "sport-pill px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cyan-500 text-slate-950 shadow transition";
             displayedCardLimit = 24; renderCardsCatalogue();
@@ -1030,7 +1075,7 @@
 
         function switchRarityFilter(rarity) {
             currentRarityFilter = rarity;
-            document.querySelectorAll('.rarity-pill').forEach(b => { b.className = "rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold whitespace-nowrap transition"; });
+            document.querySelectorAll('#rarity-filters-bar .rarity-pill').forEach(b => { b.className = "rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold whitespace-nowrap transition"; });
             event.currentTarget.className = "rarity-pill px-3 py-1 bg-cyan-500 text-slate-950 rounded-lg text-xs font-bold whitespace-nowrap transition";
             displayedCardLimit = 24; renderCardsCatalogue();
         }
@@ -1039,6 +1084,39 @@
             showOwnedOnly = !showOwnedOnly;
             document.getElementById('btn-toggle-owned').className = showOwnedOnly ? "px-3 py-1.5 bg-cyan-600 border border-cyan-500 text-white rounded-xl text-xs font-bold transition whitespace-nowrap" : "px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition whitespace-nowrap";
             displayedCardLimit = 24; renderCardsCatalogue();
+        }
+
+        /* --- FILTRES DÉDIÉS À MON ÉQUIPE --- */
+        function renderDeckSportTabsBar() {
+            const container = document.getElementById('deck-sports-tabs-bar');
+            if (!container) return;
+            let html = `<button onclick="switchDeckSportTab('all')" id="deck-sport-pill-all" class="deck-sport-pill px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cyan-500 text-slate-950 shadow transition">Tous</button>`;
+            sportsNames.forEach(sport => {
+                html += `<button onclick="switchDeckSportTab('${sport}')" id="deck-sport-pill-${sport.replace(/\s+/g, '-')}" class="deck-sport-pill px-4 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold whitespace-nowrap transition">${sport}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function switchDeckSportTab(sport) {
+            currentDeckSportTab = sport;
+            document.querySelectorAll('.deck-sport-pill').forEach(b => b.className = "deck-sport-pill px-4 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold whitespace-nowrap transition");
+            const activeBtn = document.getElementById(sport === 'all' ? 'deck-sport-pill-all' : `deck-sport-pill-${sport.replace(/\s+/g, '-')}`);
+            if (activeBtn) activeBtn.className = "deck-sport-pill px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cyan-500 text-slate-950 shadow transition";
+            renderDeckQuickAdd();
+        }
+
+        function switchDeckRarityFilter(rarity) {
+            currentDeckRarityFilter = rarity;
+            document.querySelectorAll('.deck-rarity-pill').forEach(b => { b.className = "deck-rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold whitespace-nowrap transition"; });
+            event.currentTarget.className = "deck-rarity-pill px-3 py-1 bg-cyan-500 text-slate-950 rounded-lg text-xs font-bold whitespace-nowrap transition";
+            renderDeckQuickAdd();
+        }
+
+        function toggleDeckFavFilter() {
+            showDeckFavOnly = !showDeckFavOnly;
+            const b = document.getElementById('btn-toggle-deck-fav');
+            if (b) b.classList.toggle('text-amber-300', showDeckFavOnly);
+            renderDeckQuickAdd();
         }
 
         function updateUI() {
@@ -1506,9 +1584,39 @@
         async function renderDeckQuickAdd() {
             const container = document.getElementById('deck-quick-add-container');
             if (!container) return;
-            const owned = allCardsData.filter(a => userState.collection[a.id] > 0 && !userState.deck.includes(a.id));
-            if (owned.length === 0) { container.innerHTML = `<p class="text-sm text-slate-500 col-span-full py-4 text-center">Aucun athlète disponible.</p>`; return; }
-            owned.sort((a, b) => b.rarityId - a.rarityId);
+
+            const searchInput = document.getElementById('deck-search-input');
+            const countryFilterInput = document.getElementById('deck-country-select-filter');
+            const sortOrderInput = document.getElementById('deck-sort-order-select');
+
+            const search = searchInput ? norm(searchInput.value) : '';
+            const countryFilter = countryFilterInput ? countryFilterInput.value : 'all';
+            const sortOrder = sortOrderInput ? sortOrderInput.value : 'desc';
+
+            let owned = allCardsData.filter(athlete => {
+                if ((userState.collection[athlete.id] || 0) <= 0) return false;
+                if (userState.deck.includes(athlete.id)) return false;
+                if (search && !norm(athlete.name).includes(search)) return false;
+                if (currentDeckSportTab !== 'all' && athlete.sport !== currentDeckSportTab) return false;
+                if (currentDeckRarityFilter !== 'all' && athlete.rarity !== currentDeckRarityFilter) return false;
+                if (countryFilter !== 'all' && athlete.country !== countryFilter) return false;
+                if (showDeckFavOnly && !(userState.favorites || {})[athlete.id]) return false;
+                return true;
+            });
+
+            if (owned.length === 0) { 
+                container.innerHTML = `<p class="text-sm text-slate-500 col-span-full py-4 text-center">Aucun athlète disponible correspondant aux critères.</p>`; 
+                return; 
+            }
+
+            owned.sort((a, b) => {
+                if (sortOrder === 'name') return a.name.localeCompare(b.name);
+                const scoreA = a.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(a);
+                const scoreB = b.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(b);
+                if (sortOrder === 'asc') return (scoreA !== scoreB) ? scoreA - scoreB : a.rarityId - b.rarityId;
+                return (scoreA !== scoreB) ? scoreB - scoreA : b.rarityId - a.rarityId;
+            });
+
             const cardsHtmlList = await Promise.all(owned.map(async (athlete) => {
                 const photoUrl = await fetchWikiPhoto(athlete.wikiSlug);
                 return `<div onclick="addToDeck('${athlete.id}')" class="w-full cursor-pointer transition-transform hover:scale-105">${getCardHTML(athlete, photoUrl, true, false, false, false, false)}</div>`;
@@ -1644,7 +1752,7 @@
         }
 
         let showFavOnly = false;
-        function toggleFavorite(id) { const f = userState.favorites = userState.favorites || {}; if (f[id]) delete f[id]; else f[id] = 1; saveUser(); renderCardsCatalogue(); }
+        function toggleFavorite(id) { const f = userState.favorites = userState.favorites || {}; if (f[id]) delete f[id]; else f[id] = 1; saveUser(); renderCardsCatalogue(); renderDeckQuickAdd(); }
         function updateFavBtn() {
             const b = document.getElementById('zoom-fav-btn'), id = window._zoomId; if (!b) return;
             const own = !!id && has(id); b.classList.toggle('hidden', !own);
