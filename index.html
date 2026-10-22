@@ -1938,6 +1938,35 @@
             return { is: c => !!kind(c), busy: () => !!S && !S.live, start, stop, skip };
         })();
 
+        /* ===== MODE TEST : ouvre le jeu avec ?test=1 pour forcer une révélation (rien n'est sauvegardé) ===== */
+        if (new URLSearchParams(location.search).has('test')) {
+            const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+            const startTest = list => {
+                MX.stop();
+                currentPackCards = list.map(card => ({ card, isNew: true })); currentCardIndex = 0; packInSummary = false; isOpening = false;
+                document.getElementById('pack-single-card-container').className = "cursor-pointer transition-transform hover:scale-105";
+                document.getElementById('pack-opening-modal').classList.remove('hidden');
+                showCurrentCardInModal();
+            };
+            const fakePack = pool => {
+                if (!pool.length) { showToast('Aucune carte de ce type dans la base.', 'warning'); return; }
+                const base = athletesData.filter(a => a.rarityId < R_LEG);
+                startTest([...Array.from({ length: 4 }, () => pick(base)).sort((a, b) => a.rarityId - b.rarityId), pick(pool)]);
+            };
+            const bar = document.createElement('div');
+            bar.style.cssText = 'position:fixed;right:8px;bottom:calc(5.5rem + env(safe-area-inset-bottom));z-index:44;display:flex;flex-direction:column;gap:6px;align-items:stretch';
+            bar.innerHTML = '<div style="font:700 10px Outfit,sans-serif;letter-spacing:.15em;color:#fbbf24;text-align:center">MODE TEST</div>';
+            [['Pack avec Mythique', () => fakePack(athletesData.filter(a => a.rarityId === R_MYT))],
+             ['Pack avec Vintage', () => fakePack(vintageAthletes)],
+             ['Achat Vintage', () => vintageAthletes.length ? startTest([pick(vintageAthletes)]) : showToast('Aucune carte Vintage.', 'warning')]
+            ].forEach(([label, fn]) => {
+                const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.onclick = fn;
+                b.style.cssText = 'font:700 12px Outfit,sans-serif;padding:8px 12px;border-radius:10px;border:1px solid #f59e0b;background:rgba(3,5,10,.92);color:#fde68a;cursor:pointer';
+                bar.appendChild(b);
+            });
+            document.body.appendChild(bar);
+        }
+
         fillTargetValues();
         initUser();
     </script>
