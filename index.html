@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#03050a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <title>Sports TCG Elite - Jeu de Booster & Équipements</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Rajdhani:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #03050a;
+            color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .font-sport { font-family: 'Rajdhani', sans-serif; }
+        /* ===== FOND ACCUEILLANT INTERACTIF ===== */
+        .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;--mx:50%;--my:40%;--px:0;--py:0;
+            background:radial-gradient(120% 90% at 50% 0%,#15213d 0%,#0a1020 55%,#05070d 100%)}
+        .aurora{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;will-change:transform;
+            translate:calc(var(--px)*45px) calc(var(--py)*45px)}
+        .a1{width:48vw;height:48vw;left:-10vw;top:-14vw;background:#f59e0b;animation:drift1 28s ease-in-out infinite alternate}
+        .a2{width:44vw;height:44vw;right:-10vw;bottom:-14vw;background:#0ea5e9;animation:drift2 32s ease-in-out infinite alternate}
+        .a3{width:34vw;height:34vw;left:38vw;top:30vh;background:#ec4899;opacity:.22;animation:drift3 36s ease-in-out infinite alternate}
+        @keyframes drift1{to{transform:translate(9vw,7vw) scale(1.15)}}
+        @keyframes drift2{to{transform:translate(-8vw,-6vw) scale(1.1)}}
+        @keyframes drift3{to{transform:translate(6vw,-8vw) scale(.85)}}
+        .bg-dots{position:absolute;inset:0;background:radial-gradient(rgba(255,255,255,.07) 1.2px,transparent 1.6px) 0 0/28px 28px}
+        .bg-dots::after{content:"";position:absolute;inset:0;background:radial-gradient(rgba(253,224,71,.95) 1.6px,transparent 2.2px) 0 0/28px 28px;
+            -webkit-mask-image:radial-gradient(circle 210px at var(--mx) var(--my),#000,transparent);mask-image:radial-gradient(circle 210px at var(--mx) var(--my),#000,transparent)}
+        .bg-spot{position:absolute;inset:0;background:radial-gradient(440px circle at var(--mx) var(--my),rgba(251,191,36,.17),rgba(56,189,248,.08) 45%,transparent 70%)}
+        #bg-canvas{position:absolute;inset:0;width:100%;height:100%}
+        @media (prefers-reduced-motion:reduce){.aurora{animation:none}}
+
+        /* ===== ICÔNES D'ÉQUIPEMENTS ===== */
+        .eq-tile{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;flex-shrink:0;
+            background:radial-gradient(circle at 30% 25%,#24406b,#0b1220 75%);border:1px solid rgba(56,189,248,.4);
+            box-shadow:inset 0 0 14px rgba(56,189,248,.15);transition:transform .25s}
+        .eq-tile svg{width:46px;height:46px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+        .textured-panel:hover .eq-tile{transform:scale(1.08) rotate(-4deg)}
+        .eq-mini{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:6px;vertical-align:middle;border-radius:9px;background:#0b1220;border:1px solid rgba(56,189,248,.3)}
+        .eq-mini svg{width:22px;height:22px}
+        .eq-badge svg{width:25px;height:25px}
+        
+        .tab-content { display: none !important; }
+        .tab-content.active { display: block !important; animation: fadeIn 0.2s ease-in-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* EFFET 3D INTERACTIF & CARTES HOLOGRAPHIQUES AMÉLIORÉES (POINT 2) */
+        .pokemon-card {
+            aspect-ratio: 4 / 6;
+            border-radius: 16px;
+            position: relative;
+            box-shadow: 0 16px 35px rgba(0, 0, 0, 0.9), inset 0 0 6px rgba(255, 255, 255, 0.4);
+            transition: box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            border: 6px solid var(--border-color);
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+            cursor: pointer;
+        }
+
+        .card-image-container {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            background-color: #0b0f19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 25%;
+        }
+
+        .pokemon-card.rarity-vintage .card-image-container img {
+            object-position: center center;
+        }
+
+        .card-inner-border {
+            position: absolute;
+            inset: 4px;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .rarity-0 { --border-color: #94a3b8; --rarity-color: #94a3b8; }
+        .rarity-1 { --border-color: #4ade80; --rarity-color: #4ade80; }
+        .rarity-2 { --border-color: #38bdf8; --rarity-color: #38bdf8; }
+        .rarity-3 { --border-color: #fb923c; --rarity-color: #fb923c; }
+        .rarity-4 { --border-color: #facc15; --rarity-color: #facc15; }
+        .rarity-5 { --border-color: #f472b6; --rarity-color: #f472b6; }
+        .rarity-vintage { 
+            --border-color: #d97706; 
+            --rarity-color: #f59e0b; 
+            filter: sepia(0.5) contrast(1.1);
+        }
+
+        .themed-text { color: var(--rarity-color); }
+        .themed-border { border-color: var(--rarity-color); }
+        
+        .name-banner { 
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            background-color: rgba(11, 15, 25, 0.95); 
+            backdrop-filter: blur(4px);
+            box-sizing: border-box;
+            border-top: 2px solid var(--rarity-color);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            z-index: 20;
+            padding: 6px 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Effet Prismatique/Foil amélioré (Point 2) */
+        .holo-sheen {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0) 10%,
+                rgba(56, 189, 248, 0.35) 30%,
+                rgba(250, 204, 21, 0.5) 50%,
+                rgba(244, 114, 182, 0.45) 70%,
+                rgba(255, 255, 255, 0) 90%
+            );
+            background-size: 300% 300%;
+            background-position: 0% 0%;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .pokemon-card:hover .holo-sheen { opacity: 1; }
+
+        /* ===== CADRE MÉTALLIQUE DES CARTES (couleurs de rareté inchangées) ===== */
+        .rarity-0 { --glow: 0px; } .rarity-1 { --glow: 10px; } .rarity-2 { --glow: 16px; }
+        .rarity-3 { --glow: 22px; } .rarity-4 { --glow: 28px; } .rarity-5 { --glow: 34px; } .rarity-vintage { --glow: 14px; }
+
+        .pokemon-card[class*="rarity-"] {
+            --hi: color-mix(in srgb, var(--border-color) 55%, #fff);
+            --lo: color-mix(in srgb, var(--border-color) 40%, #000);
+            border: 5px solid transparent;
+            border-radius: 18px;
+            background:
+                radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255,255,255,calc(var(--gl, 0) * .9)), transparent 42%) border-box,
+                linear-gradient(145deg, var(--hi), var(--border-color) 24%, var(--lo) 50%, var(--border-color) 76%, var(--hi)) border-box;
+            box-shadow: 0 0 0 1px rgba(0,0,0,.9), 0 14px 30px rgba(0,0,0,.8),
+                        0 0 var(--glow) color-mix(in srgb, var(--border-color) 55%, transparent);
+        }
+        .pokemon-card.rarity-3, .pokemon-card.rarity-4, .pokemon-card.rarity-5 {
+            background:
+                radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255,255,255,calc(var(--gl, 0) * .9)), transparent 42%) border-box,
+                conic-gradient(from 200deg, var(--hi), var(--border-color), var(--lo), var(--border-color), var(--hi), var(--border-color), var(--lo), var(--border-color), var(--hi)) border-box;
+        }
+        .pokemon-card[class*="rarity-"]:hover { --gl: 1; }
+        .pokemon-card[class*="rarity-"] .card-image-container { border-radius: 13px; }
+        .pokemon-card[class*="rarity-"] .card-inner-border {
+            inset: 0; border: 0; border-radius: 13px;
+            box-shadow: inset 0 0 0 2px rgba(0,0,0,.92), inset 0 0 0 3px color-mix(in srgb, var(--hi) 50%, transparent), inset 0 0 26px rgba(0,0,0,.6);
+        }
+        .pokemon-card[class*="rarity-"] .themed-border {
+            border-color: transparent; border-radius: 12px;
+            background: linear-gradient(rgba(10,15,28,.96), rgba(10,15,28,.96)) padding-box,
+                        linear-gradient(145deg, var(--hi), var(--border-color) 45%, var(--lo)) border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.12);
+        }
+        .pokemon-card[class*="rarity-"] .themed-text { text-shadow: 0 0 8px color-mix(in srgb, var(--rarity-color) 60%, transparent); }
+        .pokemon-card[class*="rarity-"] .name-banner {
+            border-top: 0; padding-top: 11px;
+            border-bottom-left-radius: 13px; border-bottom-right-radius: 13px;
+            background: linear-gradient(180deg, rgba(8,11,20,.7), rgba(5,7,13,.97) 45%);
+            backdrop-filter: blur(6px);
+        }
+        .pokemon-card[class*="rarity-"] .name-banner::before {
+            content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border-color) 20%, var(--hi) 50%, var(--border-color) 80%, transparent);
+            box-shadow: 0 0 10px var(--border-color);
+        }
+        .pokemon-card[class*="rarity-"] .name-banner span::before {
+            content: ""; display: inline-block; width: 5px; height: 5px; margin-right: 4px;
+            transform: rotate(45deg); background: var(--rarity-color); box-shadow: 0 0 6px var(--rarity-color);
+        }
+
+        /* --- STYLES ADAPTATIFS POUR LE BOOSTER --- */
+        .booster-3d-wrapper {
+            perspective: 1200px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            width: 310px;
+            max-width: 85vw;
+            height: 520px;
+            max-height: 70vh;
+        }
+
+        .booster-container-hover {
+            width: 100%;
+            height: 100%;
+            position: relative;            
+            background: transparent !important;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .booster-container-hover:hover { transform: rotateY(8deg) rotateX(4deg) translateY(-8px); }
+
+        .custom-booster-pack {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: transparent !important;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.85));
+        }
+
+        .booster-bg-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block;
+            background: transparent !important;
+        }
+
+        .crimp-seal-top-severed {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 40;
+            pointer-events: none;
+            background: transparent !important;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 45px, 85% 55px, 70% 48px, 55% 58px, 40% 46px, 25% 56px, 10% 48px, 0% 55px);
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+        }
+
+        .crimp-seal-top-severed img {
+            width: 100%; height: 100%;
+            object-fit: cover !important;
+            position: absolute; top: 0; left: 0;
+            background: transparent !important;
+        }
+
+        .booster-body-severed {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+            background: transparent !important;
+            clip-path: polygon(0% 55px, 10% 48px, 25% 56px, 40% 46px, 55% 58px, 70% 48px, 85% 55px, 100% 45px, 100% 100%, 0% 100%);
+        }
+
+        .booster-body-severed img {
+            width: 100%; height: 100%;
+            object-fit: cover !important;
+            background: transparent !important;
+        }
+
+        .cutting-laser {
+            position: absolute; top: 48px; left: 0; height: 4px; width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #ffffff, #f59e0b);
+            box-shadow: 0 0 15px #ffffff, 0 0 25px #f59e0b;
+            z-index: 50; pointer-events: none; opacity: 0;
+        }
+
+        .anim-cut-laser { animation: laserCut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes laserCut {
+            0% { width: 0%; opacity: 1; }
+            80% { width: 100%; opacity: 1; }
+            100% { width: 100%; opacity: 0; }
+        }
+
+        .anim-top-tear { animation: topTearAway 0.6s 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; }
+        @keyframes topTearAway {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-40px) translateX(25px) rotate(15deg); opacity: 0.9; }
+            100% { transform: translateY(-100px) translateX(60px) rotate(32deg); opacity: 0; }
+        }
+
+        .anim-pack-open { animation: packOpenGlow 0.6s 0.2s ease-out forwards; }
+        @keyframes packOpenGlow {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(2) drop-shadow(0 0 45px rgba(56, 189, 248, 0.95)); }
+            100% { filter: brightness(1); }
+        }
+
+        .textured-panel { background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(3, 7, 18, 0.95) 100%); border: 1px solid rgba(255, 255, 255, 0.08); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #03050a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    
+        /* ===== OPTIMISATIONS SMARTPHONE : tout est limité aux écrans < 768px, l'affichage PC ne change pas ===== */
+        @media (max-width: 767px) {
+            body.h-screen { height: 100dvh; }
+            * { -webkit-tap-highlight-color: transparent; }
+            button, [onclick], select, label { touch-action: manipulation; }
+            input, select, textarea { font-size: 16px !important; }
+            #main-scroll-container { overscroll-behavior-y: contain; padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)) !important; }
+            /* En-tête compact : logo + compteurs sur une ligne */
+            aside > div:first-child { flex-direction: row !important; align-items: center !important; gap: .5rem; padding: .5rem .75rem !important; padding-top: calc(.5rem + env(safe-area-inset-top)) !important; }
+            aside > div:first-child > * { margin: 0 !important; }
+            aside > div:first-child > div:first-child { width: auto !important; flex: none; }
+            aside > div:first-child > div:first-child > div:last-child { display: none; }
+            aside > div:first-child > div:first-child > div:first-child { width: 2.25rem; height: 2.25rem; }
+            aside > div:first-child > div:last-child { flex: 1; display: flex; gap: .4rem; }
+            aside > div:first-child > div:last-child > div { flex: 1; padding: .3rem .5rem !important; margin: 0 !important; }
+            /* Son + sauvegarde : une seule ligne */
+            aside > div:last-child { flex-direction: row !important; gap: .4rem; padding: .3rem .75rem !important; }
+            aside > div:last-child > * { margin: 0 !important; flex: 1; }
+            /* Navigation : barre d'onglets fixée en bas (accessible au pouce) */
+            aside nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; padding: .35rem .5rem calc(.35rem + env(safe-area-inset-bottom)) !important; gap: .25rem !important; overflow: visible !important; background: rgba(8,11,18,.96); border-top: 1px solid #1e293b; backdrop-filter: blur(10px); }
+            aside nav .main-tab-btn { flex: 1; flex-direction: column; justify-content: center !important; gap: .15rem; padding: .4rem .15rem !important; min-height: 54px; font-size: 10px !important; letter-spacing: 0 !important; line-height: 1.1; text-align: center; }
+            aside nav .main-tab-btn > * { margin: 0 !important; }
+            aside nav .main-tab-btn i { font-size: 1.15rem; }
+            #toast-container { left: 0 !important; right: 0 !important; margin: 0 auto; top: calc(.5rem + env(safe-area-inset-top)) !important; }
+            /* Allègement : moins d'effets coûteux pour la batterie */
+            .aurora { filter: blur(40px) !important; animation: none !important; }
+            .bg-dots, .bg-spot { display: none; }
+            .name-banner, .pokemon-card[class*="rarity-"] .name-banner { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+            .pokemon-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+            .pokemon-card img { -webkit-user-drag: none; pointer-events: none; }
+            #pack-opening-modal, #card-zoom-modal, #save-modal { padding-top: calc(1rem + env(safe-area-inset-top)); padding-bottom: calc(1rem + env(safe-area-inset-bottom)); overflow-y: auto; }
+        }
+    
+        /* ===== v4 : effets de rareté, accessibilité, écran d'ouverture ===== */
+        :focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+        #pack-opening-modal { overflow-y: auto; justify-content: safe center; }
+        .fx-flash { position: absolute; inset: 0; pointer-events: none; z-index: 5; background: radial-gradient(circle at 50% 45%, var(--fx), transparent 65%); animation: fxflash .9s ease-out forwards; }
+        @keyframes fxflash { 0% { opacity: .85; } 100% { opacity: 0; } }
+        .fx-shake { animation: fxshake .6s; }
+        @keyframes fxshake { 10%, 90% { transform: translate(-2px, 1px); } 30%, 70% { transform: translate(4px, -3px); } 50% { transform: translate(-5px, 3px); } }
+        @media (prefers-reduced-motion: reduce) { .fx-flash, .fx-shake { animation: none; } }
+        @media (max-width: 767px) { [class*="text-[8px]"] { font-size: 10px !important; } [class*="text-[9px]"] { font-size: 10.5px !important; } }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen selection:bg-cyan-500 selection:text-white">
+    <div class="bg-scene" aria-hidden="true"><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div><div class="bg-dots"></div><div class="bg-spot"></div><canvas id="bg-canvas"></canvas></div>
+
+    <!-- CONTENEUR DES NOTIFICATIONS TOAST -->
+    <div id="toast-container" role="status" aria-live="polite" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4"></div>
+
+    <!-- BARRE LATÉRALE GAUCHE -->
+    <aside class="w-full md:w-72 bg-[#080b12] border-b md:border-b-0 md:border-r border-slate-800 flex flex-col z-30 shrink-0 shadow-2xl relative">
+        <div class="p-6 border-b border-slate-800/80 flex flex-col items-center md:items-start space-y-4">
+            <div class="flex items-center space-x-3 w-full justify-center md:justify-start">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
+                    <i class="fa-solid fa-bolt text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wider uppercase font-sport text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 leading-tight">SPORTS TCG</h1>
+                    <p class="text-[10px] text-slate-400 font-medium">ATHLÈTES &amp; LÉGENDES</p>
+                </div>
+            </div>
+            
+            <div class="w-full space-y-2">
+                <!-- COMPTEUR DE SPORTS POINTS -->
+                <div class="w-full bg-slate-900 border border-amber-500/30 px-3 py-2 rounded-xl flex items-center justify-between shadow-inner">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-coins"></i><span class="hidden sm:inline">Sports Points</span></span>
+                    <span id="sports-points-display" class="font-mono font-black text-amber-300 text-sm">0 SP</span>
+                </div>
+                <!-- COMPTEUR DE CARTES POSSÉDÉES DANS LE MENU LATÉRAL -->
+                <div class="w-full bg-slate-900 border border-cyan-500/30 px-3 py-2 rounded-xl flex items-center justify-between shadow-inner">
+                    <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5"><i class="fa-solid fa-layer-group"></i><span class="hidden sm:inline">Cartes possédées</span></span>
+                    <span id="sidebar-cards-count-badge" class="font-mono font-black text-cyan-300 text-sm">0/0</span>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex md:flex-col gap-2 p-4 overflow-x-auto md:overflow-visible flex-grow md:flex-grow-0">
+            <button onclick="switchMainTab('tab-boosters')" id="nav-tab-boosters" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition-all shrink-0">
+                <i class="fa-solid fa-box-open w-5 text-center"></i><span>Ouvrir Boosters</span>
+            </button>
+            <button onclick="switchMainTab('tab-vintage')" id="nav-tab-vintage" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
+                <i class="fa-solid fa-store w-5 text-center text-amber-400"></i><span>Boutique</span>
+            </button>
+            <button onclick="switchMainTab('tab-goals')" id="nav-tab-goals" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
+                <i class="fa-solid fa-trophy w-5 text-center text-yellow-400"></i><span>Objectifs</span>
+            </button>
+            <button onclick="switchMainTab('tab-deck')" id="nav-tab-deck" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
+                <i class="fa-solid fa-users w-5 text-center"></i><span>Mon Équipe</span>
+            </button>
+            <button onclick="switchMainTab('tab-collection')" id="nav-tab-collection" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
+                <i class="fa-solid fa-book-open w-5 text-center"></i><span>Collection & Stats</span>
+            </button>
+        </nav>
+
+        <!-- OPTIONS AUDIO & SAUVEGARDE CLOUD -->
+        <div class="p-4 border-t border-slate-800/80 flex flex-col space-y-2">
+            <button onclick="toggleAudio()" id="btn-toggle-audio" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-volume-high text-cyan-400" id="audio-icon"></i> <span id="audio-text">Son : Activé</span>
+            </button>
+
+            <button onclick="openSaveModal()" class="w-full px-3 py-2 bg-slate-900 border border-cyan-500/40 hover:bg-slate-800 text-cyan-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"><i class="fa-solid fa-shield-halved text-cyan-400"></i> Sauvegarde &amp; restauration</button>
+        </div>
+    </aside>
+
+    <!-- ZONE PRINCIPALE -->
+    <main class="flex-1 h-full overflow-y-auto relative z-10 p-4 md:p-8" id="main-scroll-container">
+        
+        <div class="w-full max-w-7xl mx-auto relative z-10">
+            
+            <!-- ONGLET 1: BOOSTERS -->
+            <section id="tab-boosters" class="tab-content active w-full">
+                <div class="flex flex-col items-center mb-4 space-y-2">
+                    <div class="bg-slate-900/80 border border-slate-700/80 px-6 py-2.5 rounded-2xl flex items-center gap-4 shadow-xl">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-box-open text-amber-400 text-lg"></i>
+                            <span class="text-sm font-bold font-sport text-white">Paquets dispo :</span>
+                            <span id="pack-count-badge" class="bg-amber-500/20 text-amber-300 font-black px-2.5 py-0.5 rounded-lg border border-amber-500/30 text-sm">0/20</span>
+                        </div>
+                        <div class="h-4 w-[1px] bg-slate-700"></div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-sport">
+                            <i class="fa-regular fa-clock text-cyan-400"></i>
+                            <span>Prochain : <strong id="pack-cooldown-timer" class="text-cyan-300 font-mono">00:00:00</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center min-h-[55vh]">
+                    <div class="booster-3d-wrapper z-10" onclick="startPackOpeningProcess()" role="button" tabindex="0" aria-label="Ouvrir un booster">
+                        <div class="booster-container-hover" id="booster-container">
+                            <div class="custom-booster-pack">
+                                <div id="laser-line" class="cutting-laser"></div>
+                                <div id="booster-top-piece" class="crimp-seal-top-severed">
+                                    <img src="./booster.png" alt="Partie haute" class="booster-bg-img">
+                                </div>
+                                <div id="main-booster-card" class="booster-body-severed">
+                                    <img src="./booster.png" alt="Booster principal" class="booster-bg-img">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="max-w-xl mx-auto w-full space-y-3 mt-2 pb-6">
+                    <button onclick="startPackOpeningProcess(5)" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black font-sport uppercase text-sm shadow-lg"><i class="fa-solid fa-layer-group"></i> Ouvrir 5 boosters d'un coup</button>
+                    <div class="textured-panel p-4 rounded-2xl space-y-2">
+                        <div class="text-sm font-bold font-sport text-cyan-300 uppercase"><i class="fa-solid fa-bullseye"></i> Boosters ciblés (payés en SP)</div>
+                        <div class="flex gap-2">
+                            <select id="target-type" onchange="fillTargetValues()" aria-label="Type de booster ciblé" class="bg-slate-950 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200"><option value="sport">Par sport</option><option value="country">Par pays</option></select>
+                            <select id="target-value" aria-label="Sport ou pays ciblé" class="flex-1 min-w-0 bg-slate-950 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200"></select>
+                        </div>
+                        <button onclick="openTargetedPack()" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs uppercase">Acheter et ouvrir (<span id="target-price">450</span> SP)</button>
+                        <p class="text-[11px] text-slate-400">Les 5 cartes viennent uniquement du sport ou du pays choisi.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ONGLET 1.5: BOUTIQUE & ÉQUIPEMENTS -->
+            <section id="tab-goals" class="tab-content w-full"><div id="goals-content"></div></section>
+
+            <section id="tab-vintage" class="tab-content w-full space-y-8">
+                <!-- SECTION ÉQUIPEMENTS -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <div>
+                            <h2 class="text-2xl font-black font-sport text-cyan-400 tracking-widest uppercase flex items-center gap-2">
+                                <i class="fa-solid fa-shirt"></i> Boutique d'Équipements (+5 OVR)
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Achetez des équipements uniques par sport (500 SP). Un athlète peut porter jusqu'à 2 équipements de son sport.</p>
+                        </div>
+                    </div>
+                    <div id="equipment-shop-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+                </div>
+
+                <!-- SECTION VINTAGE & LÉGENDES -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <div>
+                            <h2 class="text-2xl font-black font-sport text-amber-400 tracking-widest uppercase flex items-center gap-2">
+                                <i class="fa-solid fa-crown"></i> Légendes Vintage
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Acquérez des légendes historiques rarissimes (8 000 SP chacune).</p>
+                        </div>
+                    </div>
+                    <div id="vintage-shop-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 pb-12"></div>
+                </div>
+            </section>
+
+            <!-- ONGLET 2: MON ÉQUIPE -->
+            <section id="tab-deck" class="tab-content w-full space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase">Gestion de l'équipe</h2>
+                    <div class="bg-cyan-500/10 border border-cyan-500/30 px-4 py-1.5 rounded-xl text-cyan-400 font-sport font-bold text-sm">
+                        Moyenne Équipe : <span id="deck-average-ovr" class="text-amber-400 font-black text-base">0</span> OVR
+                    </div>
+                </div>
+                
+                <div id="deck-bonus-info" class="flex flex-wrap items-center gap-2 text-xs bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2"></div>
+                
+                <div class="textured-panel rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                    <h3 class="text-xl font-bold font-sport uppercase tracking-wide text-white flex items-center gap-2 mb-6 relative z-10">
+                        <i class="fa-solid fa-users text-cyan-400"></i> Équipe Titulaire (5 Athlètes)
+                    </h3>
+                    <div id="active-deck-slots" class="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-4 relative z-10"></div>
+                </div>
+                <div class="textured-panel p-6 rounded-3xl space-y-4">
+                    <h4 class="text-sm font-bold font-sport uppercase text-amber-300 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> Ajouter un athlète possédé
+                    </h4>
+                    <!-- GRILLE DE CARTES UNIFORMISÉE -->
+                    <div id="deck-quick-add-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-h-[55vh] overflow-y-auto pr-2"></div>
+                </div>
+            </section>
+
+            <!-- ONGLET 3: COLLECTION & STATS (POINT 3 & 4 INTÉGRÉS) -->
+            <section id="tab-collection" class="tab-content w-full space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-3 gap-4">
+                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase">Base de données globale & Statistiques</h2>
+                    <!-- BOUTON TOUT RECYCLER LES DOUBLONS -->
+                    <button onclick="recycleAllDuplicates()" class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs font-sport uppercase shadow-lg border border-amber-300 flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-coins text-sm"></i> Tout recycler (Doublons)
+                    </button>
+                </div>
+
+                <!-- PANNEAU DE STATISTIQUES GLOBALES (POINT 3) -->
+                <div class="textured-panel p-5 rounded-3xl grid grid-cols-2 sm:grid-cols-4 gap-4 shadow-xl border border-cyan-500/20">
+                    <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-sport uppercase tracking-wider mb-1"><i class="fa-solid fa-box-open text-amber-400 mr-1"></i> Boosters Ouverts</span>
+                        <span id="stat-total-packs" class="text-xl font-black font-mono text-amber-300">0</span>
+                    </div>
+                    <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-sport uppercase tracking-wider mb-1"><i class="fa-solid fa-star text-yellow-400 mr-1"></i> Valeur Collection</span>
+                        <span id="stat-collection-value" class="text-xl font-black font-mono text-yellow-300">0 SP</span>
+                    </div>
+                    <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-sport uppercase tracking-wider mb-1"><i class="fa-solid fa-percent text-cyan-400 mr-1"></i> Taux de Complétion</span>
+                        <span id="stat-completion-rate" class="text-xl font-black font-mono text-cyan-300">0%</span>
+                    </div>
+                    <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex flex-col justify-center items-center text-center">
+                        <span class="text-xs text-slate-400 font-sport uppercase tracking-wider mb-1"><i class="fa-solid fa-trophy text-emerald-400 mr-1"></i> Carte la Plus Rare</span>
+                        <span id="stat-highest-rarity" class="text-xs font-black font-sport text-emerald-300 mt-1 uppercase">Aucune</span>
+                    </div>
+                </div>
+                
+                <!-- Panneau de filtres avancés sticky (POINT 4) -->
+                <div class="textured-panel p-5 rounded-3xl space-y-4 md:sticky md:top-0 z-30 shadow-2xl backdrop-blur-md bg-[#03050a]/95">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/50 pb-4">
+                        <span id="collection-counter-text" class="text-sm text-amber-400 font-black font-sport tracking-wider bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">0 / <span class="total-cards-label">0</span> DÉBLOQUÉS</span>
+                        
+                        <!-- FILTRES AVANCÉS (POINT 4) -->
+                        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <!-- Barre de recherche -->
+                            <div class="relative w-full sm:w-48">
+                                <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-xs"></i>
+                                <input id="search-input" oninput="filterCards()" type="text" placeholder="Rechercher..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white outline-none focus:border-cyan-500 transition-colors">
+                            </div>
+                            <!-- Filtre par Nationalité (POINT 4) -->
+                            <select id="country-select-filter" onchange="filterCards()" class="bg-slate-950 border border-slate-700 text-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
+                                <option value="all">Toutes nationalités</option>
+                            </select>
+                            <!-- Tri Avancé OVR (POINT 4) -->
+                            <select id="sort-order-select" onchange="filterCards()" class="bg-slate-950 border border-slate-700 text-cyan-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
+                                <option value="desc">Note : Plus haut au plus bas</option>
+                                <option value="asc">Note : Plus bas au plus haut</option>
+                                <option value="name">Nom : A à Z</option>
+                            </select>
+                            <!-- Bouton Possédés Uniquement -->
+                            <button onclick="toggleOwnedFilter()" id="btn-toggle-owned" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition whitespace-nowrap">Possédés</button>
+                            <button onclick="toggleFavFilter()" id="btn-toggle-fav" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition">★ Favoris</button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1" id="sports-tabs-bar"></div>
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1" id="rarity-filters-bar">
+                        <button onclick="switchRarityFilter('all')" id="rarity-pill-all" class="rarity-pill px-3 py-1 bg-cyan-500 text-slate-950 rounded-lg text-xs font-bold whitespace-nowrap transition">Toutes raretés</button>
+                        <button onclick="switchRarityFilter('Mythique')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-pink-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Mythiques</button>
+                        <button onclick="switchRarityFilter('Légendaire')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-yellow-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Légendaires</button>
+                        <button onclick="switchRarityFilter('Ultra rare')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-orange-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Ultra rares</button>
+                        <button onclick="switchRarityFilter('Rare')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-sky-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Rares</button>
+                        <button onclick="switchRarityFilter('Peu commune')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-emerald-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Peu communes</button>
+                        <button onclick="switchRarityFilter('Commune')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Communes</button>
+                        <button onclick="switchRarityFilter('Vintage')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-amber-500 rounded-lg text-xs font-bold whitespace-nowrap transition">Vintage</button>
+                    </div>
+                </div>
+                
+                <div id="cards-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 pb-12 mt-6 relative z-10"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal Sauvegarde -->
+    <div id="save-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closeSaveModal()">
+      <div class="bg-slate-900 border border-cyan-500/30 p-5 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto space-y-3 shadow-2xl" onclick="event.stopPropagation()" role="dialog" aria-modal="true">
+        <h3 class="text-lg font-black text-cyan-400 uppercase tracking-wider"><i class="fa-solid fa-shield-halved"></i> Sauvegarde &amp; restauration</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">Ta collection est enregistrée dans ce navigateur (avec des copies automatiques). Pour changer d'appareil ou ne jamais la perdre, copie ton <b>code de sauvegarde</b> et garde-le dans tes notes : il permet de tout récupérer à l'identique.</p>
+        <textarea id="save-code-out" readonly rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-mono text-[10px] text-amber-300"></textarea>
+        <div class="flex gap-2"><button onclick="copySaveCode()" class="flex-1 px-3 py-2 rounded-xl text-xs font-bold transition bg-cyan-500 hover:bg-cyan-400 text-slate-950">Copier le code</button><button onclick="exportSave()" class="flex-1 px-3 py-2 rounded-xl text-xs font-bold transition bg-slate-800 hover:bg-slate-700 text-slate-200">Télécharger .json</button></div>
+        <div class="border-t border-slate-800 pt-3 space-y-2"><div class="text-xs font-bold text-emerald-300">Restaurer ma collection</div>
+          <textarea id="save-code-in" rows="3" placeholder="Colle ici ton code de sauvegarde (STC3…) ou le contenu d'un ancien fichier .json" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-mono text-[10px] text-slate-200"></textarea>
+          <div class="flex gap-2"><button onclick="restoreFromCode()" class="flex-1 px-3 py-2 rounded-xl text-xs font-bold transition bg-emerald-600 hover:bg-emerald-500 text-white">Restaurer le code</button><label class="flex-1 px-3 py-2 rounded-xl text-xs font-bold transition bg-slate-800 hover:bg-slate-700 text-slate-200 text-center cursor-pointer">Importer un fichier<input type="file" accept=".json,application/json" class="hidden" onchange="importSave(event)"></label></div></div>
+        <div class="border-t border-slate-800 pt-3 space-y-1.5"><div class="text-xs font-bold text-amber-300">Sauvegardes retrouvées sur cet appareil</div><div id="save-snapshots" class="space-y-1.5"></div></div>
+        <button onclick="closeSaveModal()" class="w-full px-3 py-2 rounded-xl text-xs font-bold transition bg-slate-800 hover:bg-slate-700 text-slate-300">Fermer</button>
+      </div>
+    </div>
+
+    <!-- Modal Ouverture -->
+    <div id="pack-opening-modal" role="dialog" aria-modal="true" aria-label="Ouverture de booster" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div class="text-center space-y-6 max-w-5xl w-full flex flex-col items-center">
+            <h4 id="pack-progress-title" class="text-lg font-bold font-sport text-cyan-400 uppercase tracking-widest bg-cyan-900/30 px-6 py-2 rounded-full border border-cyan-500/30"></h4>
+            <button id="skip-pack-btn" onclick="showPackSummaryModal()" class="hidden px-4 py-1.5 rounded-xl border border-slate-600 text-slate-300 hover:text-white text-xs font-bold uppercase tracking-wider">Tout révéler</button>
+            <div id="pack-single-card-container" onclick="revealNextCardInPack()" class="cursor-pointer transition-transform hover:scale-105"></div>
+            <button onclick="closePackOpening()" id="finish-pack-btn" class="hidden py-3 px-8 bg-gradient-to-r from-emerald-400 to-emerald-600 text-slate-950 font-black rounded-xl text-sm uppercase shadow-[0_0_20px_rgba(52,211,153,0.3)] hover:scale-105 transition-transform mt-4">Ajouter à la collection</button>
+        </div>
+    </div>
+
+    <!-- Modal Zoom Carte Collection & Équipement -->
+    <div id="card-zoom-modal" role="dialog" aria-modal="true" aria-label="Détail de la carte" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4" onclick="closeZoomModal()">
+        <div class="relative max-w-sm w-full flex flex-col items-center space-y-4 max-h-[85vh] overflow-y-auto pr-1" onclick="event.stopPropagation()">
+            <div id="zoom-card-wrapper" class="w-72 sm:w-80"></div>
+            <!-- Menu de gestion des équipements dans le modal -->
+            <div id="zoom-equipment-panel" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl space-y-3"></div>
+            <button id="zoom-fav-btn" onclick="toggleFavoriteZoom()" class="hidden px-6 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-xl font-bold text-sm border border-amber-500/40 transition"></button>
+            <button onclick="closeZoomModal()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold font-sport text-sm border border-slate-600 transition">Fermer</button>
+        </div>
+    </div>
+
+    <script src="athletes-data.js"></script>
+    <script>
+        if (typeof rawData === 'undefined') { document.body.innerHTML = '<p style="color:#fff;padding:2rem;font-family:sans-serif">Fichier <b>athletes-data.js</b> introuvable : place-le à côté de index.html.</p>'; throw new Error('athletes-data.js manquant'); }
+        
+
+        const sportsNames = ['Football', 'Basketball', 'Cyclisme', 'Tennis', 'F1', 'Rugby', 'Athlétisme', 'Natation', 'Sports de combat', 'Handball'];
+        const raritiesNames = ['Commune', 'Peu commune', 'Rare', 'Ultra rare', 'Légendaire', 'Mythique', 'Vintage'];
+
+        const sportIcons = {
+            'Football': 'fa-futbol', 'Basketball': 'fa-basketball', 'Cyclisme': 'fa-bicycle',
+            'Tennis': 'fa-table-tennis-paddle-ball', 'F1': 'fa-flag-checkered', 'Rugby': 'fa-football',
+            'Athlétisme': 'fa-person-running', 'Natation': 'fa-person-swimming', 'Sports de combat': 'fa-hand-fist', 'Handball': 'fa-volleyball'
+        };
+
+        const maxScorePerSport = {};
+        sportsNames.forEach((sport, idx) => {
+            const sportAthletes = rawData.filter(d => d[1] === idx);
+            if (sportAthletes.length > 0) maxScorePerSport[sport] = Math.max(...sportAthletes.map(d => d[3]));
+        });
+
+        const mythicAssigned = {};
+
+        const pid = n => 'p_' + n.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+        const athletesData = rawData.map((d, i) => {
+            const name = d[0];
+            const sport = sportsNames[d[1]];
+            const score = d[3];
+            const wikiSlug = d[4] || name.replace(/ /g, '_');
+            const country = d[5] || 'FR';
+            
+            let rarityId = R_COM;
+            if (score === maxScorePerSport[sport] && !mythicAssigned[sport]) {
+                rarityId = R_MYT; mythicAssigned[sport] = true;
+            } else if (score >= 96) rarityId = R_LEG;
+            else if (score >= 92) rarityId = R_ULT;
+            else if (score >= 89) rarityId = R_RAR;
+            else if (score >= 87) rarityId = R_PEU;
+            else rarityId = R_COM;
+
+            return { id: pid(d[6] || name), name: name, sport: sport, rarity: raritiesNames[rarityId], rarityId: rarityId, score: score, wikiSlug: wikiSlug, country: country };
+        });
+
+        const allCardsData = [...athletesData, ...vintageAthletes];
+        // Anciens ids (a_0, a_1…) -> ids stables. Garde-fou : l'ordre des 749 premiers athlètes ne doit jamais changer.
+        const LEGACY_MAP = {}; rawData.slice(0, 749).forEach((d, i) => { LEGACY_MAP['a_' + i] = pid(d[6] || d[0]); });
+        (() => { let h = 2166136261; for (const d of rawData.slice(0, 749)) for (const ch of d[0]) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+            if ((h >>> 0).toString(36) !== 'nq5fll') console.error("L'ordre des 749 premiers athlètes a changé : les anciennes sauvegardes seraient mal migrées. Ajoute les nouveaux athlètes à la fin de rawData."); })();
+
+        let wikiImageCache = {};
+        try { wikiImageCache = JSON.parse(localStorage.getItem('sports_tcg_img_cache_v7') || '{}'); } catch(e) {}
+
+        let wikiSaveT;
+        function saveWikiCache() { clearTimeout(wikiSaveT); wikiSaveT = setTimeout(() => { try { localStorage.setItem('sports_tcg_img_cache_v7', JSON.stringify(wikiImageCache)); } catch(e) {} }, 500); }
+
+        const fallbackImage = 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80';
+
+        const wikiInflight = new Map(), wikiWaiters = []; let wikiActive = 0;
+        async function wikiSlot() { if (wikiActive >= 6) await new Promise(r => wikiWaiters.push(r)); wikiActive++; }
+        function wikiFree() { wikiActive--; const w = wikiWaiters.shift(); if (w) w(); }
+        // Ne met en cache que les succès et les "vraiment pas de photo" : une erreur réseau / 429 sera retentée.
+        function fetchWikiPhoto(slug) {
+            if (wikiImageCache[slug] !== undefined) return Promise.resolve(wikiImageCache[slug]);
+            if (wikiInflight.has(slug)) return wikiInflight.get(slug);
+            const p = (async () => {
+                await wikiSlot(); let transient = false;
+                try {
+                    for (const lang of ['fr', 'en']) {
+                        try {
+                            const res = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(slug)}`);
+                            if (res.ok) { const d = await res.json(); if (d.type !== 'disambiguation' && d.thumbnail && d.thumbnail.source) { wikiImageCache[slug] = d.thumbnail.source; saveWikiCache(); return d.thumbnail.source; } }
+                            else if (res.status !== 404) transient = true;
+                        } catch (e) { transient = true; }
+                    }
+                } finally { wikiFree(); }
+                if (!transient) { wikiImageCache[slug] = fallbackImage; saveWikiCache(); }
+                return fallbackImage;
+            })();
+            wikiInflight.set(slug, p); p.finally(() => wikiInflight.delete(slug));
+            return p;
+        }
+
+        /* ===== SYSTEME DE NOTIFICATION TOAST ===== */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-xmark text-rose-400',
+                info: 'fa-circle-info text-cyan-400',
+                warning: 'fa-triangle-exclamation text-amber-400'
+            };
+            const borders = {
+                success: 'border-emerald-500/40',
+                error: 'border-rose-500/40',
+                info: 'border-cyan-500/40',
+                warning: 'border-amber-500/40'
+            };
+
+            toast.className = `pointer-events-auto bg-slate-900/95 border ${borders[type] || borders.info} text-white px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 transform transition-all duration-300 translate-y-[-10px] opacity-0 text-xs font-sport tracking-wide`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-lg shrink-0"></i><span class="flex-1 font-medium">${message}</span>`;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        let globalAudioCtx = null;
+        let isAudioMuted = false;
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            const icon = document.getElementById('audio-icon');
+            const text = document.getElementById('audio-text');
+            if (isAudioMuted) {
+                icon.className = "fa-solid fa-volume-xmark text-rose-400";
+                text.textContent = "Son : Coupé";
+            } else {
+                icon.className = "fa-solid fa-volume-high text-cyan-400";
+                text.textContent = "Son : Activé";
+            }
+        }
+
+        function getAudioContext() {
+            if (!globalAudioCtx) globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (globalAudioCtx.state === 'suspended') globalAudioCtx.resume();
+            return globalAudioCtx;
+        }
+
+        function playTearSound() {
+            if (isAudioMuted) return;
+            try {
+                const audioCtx = getAudioContext();
+                const bufferSize = audioCtx.sampleRate * 0.45;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                filter.frequency.linearRampToValueAtTime(3500, audioCtx.currentTime + 0.45);
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0.7, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+                noise.connect(filter); filter.connect(gainNode); gainNode.connect(audioCtx.destination);
+                noise.start();
+            } catch (e) {}
+        }
+
+        function playSparkleSound() {
+            if (isAudioMuted) return;
+            try {
+                const audioCtx = getAudioContext();
+                const notes = [1046.50, 1318.51, 1567.98, 2093.00, 2637.02, 3135.96, 4186.01];
+                notes.forEach((freq, index) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.06);
+                    gain.gain.setValueAtTime(0, audioCtx.currentTime + index * 0.06);
+                    gain.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + index * 0.06 + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + index * 0.06 + 0.35);
+                    osc.connect(gain); gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + index * 0.06);
+                    osc.stop(audioCtx.currentTime + index * 0.06 + 0.4);
+                });
+            } catch (e) {}
+        }
+
+        let currentSportTab = 'all';
+        let currentRarityFilter = 'all';
+        let showOwnedOnly = false;
+        let userState = { 
+            collection: {}, 
+            deck: [null, null, null, null, null], 
+            packsCount: 20, 
+            lastPackTime: Date.now(), 
+            sportsPoints: 0,
+            ownedEquipments: [], 
+            athleteEquipments: {},
+            totalPacksOpened: 0 // Statistique globale
+        };
+        let currentPackCards = []; 
+        let currentCardIndex = 0;
+        let isOpening = false;
+
+        const MAX_PACKS = 20;
+        const REFILL_INTERVAL_MS = 3600 * 1000;
+
+        let displayedCardLimit = 24;
+        let filteredAthletesCache = [];
+
+        /* ===== SAUVEGARDE ROBUSTE (ids stables, migration, copies auto, code de sauvegarde) ===== */
+        const SAVE_KEY = 'sports_tcg_save_v3', BK_KEY = 'sports_tcg_backups', SCHEMA = 3;
+        const LS = { get(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); return true; } catch(e) { return false; } } };
+        const norm = t => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        const richness = st => Object.keys(st.collection).length * 1e6 + (st.totalPacksOpened || 0) * 1e3 + (st.sportsPoints || 0);
+        let DEFAULT_BASE = null;
+        const baseState = () => DEFAULT_BASE ? JSON.parse(JSON.stringify(DEFAULT_BASE)) : { collection: {}, deck: [null, null, null, null, null], packsCount: 20, lastPackTime: Date.now(), sportsPoints: 0, ownedEquipments: [], athleteEquipments: {} };
+        const mid = id => LEGACY_MAP[id] || id;
+
+        // Normalise n'importe quelle sauvegarde (ancienne ou récente) vers le format actuel, sans jamais perdre de données.
+        function migrateState(raw) {
+            const base = baseState(), s = { ...base, ...(raw && typeof raw === 'object' ? raw : {}) };
+            const col = {};
+            for (const [k, v] of Object.entries(s.collection && typeof s.collection === 'object' ? s.collection : {})) { const n = Math.floor(Number(v)); if (n > 0) { const id = mid(k); col[id] = (col[id] || 0) + n; } }
+            s.collection = col;
+            s.deck = Array.from({ length: 5 }, (_, i) => { const d = Array.isArray(s.deck) ? s.deck[i] : null; return d ? mid(d) : null; });
+            const eq = {};
+            for (const [k, v] of Object.entries(s.athleteEquipments && typeof s.athleteEquipments === 'object' ? s.athleteEquipments : {})) if (Array.isArray(v)) eq[mid(k)] = v.filter(x => typeof x === 'string');
+            s.athleteEquipments = eq;
+            s.ownedEquipments = Array.isArray(s.ownedEquipments) ? s.ownedEquipments.filter(x => typeof x === 'string') : [];
+            for (const k of ['packsCount', 'sportsPoints', 'lastPackTime']) { const n = Number(raw && raw[k]); s[k] = Number.isFinite(n) && n >= 0 ? Math.floor(n) : base[k]; }
+            return s;
+        }
+        // Retrouve toutes les sauvegardes présentes sur l'appareil (anciennes versions du jeu + copies auto).
+        function scanSaves() {
+            const out = [], push = (label, raw, t) => { try { const o = typeof raw === 'string' ? JSON.parse(raw) : raw, st = o && o.state ? o.state : o; if (st && typeof st === 'object' && st.collection && typeof st.collection === 'object') out.push({ label, t: t || 0, state: migrateState(st) }); } catch(e) {} };
+            try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && /^sports_tcg_/.test(k) && k !== BK_KEY && !/img_cache|token|last_export/.test(k)) push(k, localStorage.getItem(k)); } } catch(e) {}
+            try { JSON.parse(LS.get(BK_KEY) || '[]').forEach(b => push('auto', b.data, b.t)); } catch(e) {}
+            return out;
+        }
+        function snapshot(force) {
+            try {
+                if (!Object.keys(userState.collection).length) return;
+                const L = JSON.parse(LS.get(BK_KEY) || '[]'), now = Date.now();
+                if (!force && L.length && now - L[0].t < 6 * 3600e3) return;
+                L.unshift({ t: now, data: userState }); LS.set(BK_KEY, JSON.stringify(L.slice(0, 4)));
+            } catch(e) {}
+        }
+        const bytesToB64 = b => { let t = ''; for (let i = 0; i < b.length; i += 8192) t += String.fromCharCode.apply(null, b.subarray(i, i + 8192)); return btoa(t); };
+        const b64ToBytes = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+        const checksum = b => { let h = 2166136261; for (const x of b) { h ^= x; h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); };
+        const pipeBytes = async (b, S) => new Uint8Array(await new Response(new Blob([b]).stream().pipeThrough(new S('deflate-raw'))).arrayBuffer());
+        async function makeSaveCode() {
+            let b = new TextEncoder().encode(JSON.stringify({ app: 'sports-tcg', schema: SCHEMA, state: userState })), p = 'STC3';
+            if (window.CompressionStream) { b = await pipeBytes(b, CompressionStream); p = 'STC3z'; }
+            return p + '.' + checksum(b) + '.' + bytesToB64(b);
+        }
+        async function readSaveCode(code) {
+            const [p, c, d] = code.replace(/\s+/g, '').split('.');
+            if (!/^STC3z?$/.test(p) || !d) throw new Error('format');
+            let b = b64ToBytes(d); if (checksum(b) !== c) throw new Error('checksum');
+            if (p === 'STC3z') b = await pipeBytes(b, DecompressionStream);
+            const o = JSON.parse(new TextDecoder().decode(b)); return o.state || o;
+        }
+        function applyImported(obj, label) {
+            const o = obj && obj.state ? obj.state : obj;
+            if (!o || typeof o !== 'object' || !o.collection || typeof o.collection !== 'object') throw new Error('invalide');
+            const ns = migrateState(o);
+            snapshot(true); // l'ancienne collection reste récupérable dans la liste des sauvegardes
+            userState = ns; saveUser();
+            if (typeof updatePackSystem === 'function') updatePackSystem();
+            showToast(label + ' : ' + Object.keys(ns.collection).length + ' cartes et ' + ns.sportsPoints + ' SP restaurés.', 'success');
+        }
+        async function openSaveModal() {
+            const out = document.getElementById('save-code-out');
+            document.getElementById('save-modal').classList.remove('hidden'); out.value = 'Génération…';
+            try { out.value = await makeSaveCode(); } catch(e) { out.value = 'Erreur : utilise « Télécharger .json »'; }
+            renderSnapshots();
+        }
+        function closeSaveModal() { document.getElementById('save-modal').classList.add('hidden'); }
+        async function copySaveCode() {
+            const t = document.getElementById('save-code-out');
+            try { await navigator.clipboard.writeText(t.value); } catch(e) { t.select(); document.execCommand('copy'); }
+            LS.set('sports_tcg_last_export', Date.now()); showToast('Code copié ! Garde-le dans tes notes.', 'success');
+        }
+        function exportSave() {
+            const blob = new Blob([JSON.stringify({ app: 'sports-tcg', schema: SCHEMA, exportedAt: new Date().toISOString(), state: userState }, null, 1)], { type: 'application/json' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sports-tcg-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json'; a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000); LS.set('sports_tcg_last_export', Date.now());
+        }
+        async function restoreFromCode() {
+            const v = document.getElementById('save-code-in').value.trim(); if (!v) return;
+            try { applyImported(v[0] === '{' ? JSON.parse(v) : await readSaveCode(v), 'Code'); closeSaveModal(); } catch(e) { showToast('Code invalide ou incomplet.', 'error'); }
+        }
+        function importSave(ev) {
+            const f = ev.target.files[0]; if (!f) return; const r = new FileReader();
+            r.onload = e => { try { applyImported(JSON.parse(e.target.result), 'Fichier'); closeSaveModal(); } catch(err) { showToast('Fichier de sauvegarde invalide.', 'error'); } ev.target.value = ''; };
+            r.readAsText(f);
+        }
+        function renderSnapshots() {
+            window._snaps = scanSaves().sort((a, b) => richness(b.state) - richness(a.state));
+            document.getElementById('save-snapshots').innerHTML = window._snaps.map((s, i) => `<div class="flex items-center justify-between gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2 text-[11px]"><span class="text-slate-300">${s.label === SAVE_KEY ? 'Sauvegarde actuelle' : s.label === 'auto' ? 'Copie auto du ' + new Date(s.t).toLocaleString('fr-FR') : 'Ancienne version du jeu'} · ${Object.keys(s.state.collection).length} cartes · ${s.state.sportsPoints} SP</span><button onclick="restoreSnapshot(${i})" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold shrink-0">Restaurer</button></div>`).join('') || '<p class="text-[11px] text-slate-500">Aucune autre sauvegarde trouvée.</p>';
+        }
+        function restoreSnapshot(i) { const s = window._snaps[i]; if (s && confirm('Remplacer la collection actuelle par cette sauvegarde ?')) { applyImported(s.state, 'Sauvegarde'); closeSaveModal(); } }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSaveModal(); if (typeof closeZoomModal === 'function') closeZoomModal(); } });
+
+        
+function initPackSystem() {
+            if (userState.packsCount === undefined) { userState.packsCount = 20; userState.lastPackTime = Date.now(); }
+            if (userState.sportsPoints === undefined) { userState.sportsPoints = 1000; }
+            if (userState.totalPacksOpened === undefined) { userState.totalPacksOpened = 0; }
+            if (!userState.ownedEquipments) { userState.ownedEquipments = []; }
+            if (!userState.athleteEquipments) { userState.athleteEquipments = {}; }
+            updatePackSystem();
+            setInterval(updatePackSystem, 1000);
+        }
+
+        function updatePackSystem() {
+            const now = Date.now();
+            const elapsed = now - (userState.lastPackTime || now);
+
+            if (userState.packsCount < MAX_PACKS) {
+                const packsGagnees = Math.floor(elapsed / REFILL_INTERVAL_MS);
+                if (packsGagnees > 0) {
+                    userState.packsCount = Math.min(MAX_PACKS, userState.packsCount + packsGagnees);
+                    userState.lastPackTime = userState.lastPackTime + (packsGagnees * REFILL_INTERVAL_MS);
+                    if (userState.packsCount === MAX_PACKS) userState.lastPackTime = now;
+                    saveUser();
+                }
+            } else { userState.lastPackTime = now; }
+
+            let timeLeft = 0;
+            if (userState.packsCount < MAX_PACKS) {
+                const timeIntoCurrentInterval = (Date.now() - userState.lastPackTime) % REFILL_INTERVAL_MS;
+                timeLeft = REFILL_INTERVAL_MS - timeIntoCurrentInterval;
+            }
+            renderPackUI(timeLeft);
+        }
+
+        function renderPackUI(timeLeft) {
+            const badge = document.getElementById('pack-count-badge');
+            const timerEl = document.getElementById('pack-cooldown-timer');
+            const spDisplay = document.getElementById('sports-points-display');
+            
+            if (badge) badge.textContent = `${userState.packsCount}/${MAX_PACKS}`;
+            if (spDisplay) spDisplay.textContent = `${userState.sportsPoints} SP`;
+
+            if (timerEl) {
+                if (userState.packsCount >= MAX_PACKS) {
+                    timerEl.textContent = "MAXIMUM";
+                } else {
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                    timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }
+            }
+        }
+
+        function initUser() {
+            DEFAULT_BASE = JSON.parse(JSON.stringify(userState));
+            let main = null;
+            try { const r = LS.get(SAVE_KEY); if (r) { const o = JSON.parse(r); if (o && o.collection) main = migrateState(o); } } catch(e) {}
+            if (!main) { // pas de sauvegarde actuelle : on cherche anciennes versions + copies auto
+                const best = scanSaves().sort((a, b) => richness(b.state) - richness(a.state))[0];
+                if (best) { main = best.state; setTimeout(() => showToast('Ancienne sauvegarde retrouvée : ' + Object.keys(main.collection).length + ' cartes restaurées.', 'success'), 800); }
+            }
+            userState = main || migrateState({});
+            try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e) {}
+            try {
+                const sel = document.getElementById('country-select-filter'), dn = new Intl.DisplayNames(['fr'], { type: 'region' }), sp = { 'GB-ENG': 'Angleterre', 'GB-SCT': 'Écosse', 'GB-WLS': 'Pays de Galles' };
+                [...new Set(allCardsData.map(c => c.country))].map(c => { let n = c; try { n = sp[c] || dn.of(c); } catch(e) {} return [c, n]; }).sort((a, b) => a[1].localeCompare(b[1], 'fr')).forEach(([c, n]) => sel.add(new Option(n + ' (' + c + ')', c)));
+            } catch(e) {}
+            setTimeout(() => { if (Object.keys(userState.collection).length >= 10 && Date.now() - (+LS.get('sports_tcg_last_export') || 0) > 7 * 864e5) showToast('Pense à copier ton code de sauvegarde (menu « Sauvegarde ») pour ne jamais perdre ta collection.', 'success'); }, 5000);
+            
+if (!userState.ownedEquipments || !Array.isArray(userState.ownedEquipments)) userState.ownedEquipments = [];
+            if (!userState.athleteEquipments || typeof userState.athleteEquipments !== 'object') userState.athleteEquipments = {};
+            
+            
+            document.querySelectorAll('.total-cards-label').forEach(el => el.textContent = allCardsData.filter(c => c.rarityId !== R_VINTAGE).length);
+            initPackSystem();
+            saveUser();
+            renderSportTabsBar();
+            renderEquipmentShop();
+            renderVintageShop();
+            updateUI();
+
+            const mainScrollContainer = document.getElementById('main-scroll-container');
+            if (mainScrollContainer) {
+                let isThrottled = false;
+                mainScrollContainer.addEventListener('scroll', () => {
+                    if (isThrottled) return;
+                    isThrottled = true;
+                    setTimeout(() => { isThrottled = false; }, 150);
+
+                    const currentActiveTab = document.querySelector('.tab-content.active');
+                    if (currentActiveTab && currentActiveTab.id === 'tab-collection') {
+                        if (mainScrollContainer.scrollTop + mainScrollContainer.clientHeight >= mainScrollContainer.scrollHeight - 300) {
+                            if (displayedCardLimit < filteredAthletesCache.length) {
+                                displayedCardLimit += 24;
+                                appendCardsCatalogueChunk();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function saveUser() {
+            if (!LS.set(SAVE_KEY, JSON.stringify({ schema: SCHEMA, ...userState })) && !saveUser.warned) { saveUser.warned = true; showToast("Impossible d'enregistrer ici (stockage bloqué ou plein). Copie ton code de sauvegarde !", "error"); }
+            snapshot(false); updateUI();
+        }
+
+        function switchMainTab(tabId) {
+            const mainScrollContainer = document.getElementById('main-scroll-container');
+
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.main-tab-btn').forEach(b => {
+                b.className = "main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent";
+            });
+            
+            const targetSection = document.getElementById(tabId);
+            if (targetSection) targetSection.classList.add('active');
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition-all shrink-0";
+            }
+
+            if (mainScrollContainer) mainScrollContainer.scrollTop = 0;
+
+            if (tabId === 'tab-collection') { displayedCardLimit = 24; renderCardsCatalogue(); updateGlobalStats(); }
+            else if (tabId === 'tab-deck') { renderDeck(); renderDeckQuickAdd(); }
+            else if (tabId === 'tab-vintage') { renderEquipmentShop(); renderVintageShop(); }
+            else if (tabId === 'tab-goals') { renderGoals(); }
+        }
+
+        // MISE À JOUR DES STATISTIQUES GLOBALES (POINT 3)
+        function updateGlobalStats() {
+            const totalPacksEl = document.getElementById('stat-total-packs');
+            const totalValueEl = document.getElementById('stat-collection-value');
+            const completionRateEl = document.getElementById('stat-completion-rate');
+            const highestRarityEl = document.getElementById('stat-highest-rarity');
+
+            if (!totalPacksEl) return;
+
+            const totalCollected = Object.keys(userState.collection).filter(id => {
+                const c = allCardsData.find(x => x.id === id);
+                return c && c.rarityId !== R_VINTAGE;
+            }).length;
+            const totalPossible = athletesData.length;
+            const completionPct = Math.round((totalCollected / totalPossible) * 100);
+
+            // Calcul de la valeur estimée de la collection en SP
+            let collectionValue = 0;
+            let maxRarityFound = "Aucune";
+            let maxRarityRank = -1;
+
+            for (const [cardId, count] of Object.entries(userState.collection)) {
+                if (count > 0) {
+                    const card = allCardsData.find(c => c.id === cardId);
+                    if (card) {
+                        const recycleVal = spRecycleValues[card.rarityId] || 1;
+                        collectionValue += recycleVal * count;
+
+                        if (card.rarityId > maxRarityRank) {
+                            maxRarityRank = card.rarityId;
+                            maxRarityFound = card.rarity;
+                        }
+                    }
+                }
+            }
+
+            totalPacksEl.textContent = userState.totalPacksOpened || 0;
+            totalValueEl.textContent = `${collectionValue} SP`;
+            completionRateEl.textContent = `${completionPct}%`;
+            highestRarityEl.textContent = maxRarityFound;
+        }
+
+        function renderSportTabsBar() {
+            const container = document.getElementById('sports-tabs-bar');
+            if (!container) return;
+            let html = `<button onclick="switchSportTab('all')" id="sport-pill-all" class="sport-pill px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cyan-500 text-slate-950 shadow transition">Tous</button>`;
+            sportsNames.forEach(sport => {
+                html += `<button onclick="switchSportTab('${sport}')" id="sport-pill-${sport.replace(/\s+/g, '-')}" class="sport-pill px-4 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold whitespace-nowrap transition">${sport}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function switchSportTab(sport) {
+            currentSportTab = sport;
+            document.querySelectorAll('.sport-pill').forEach(b => b.className = "sport-pill px-4 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold whitespace-nowrap transition");
+            const activeBtn = document.getElementById(sport === 'all' ? 'sport-pill-all' : `sport-pill-${sport.replace(/\s+/g, '-')}`);
+            if (activeBtn) activeBtn.className = "sport-pill px-4 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cyan-500 text-slate-950 shadow transition";
+            displayedCardLimit = 24;
+            renderCardsCatalogue();
+        }
+
+        function switchRarityFilter(rarity) {
+            currentRarityFilter = rarity;
+            document.querySelectorAll('.rarity-pill').forEach(b => {
+                b.className = "rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold whitespace-nowrap transition";
+            });
+            event.currentTarget.className = "rarity-pill px-3 py-1 bg-cyan-500 text-slate-950 rounded-lg text-xs font-bold whitespace-nowrap transition";
+            displayedCardLimit = 24;
+            renderCardsCatalogue();
+        }
+
+        function toggleOwnedFilter() {
+            showOwnedOnly = !showOwnedOnly;
+            document.getElementById('btn-toggle-owned').innerText = showOwnedOnly ? `Possédés` : "Possédés";
+            document.getElementById('btn-toggle-owned').className = showOwnedOnly ? 
+                "px-3 py-1.5 bg-cyan-600 border border-cyan-500 text-white rounded-xl text-xs font-bold transition whitespace-nowrap" : 
+                "px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition whitespace-nowrap";
+            displayedCardLimit = 24;
+            renderCardsCatalogue();
+        }
+
+        function updateUI() {
+            if (!checkAchievements._busy) { checkAchievements._busy = true; try { checkAchievements(); } finally { checkAchievements._busy = false; } }
+            const totalCollected = Object.keys(userState.collection).filter(id => {
+                const c = allCardsData.find(x => x.id === id);
+                return c && c.rarityId !== R_VINTAGE;
+            }).length;
+            const totalCards = athletesData.length;
+            
+            document.getElementById('collection-counter-text').innerHTML = `${totalCollected} / <span class="total-cards-label">${totalCards}</span> DÉBLOQUÉS`;
+            
+            const sidebarBadge = document.getElementById('sidebar-cards-count-badge');
+            if (sidebarBadge) sidebarBadge.textContent = `${totalCollected}/${totalCards}`;
+
+            const spDisplay = document.getElementById('sports-points-display');
+            if (spDisplay) spDisplay.textContent = `${userState.sportsPoints} SP`;
+
+            if(document.getElementById('tab-collection').classList.contains('active')) {
+                renderCardsCatalogue();
+                updateGlobalStats();
+            }
+            if(document.getElementById('tab-deck').classList.contains('active')) { renderDeck(); renderDeckQuickAdd(); }
+            if(document.getElementById('tab-vintage').classList.contains('active')) { renderEquipmentShop(); renderVintageShop(); }
+        }
+
+        function renderEquipmentShop() {
+            const container = document.getElementById('equipment-shop-container');
+            if (!container) return;
+
+            let html = '';
+            equipmentDefinitions.forEach(eq => {
+                const isOwned = userState.ownedEquipments.includes(eq.id);
+                let equippedToName = null;
+                for (const [athId, eqList] of Object.entries(userState.athleteEquipments)) {
+                    if (Array.isArray(eqList) && eqList.includes(eq.id)) {
+                        const ath = allCardsData.find(a => a.id === athId);
+                        if (ath) equippedToName = ath.name;
+                        break;
+                    }
+                }
+
+                html += `
+                    <div class="textured-panel p-4 rounded-2xl flex flex-col justify-between space-y-3 border border-cyan-500/20 shadow-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="eq-tile">
+                                ${eqSvg(eq.id)}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-base text-white font-sport uppercase leading-tight">${eq.name}</h4>
+                                <p class="text-xs text-cyan-300 font-medium">${eq.sport} • +${eq.bonus} OVR</p>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                            ${isOwned ? `
+                                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                                    ${equippedToName ? `Équipé (${equippedToName})` : 'Dans l\'inventaire'}
+                                </span>
+                            ` : `
+                                <span class="text-xs font-mono font-bold text-amber-400">${eq.price} SP</span>
+                                <button onclick="buyEquipment('${eq.id}', ${eq.price})" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs font-sport uppercase transition">
+                                    Acheter
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function buyEquipment(eqId, price) {
+            if (userState.sportsPoints < price) {
+                showToast(`Sports Points insuffisants ! Il vous faut ${price} SP.`, "error");
+                return;
+            }
+            if (userState.ownedEquipments.includes(eqId)) {
+                showToast("Vous possédez déjà cet équipement !", "warning");
+                return;
+            }
+            userState.sportsPoints -= price;
+            userState.ownedEquipments.push(eqId);
+            saveUser();
+            playSparkleSound();
+            showToast("Équipement acheté avec succès !", "success");
+            renderEquipmentShop();
+        }
+
+        function equipItemToAthlete(athleteId, eqId) {
+            const athlete = allCardsData.find(a => a.id === athleteId);
+            const equipment = equipmentDefinitions.find(e => e.id === eqId);
+            if (!athlete || !equipment) return;
+
+            if (athlete.sport !== equipment.sport) {
+                showToast(`Équipement réservé au sport : ${equipment.sport}`, "warning");
+                return;
+            }
+
+            if (!userState.athleteEquipments[athleteId]) {
+                userState.athleteEquipments[athleteId] = [];
+            }
+
+            for (const [athId, eqList] of Object.entries(userState.athleteEquipments)) {
+                if (Array.isArray(eqList) && eqList.includes(eqId)) {
+                    userState.athleteEquipments[athId] = eqList.filter(id => id !== eqId);
+                }
+            }
+
+            if (userState.athleteEquipments[athleteId].length >= 2) {
+                userState.athleteEquipments[athleteId].shift();
+            }
+
+            userState.athleteEquipments[athleteId].push(eqId);
+            saveUser();
+            playSparkleSound();
+            showToast(`${equipment.name} équipé à ${athlete.name} !`, "success");
+            openZoomCard(athleteId); 
+        }
+
+        function unequipItemFromAthlete(athleteId, eqId) {
+            if (userState.athleteEquipments[athleteId]) {
+                userState.athleteEquipments[athleteId] = userState.athleteEquipments[athleteId].filter(id => id !== eqId);
+                saveUser();
+                showToast("Équipement retiré avec succès.", "info");
+                openZoomCard(athleteId); 
+            }
+        }
+
+        function getAthleteCalculatedScore(athlete) {
+            if (athlete.rarityId === R_VINTAGE) return 'VINTAGE';
+            const eqList = userState.athleteEquipments[athlete.id] || [];
+            let bonus = 0;
+            eqList.forEach(eqId => {
+                const eq = equipmentDefinitions.find(e => e.id === eqId);
+                if (eq) bonus += eq.bonus;
+            });
+            return athlete.score + bonus;
+        }
+
+        async function renderVintageShop() {
+            const container = document.getElementById('vintage-shop-container');
+            if (!container) return;
+            
+            const cardsHtmlList = await Promise.all(vintageAthletes.map(async (vintageCard) => {
+                const isOwned = (userState.collection[vintageCard.id] || 0) > 0;
+                const photoUrl = await fetchWikiPhoto(vintageCard.wikiSlug);
+                
+                return `
+                    <div class="textured-panel p-4 rounded-2xl flex flex-col items-center space-y-4 shadow-xl relative border border-amber-500/20">
+                        <div class="w-48 flex justify-center">
+                            ${getCardHTML(vintageCard, photoUrl, isOwned, false, true, false, false)}
+                        </div>
+                        <div class="w-full text-center space-y-2">
+                            <div class="text-xs font-sport text-amber-400 font-bold uppercase">${vintageCard.name}</div>
+                            <div class="text-[11px] text-slate-400 font-mono">Coût : ${vintageCard.price} SP</div>
+                            ${isOwned ? `
+                                <div class="w-full py-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold font-sport uppercase">Possédé</div>
+                            ` : `
+                                <button onclick="buyVintageCard('${vintageCard.id}', ${vintageCard.price})" class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs font-sport uppercase shadow transition">Acheter</button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }));
+
+            container.innerHTML = cardsHtmlList.join('');
+        }
+
+        async function buyVintageCard(cardId, price) {
+            if (userState.collection[cardId]) { showToast("Tu possèdes déjà cette carte Vintage.", "error"); return; }
+            if (userState.sportsPoints < price) {
+                showToast(`Sports Points insuffisants ! Il vous faut ${price} SP.`, "error");
+                return;
+            }
+            userState.sportsPoints -= price;
+            userState.collection[cardId] = (userState.collection[cardId] || 0) + 1;
+            saveUser();
+            playSparkleSound();
+            showToast("Félicitations ! Légende historique acquise !", "success");
+            renderVintageShop();
+        }
+
+        function rollCard(legChance = 1.5, filterFn = null, forceTier = null) {
+            // Chances par booster-carte : Mythique 0,1 % · Légendaire 1,5 % (+ pitié) · Ultra 6 % · Rare 12 % · Peu commune 20 % · Commune le reste.
+            // Calibré pour que la chance PAR CARTE décroisse bien avec la rareté (Commune > Peu commune > Rare > Ultra > Légendaire > Mythique).
+            const odds = [[R_MYT, 0.1], [R_LEG, legChance], [R_ULT, 6], [R_RAR, 12], [R_PEU, 20]];
+            let tier = R_COM, r = Math.random() * 100, acc = 0;
+            if (forceTier !== null) tier = forceTier; else for (const [id, p] of odds) { acc += p; if (r < acc) { tier = id; break; } }
+            const base = filterFn ? athletesData.filter(filterFn) : athletesData;
+            let pool = [];
+            for (let t = tier; t >= 0 && !pool.length; t--) pool = base.filter(a => a.rarityId === t);
+            if (!pool.length) pool = base.length ? base : athletesData;
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+
+        function startPackOpeningProcess(count = 1, target = null) {
+            if (isOpening) return;
+            if (target) {
+                if (userState.sportsPoints < target.price) { showToast(`Il te faut ${target.price} SP pour ce booster ciblé.`, "error"); return; }
+            } else if (userState.packsCount < count) {
+                showToast(count > 1 ? `Il te faut ${count} paquets pour ouvrir ×${count}.` : "Plus de paquets disponibles ! Attendez le rechargement.", "warning"); return;
+            }
+            const filterFn = target ? (target.type === 'sport' ? a => a.sport === target.value : a => a.country === target.value) : null;
+            if (target) userState.sportsPoints -= target.price;
+            else { const before = userState.packsCount; userState.packsCount -= count; if (before >= MAX_PACKS) userState.lastPackTime = Date.now(); }
+            userState.totalPacksOpened = (userState.totalPacksOpened || 0) + count;
+            isOpening = true;
+            playTearSound();
+
+            const raw = [];
+            for (let p = 0; p < count; p++) { // "pitié" : la chance de Légendaire monte après 8 boosters sans, garantie au 35e
+                const pity = userState.pityLegendary || 0, legChance = 1.5 + Math.max(0, pity - 8) * 0.5, pack = [];
+                for (let i = 0; i < 5; i++) pack.push(rollCard(legChance, filterFn));
+                if (pity >= 34 && !pack.some(c => c.rarityId >= R_LEG)) pack[Math.floor(Math.random() * 5)] = rollCard(1.5, filterFn, R_LEG);
+                userState.pityLegendary = pack.some(c => c.rarityId >= R_LEG) ? 0 : pity + 1;
+                raw.push(...pack);
+            }
+            const seen = {};
+            const dropped = raw.map(card => { const isNew = !((userState.collection[card.id] || 0) > 0 || seen[card.id]); seen[card.id] = 1; return { card, isNew }; });
+            if (dropped.some(d => d.card.rarityId >= R_ULT)) playSparkleSound();
+            dropped.sort((a, b) => a.card.rarityId - b.card.rarityId);
+            dropped.forEach(d => { userState.collection[d.card.id] = (userState.collection[d.card.id] || 0) + 1; });
+            saveUser();
+            updatePackSystem();
+
+            const pack = document.getElementById('main-booster-card');
+            const laser = document.getElementById('laser-line');
+            const topPiece = document.getElementById('booster-top-piece');
+            laser.classList.add('anim-cut-laser');
+            topPiece.classList.add('anim-top-tear');
+            pack.classList.add('anim-pack-open');
+
+            setTimeout(() => {
+                currentPackCards = dropped;
+                currentCardIndex = 0;
+                laser.classList.remove('anim-cut-laser');
+                topPiece.classList.remove('anim-top-tear');
+                pack.classList.remove('anim-pack-open');
+                isOpening = false;
+                document.getElementById('pack-opening-modal').classList.remove('hidden');
+                showCurrentCardInModal();
+            }, 850);
+        }
+
+
+        async function showCurrentCardInModal() {
+            const item = currentPackCards[currentCardIndex];
+            document.getElementById('pack-progress-title').innerText = `Carte ${currentCardIndex + 1} sur ${currentPackCards.length}`;
+            const photoUrl = await fetchWikiPhoto(item.card.wikiSlug);
+            document.getElementById('pack-single-card-container').innerHTML = getCardHTML(item.card, photoUrl, true, false, true, item.isNew, true);
+            document.getElementById('finish-pack-btn').classList.add('hidden');
+            document.getElementById('skip-pack-btn').classList.toggle('hidden', currentPackCards.length < 2);
+            revealFx(item.card.rarityId);
+        }
+
+        async function showPackSummaryModal() {
+            document.getElementById('pack-progress-title').innerText = 'RÉCAPITULATIF DU PACK';
+            const container = document.getElementById('pack-single-card-container');
+            container.className = "grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 w-full my-4 max-w-5xl px-2";
+            container.onclick = null;
+            
+            const cardsHtmlList = await Promise.all(currentPackCards.map(async (item) => {
+                const photoUrl = await fetchWikiPhoto(item.card.wikiSlug);
+                return `<div class="w-full flex items-center justify-center">${getCardHTML(item.card, photoUrl, true, true, false, item.isNew, false)}</div>`;
+            }));
+            
+            container.innerHTML = cardsHtmlList.join('');
+            document.getElementById('finish-pack-btn').classList.remove('hidden');
+            document.getElementById('skip-pack-btn').classList.add('hidden');
+        }
+
+        let revealBusy = false;
+        async function revealNextCardInPack() {
+            if (revealBusy) return; revealBusy = true;
+            try { await revealNextInner(); } finally { revealBusy = false; }
+        }
+        async function revealNextInner() {
+            if (currentCardIndex < currentPackCards.length - 1) {
+                currentCardIndex++;
+                await showCurrentCardInModal();
+            } else { await showPackSummaryModal(); }
+        }
+
+        function closePackOpening() {
+            document.getElementById('pack-opening-modal').classList.add('hidden');
+            const container = document.getElementById('pack-single-card-container');
+            container.className = "cursor-pointer transition-transform hover:scale-105";
+            container.onclick = null;
+            updateUI();
+        }
+
+        async function openZoomCard(athleteId) {
+            const athlete = allCardsData.find(a => a.id === athleteId);
+            if (!athlete) return;
+            window._zoomId = athleteId; updateFavBtn();
+            const photoUrl = await fetchWikiPhoto(athlete.wikiSlug);
+            const isOwned = (userState.collection[athlete.id] || 0) > 0;
+            
+            document.getElementById('zoom-card-wrapper').innerHTML = getCardHTML(athlete, photoUrl, isOwned, false, true, false, false);
+
+            const equipPanel = document.getElementById('zoom-equipment-panel');
+            if (isOwned && athlete.rarityId !== R_VINTAGE) {
+                const eqList = userState.athleteEquipments[athlete.id] || [];
+                const availableForSport = equipmentDefinitions.filter(e => e.sport === athlete.sport && userState.ownedEquipments.includes(e.id));
+
+                let eqHtml = `
+                    <div class="text-xs font-bold text-slate-300 flex items-center justify-between">
+                        <span><i class="fa-solid fa-shirt text-cyan-400"></i> Équipements (${eqList.length}/2 max) :</span>
+                    </div>
+                `;
+
+                if (eqList.length > 0) {
+                    eqHtml += `<div class="space-y-1.5">`;
+                    eqList.forEach(eqId => {
+                        const eq = equipmentDefinitions.find(e => e.id === eqId);
+                        if (eq) {
+                            eqHtml += `
+                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-cyan-500/30 text-xs">
+                                    <span class="text-white font-bold"><span class="eq-mini">${eqSvg(eq.id)}</span> ${eq.name} (+${eq.bonus} OVR)</span>
+                                    <button onclick="unequipItemFromAthlete('${athlete.id}', '${eq.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 font-bold text-[10px] rounded-lg hover:bg-rose-500/30 transition">
+                                        Retirer
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    });
+                    eqHtml += `</div>`;
+                } else {
+                    eqHtml += `<p class="text-[11px] text-slate-500 italic">Aucun équipement actif sur cet athlète.</p>`;
+                }
+
+                if (availableForSport.length > 0) {
+                    eqHtml += `<div class="text-[11px] text-slate-400 font-sport uppercase mt-2">Équipements ${athlete.sport} disponibles :</div><div class="space-y-1.5 max-h-40 overflow-y-auto pr-1">`;
+                    availableForSport.forEach(eq => {
+                        if (!eqList.includes(eq.id)) {
+                            let otherName = null;
+                            for (const [athId, list] of Object.entries(userState.athleteEquipments)) {
+                                if (Array.isArray(list) && list.includes(eq.id)) {
+                                    const ath = allCardsData.find(a => a.id === athId);
+                                    if (ath) otherName = ath.name;
+                                    break;
+                                }
+                            }
+
+                            eqHtml += `
+                                <div class="flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800 text-xs">
+                                    <span class="text-white font-bold"><span class="eq-mini">${eqSvg(eq.id)}</span> ${eq.name}</span>
+                                    <button onclick="equipItemToAthlete('${athlete.id}', '${eq.id}')" class="px-2.5 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-lg text-[10px] uppercase">
+                                        ${otherName ? `Transférer (de ${otherName})` : 'Équiper'}
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    });
+                    eqHtml += `</div>`;
+                }
+
+                equipPanel.innerHTML = eqHtml;
+                equipPanel.classList.remove('hidden');
+            } else {
+                equipPanel.classList.add('hidden');
+            }
+
+            document.getElementById('card-zoom-modal').classList.remove('hidden');
+        }
+
+        function closeZoomModal() { document.getElementById('card-zoom-modal').classList.add('hidden'); }
+
+        function getCardHTML(athlete, imageUrl, isOwned = false, isSummary = false, isLarge = false, isNew = false, isOpeningMode = false) {
+            const isVintage = athlete.rarityId === R_VINTAGE;
+            const rClass = isVintage ? 'rarity-vintage' : `rarity-${athlete.rarityId}`;
+            const sIcon = sportIcons[athlete.sport] || 'fa-trophy';
+            const sizeClass = isLarge ? "w-64 sm:w-72 md:w-80" : "w-full";
+            const isHolo = athlete.rarityId >= R_ULT && !isVintage;
+            const imgSrc = imageUrl || wikiImageCache[athlete.wikiSlug] || fallbackImage;
+            const count = userState.collection[athlete.id] || 0;
+            const doublonsCount = Math.max(0, count - 1);
+            const spEarn = spRecycleValues[athlete.rarityId] || 1;
+
+            const finalScore = getAthleteCalculatedScore(athlete);
+            const eqList = userState.athleteEquipments[athlete.id] || [];
+            
+            const countryCode = (athlete.country || 'fr').toLowerCase();
+            const flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
+
+            let clickAction = '';
+            if (isOpeningMode) clickAction = `onclick="revealNextCardInPack()"`;
+            else if (!isSummary && isOwned) clickAction = `onclick="openZoomCard('${athlete.id}')"`;
+
+            let equipmentBadgesHTML = '';
+            if (eqList.length > 0 && isOwned) {
+                equipmentBadgesHTML = `<div class="absolute top-2.5 left-14 z-[25] flex items-center gap-1">`;
+                eqList.forEach((eqId, index) => {
+                    const eq = equipmentDefinitions.find(e => e.id === eqId);
+                    if (eq) {
+                        equipmentBadgesHTML += `
+                            <div class="eq-badge bg-slate-950/95 border-2 border-cyan-400 w-9 h-9 flex items-center justify-center rounded-xl shadow-xl" title="${eq.name} (+${eq.bonus} OVR)">
+                                ${eqSvg(eq.id)}
+                            </div>
+                        `;
+                    }
+                });
+                equipmentBadgesHTML += `</div>`;
+            }
+
+            return `
+                <div class="pokemon-card ${rClass} ${sizeClass} ${!isOwned ? 'opacity-30 grayscale' : ''}" ${clickAction} ${clickAction ? 'role="button" tabindex="0" aria-label="' + athlete.name + '"' : ''}>${(userState.favorites && userState.favorites[athlete.id]) ? '<span class="absolute z-[30] top-[30%] right-1.5 text-amber-300 text-base drop-shadow">★</span>' : ''}
+                    <div class="card-image-container">
+                        <img alt="${athlete.name}" src="${imgSrc}" data-slug="${athlete.wikiSlug}" class="wiki-card-img" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40"></div>
+                    </div>
+                    <div class="card-inner-border"></div>
+                    ${isHolo ? '<div class="holo-sheen"></div>' : ''}
+                    
+                    <div class="absolute top-2.5 left-2.5 z-[25] bg-slate-950/95 border-2 themed-border w-9 h-9 flex items-center justify-center rounded-xl shadow-xl">
+                        <i class="fa-solid ${sIcon} text-sm themed-text"></i>
+                    </div>
+
+                    ${equipmentBadgesHTML}
+
+                    <!-- DRAPEAU NATIONAL -->
+                    <div class="absolute bottom-11 right-2.5 z-30 bg-slate-950/90 border border-slate-700/80 rounded-md px-1.5 py-0.5 shadow-lg flex items-center justify-center pointer-events-none" title="${athlete.country}">
+                        <img src="${flagUrl}" alt="${athlete.country}" class="w-6 h-4 object-cover rounded-sm shadow" onerror="this.style.display='none'">
+                    </div>
+
+                    ${count > 1 && !isSummary && isOwned && !isOpeningMode && !isVintage ? `
+                        <div class="absolute bottom-14 right-12 z-30 flex flex-col items-end gap-1">
+                            <div class="bg-amber-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded-lg shadow-lg border border-yellow-200">
+                                x${count} (${doublonsCount} doublons)
+                            </div>
+                            <button onclick="event.stopPropagation(); recycleDuplicate('${athlete.id}')" class="bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 hover:scale-105 transition-transform font-black text-[10px] px-2.5 py-1 rounded-lg shadow-md border border-amber-300 flex items-center gap-1">
+                                <i class="fa-solid fa-coins"></i> Échanger (+${spEarn * doublonsCount} SP)
+                            </button>
+                        </div>
+                    ` : count > 1 && !isOpeningMode ? `
+                        <div class="absolute bottom-14 right-12 z-30 bg-amber-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded-lg shadow-lg border border-yellow-200">
+                            x${count}
+                        </div>
+                    ` : ''}
+
+                    ${isNew ? `
+                        <div class="absolute top-2 left-12 z-30 bg-gradient-to-r from-red-600/70 to-amber-500/70 backdrop-blur-[2px] text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow-md border border-yellow-300/60 uppercase tracking-tighter transform -rotate-6 animate-pulse">
+                            NEW
+                        </div>
+                    ` : ''}
+
+                    <div class="absolute top-2.5 right-2.5 z-20 bg-slate-950/95 border-2 themed-border px-3 py-1 rounded-xl shadow-xl">
+                        <span class="text-xs font-black themed-text tracking-wider">${isVintage ? '<i class="fa-solid fa-star text-amber-400"></i>' : finalScore}</span>
+                    </div>
+
+                    <div class="name-banner flex justify-between items-center">
+                        <h5 class="text-[9px] sm:text-[10px] md:text-[11px] font-black themed-text uppercase tracking-tight leading-tight pr-2 line-clamp-2">${athlete.name}</h5>
+                        <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter shrink-0">${athlete.rarity}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function recycleDuplicate(athleteId) {
+            const athlete = allCardsData.find(a => a.id === athleteId);
+            if (!athlete) return;
+            const count = userState.collection[athleteId] || 0;
+            const doublonsCount = count - 1;
+            if (doublonsCount <= 0) return;
+
+            const spPerCard = spRecycleValues[athlete.rarityId] || 1;
+            const totalGain = spPerCard * doublonsCount;
+
+            userState.collection[athleteId] = 1;
+            userState.sportsPoints += totalGain;
+            saveUser();
+            playSparkleSound();
+            showToast(`+${totalGain} SP gagnés en recyclant vos doublons !`, "success");
+        }
+
+        function recycleAllDuplicates() {
+            let totalGain = 0;
+            let recycledCount = 0;
+
+            for (const cardId in userState.collection) {
+                const count = userState.collection[cardId];
+                if (count > 1) {
+                    const athlete = allCardsData.find(a => a.id === cardId);
+                    if (athlete && athlete.rarityId !== R_VINTAGE) {
+                        const doublonsCount = count - 1;
+                        const spPerCard = spRecycleValues[athlete.rarityId] || 1;
+                        totalGain += spPerCard * doublonsCount;
+                        recycledCount += doublonsCount;
+                        userState.collection[cardId] = 1;
+                    }
+                }
+            }
+
+            if (recycledCount === 0) {
+                showToast("Aucun doublon à recycler pour le moment.", "info");
+                return;
+            }
+
+            userState.sportsPoints += totalGain;
+            saveUser();
+            playSparkleSound();
+            showToast(`${recycledCount} doublon(s) recyclé(s) pour +${totalGain} SP !`, "success");
+        }
+
+        let renderTimeout;
+        function renderCardsCatalogue() {
+            const container = document.getElementById('cards-container');
+            if (!container) return;
+            const search = norm(document.getElementById('search-input').value);
+            const countryFilter = document.getElementById('country-select-filter').value;
+            const sortOrder = document.getElementById('sort-order-select').value;
+            
+            clearTimeout(renderTimeout);
+            renderTimeout = setTimeout(() => {
+                filteredAthletesCache = allCardsData.filter(athlete => {
+                    if (search && !norm(athlete.name).includes(search)) return false;
+                    if (currentSportTab !== 'all' && athlete.sport !== currentSportTab) return false;
+                    if (currentRarityFilter !== 'all' && athlete.rarity !== currentRarityFilter) return false;
+                    if (countryFilter !== 'all' && athlete.country !== countryFilter) return false;
+                    const count = userState.collection[athlete.id] || 0;
+                    if (showOwnedOnly && count === 0) return false;
+                    if (showFavOnly && !(userState.favorites || {})[athlete.id]) return false;
+                    return true;
+                });
+
+                // GESTION DES TRIEURS AVANCÉS (POINT 4)
+                filteredAthletesCache.sort((a, b) => {
+                    if (sortOrder === 'name') {
+                        return a.name.localeCompare(b.name);
+                    }
+                    const scoreA = a.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(a);
+                    const scoreB = b.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(b);
+                    
+                    if (sortOrder === 'asc') {
+                        if (scoreA !== scoreB) return scoreA - scoreB;
+                        return a.rarityId - b.rarityId;
+                    } else { // 'desc' par défaut
+                        if (scoreA !== scoreB) return scoreB - scoreA;
+                        return b.rarityId - a.rarityId;
+                    }
+                });
+
+                if(filteredAthletesCache.length === 0) {
+                    container.innerHTML = '<div class="col-span-full py-16 text-center text-slate-500 text-sm bg-slate-900/30 rounded-2xl border border-dashed border-slate-800">Aucun athlète trouvé pour ces filtres.</div>';
+                    return;
+                }
+                renderCardsChunkDirect(container);
+            }, 100);
+        }
+
+        function renderCardsChunkDirect(container) {
+            const visibleAthletes = filteredAthletesCache.slice(0, displayedCardLimit);
+            let cardsHtml = '';
+            for (const athlete of visibleAthletes) {
+                const count = userState.collection[athlete.id] || 0;
+                cardsHtml += getCardHTML(athlete, null, count > 0, false, false, false, false);
+            }
+            if (displayedCardLimit < filteredAthletesCache.length) {
+                cardsHtml += '<div class="col-span-full py-6 text-center text-xs text-slate-500 font-sport animate-pulse">Défilez vers le bas pour charger plus de cartes...</div>';
+            }
+            container.innerHTML = cardsHtml;
+            lazyLoadWikiImages();
+        }
+
+        function appendCardsCatalogueChunk() {
+            const container = document.getElementById('cards-container');
+            if (!container) return;
+            renderCardsChunkDirect(container);
+        }
+
+        let imageObserver = null;
+        function lazyLoadWikiImages() {
+            if ('IntersectionObserver' in window) {
+                if (imageObserver) imageObserver.disconnect();
+                imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(async entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            const slug = img.getAttribute('data-slug');
+                            if (slug && !wikiImageCache[slug]) {
+                                img.src = await fetchWikiPhoto(slug);
+                            }
+                            observer.unobserve(img);
+                        }
+                    });
+                }, { rootMargin: "100px" });
+
+                document.querySelectorAll('.wiki-card-img[data-slug]').forEach(img => imageObserver.observe(img));
+            }
+        }
+
+        function filterCards() { displayedCardLimit = 24; renderCardsCatalogue(); }
+
+        function addToDeck(athleteId) {
+            const emptyIdx = userState.deck.indexOf(null);
+            if (emptyIdx === -1) { showToast("Équipe complète ! Retire d'abord un joueur.", "error"); return; }
+            if (emptyIdx !== -1) { 
+                userState.deck[emptyIdx] = athleteId; 
+                saveUser(); 
+                renderDeck();
+                renderDeckQuickAdd();
+                showToast("Athlète ajouté à l'équipe !", "success");
+            }
+        }
+
+        function removeFromDeck(idx) { 
+            userState.deck[idx] = null; 
+            saveUser(); 
+            renderDeck();
+            renderDeckQuickAdd();
+            showToast("Athlète retiré de l'équipe.", "info");
+        }
+
+        function teamCountryName(c) { const sp = { 'GB-ENG': 'Angleterre', 'GB-SCT': 'Écosse', 'GB-WLS': 'Pays de Galles' }; try { return sp[c] || new Intl.DisplayNames(['fr'], { type: 'region' }).of(c); } catch(e) { return c; } }
+        // Bonus de synergie : pour chaque pays et chaque sport, n athlètes DIFFÉRENTS (n ≥ 2) rapportent n-1 point(s).
+        function getTeamBonus() {
+            const players = [...new Set(userState.deck.filter(Boolean))].map(id => allCardsData.find(a => a.id === id)).filter(Boolean);
+            const details = []; let bonus = 0;
+            for (const [key, label] of [['country', teamCountryName], ['sport', x => x]]) {
+                const groups = {};
+                players.forEach(p => { if (p[key]) groups[p[key]] = (groups[p[key]] || 0) + 1; });
+                for (const [v, n] of Object.entries(groups)) if (n >= 2) { bonus += n - 1; details.push({ label: label(v), n, pts: n - 1 }); }
+            }
+            const ab = Object.keys(userState.claimed || {}).filter(k => k.endsWith('_100')).length;
+            if (ab) { bonus += ab; details.push({ label: 'Albums complétés', n: ab, pts: ab, album: true }); }
+            return { bonus, details };
+        }
+
+        async function renderDeck() {
+            const container = document.getElementById('active-deck-slots');
+            if (!container) return;
+            
+            let totalOvr = 0;
+            let activeCount = 0;
+            let htmlContent = ''; 
+
+            for (let i = 0; i < 5; i++) {
+                const id = userState.deck[i];
+                if (id) {
+                    const athlete = allCardsData.find(a => a.id === id);
+                    if (athlete) {
+                        const calculatedScore = getAthleteCalculatedScore(athlete);
+                        const scoreVal = typeof calculatedScore === 'number' ? calculatedScore : 95;
+                        totalOvr += scoreVal;
+                        activeCount++;
+
+                        const photoUrl = await fetchWikiPhoto(athlete.wikiSlug);
+
+                        htmlContent += `
+                            <div class="relative flex flex-col items-center group">
+                                <div class="w-full">
+                                    ${getCardHTML(athlete, photoUrl, true, false, false, false, false)}
+                                </div>
+                                <button onclick="event.stopPropagation(); removeFromDeck(${i})" class="absolute top-2 right-2 z-30 w-7 h-7 rounded-full bg-rose-600/90 text-white flex items-center justify-center hover:bg-rose-500 transition-colors shadow-lg" title="Retirer de l'équipe">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </div>`;
+                    }
+                } else {
+                    htmlContent += `
+                        <div class="pokemon-card w-full border-2 border-dashed border-slate-700/60 bg-slate-950/40 flex flex-col items-center justify-center text-slate-500 cursor-default">
+                            <i class="fa-solid fa-plus mb-2 opacity-50 text-xl"></i>
+                            <span class="text-[10px] uppercase tracking-wider font-bold">Slot Vide</span>
+                        </div>`;
+                }
+            }
+
+            container.innerHTML = htmlContent;
+
+            const avg = activeCount > 0 ? Math.round(totalOvr / activeCount) : 0;
+            const tb = getTeamBonus();
+            const avgEl = document.getElementById('deck-average-ovr');
+            if (avgEl) avgEl.textContent = avg + tb.bonus;
+            const bonusEl = document.getElementById('deck-bonus-info');
+            if (bonusEl) bonusEl.innerHTML = tb.bonus > 0
+                ? `<span class="font-bold text-emerald-300"><i class="fa-solid fa-link"></i> Bonus de synergie +${tb.bonus}</span><span class="text-slate-400">(base ${avg} + ${tb.bonus})</span>` + tb.details.map(d => `<span class="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-200">${d.album ? '' : d.n + '× '}${d.label} +${d.pts}</span>`).join('')
+                : `<span class="text-slate-400"><i class="fa-solid fa-link"></i> Aucun bonus : réunis 2 athlètes du même pays ou du même sport (+1), 3 (+2), etc.</span>`;
+        }
+
+        async function renderDeckQuickAdd() {
+            const container = document.getElementById('deck-quick-add-container');
+            if (!container) return;
+            const owned = allCardsData.filter(a => userState.collection[a.id] > 0 && !userState.deck.includes(a.id));
+            
+            if (owned.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-500 col-span-full py-4 text-center">Aucun autre athlète disponible dans votre collection.</p>`;
+                return;
+            }
+
+            owned.sort((a, b) => b.rarityId - a.rarityId);
+
+            const cardsHtmlList = await Promise.all(owned.map(async (athlete) => {
+                const photoUrl = await fetchWikiPhoto(athlete.wikiSlug);
+                return `
+                    <div onclick="addToDeck('${athlete.id}')" class="w-full cursor-pointer transition-transform hover:scale-105" title="Cliquer pour ajouter à l'équipe">
+                        ${getCardHTML(athlete, photoUrl, true, false, false, false, false)}
+                    </div>`;
+            }));
+
+            container.innerHTML = cardsHtmlList.join('');
+            lazyLoadWikiImages();
+        }
+
+        function applyCardTilt(card, x, y, rectWidth, rectHeight) {
+            const rotateX = (-y / (rectHeight / 2)) * 15;
+            const rotateY = (x / (rectWidth / 2)) * 15;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px) scale(1.03)`;
+            card.style.setProperty('--gx', ((x / rectWidth) + 0.5) * 100 + '%');
+            card.style.setProperty('--gy', ((y / rectHeight) + 0.5) * 100 + '%');
+
+            const sheen = card.querySelector('.holo-sheen');
+            if (sheen) {
+                const bgX = (x / rectWidth) * 100 + 50;
+                const bgY = (y / rectHeight) * 100 + 50;
+                sheen.style.backgroundPosition = `${bgX}% ${bgY}%`;
+            }
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const card = e.target.closest('.pokemon-card');
+            if (!card) return;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            applyCardTilt(card, x, y, rect.width, rect.height);
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            const card = e.target.closest('.pokemon-card');
+            if (!card || card.contains(e.relatedTarget)) return;
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
+            const sheen = card.querySelector('.holo-sheen');
+            if (sheen) sheen.style.backgroundPosition = '0% 0%';
+        });
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (e) => {
+                const tiltX = e.gamma;
+                const tiltY = e.beta;
+                if (tiltX !== null && tiltY !== null) {
+                    const cards = document.querySelectorAll('.pokemon-card:hover');
+                    cards.forEach(card => {
+                        const rect = card.getBoundingClientRect();
+                        const x = (tiltX / 45) * (rect.width / 2);
+                        const y = (tiltY / 45) * (rect.height / 2);
+                        applyCardTilt(card, x, y, rect.width, rect.height);
+                    });
+                }
+            });
+        }
+
+        const EQ_SVG = {
+            eq_foot_1: '<circle cx="24" cy="19" r="13" fill="#fbbf24" stroke="#b45309" stroke-width="2"/><path d="M24 12l6 4.5-2.3 7h-7.4L18 16.5z" fill="#b45309"/><path d="M17 12a10 10 0 0 1 6-4" stroke="#fef3c7" stroke-width="2"/><rect x="20" y="32" width="8" height="4" fill="#b45309"/><rect x="14" y="36" width="20" height="6" rx="2" fill="#78350f"/>',
+            eq_foot_2: '<circle cx="24" cy="14" r="9" fill="#fbbf24" stroke="#b45309" stroke-width="2"/><ellipse cx="24" cy="14" rx="4" ry="9" stroke="#b45309" stroke-width="1.5"/><path d="M15 14h18" stroke="#b45309" stroke-width="1.5"/><path d="M17 24c0 7 3 8 3 11h8c0-3 3-4 3-11-2 1-4 2-7 2s-5-1-7-2z" fill="#fbbf24" stroke="#b45309" stroke-width="2"/><rect x="16" y="35" width="16" height="4" fill="#16a34a"/><rect x="14" y="39" width="20" height="4" rx="1.5" fill="#15803d"/>',
+            eq_cycl_1: '<g stroke-width="3"><circle cx="11" cy="32" r="8" stroke="#e2e8f0"/><circle cx="37" cy="32" r="8" stroke="#e2e8f0"/><path d="M11 32l8-14h12l-7 14zM31 18l6 14M19 18l-2-4h-4M31 18l-1-4h5" stroke="#fb923c"/></g>',
+            eq_cycl_2: '<path d="M16 7L5 13l4 10 6-2v21h18V21l6 2 4-10-11-6c-1 3-4 5-8 5s-7-2-8-5z" fill="#facc15" stroke="#a16207" stroke-width="2"/><path d="M24 12v29" stroke="#a16207" stroke-width="2"/>',
+            eq_bask_1: '<circle cx="24" cy="24" r="17" fill="#f97316" stroke="#7c2d12" stroke-width="2"/><path d="M7 24h34M24 7v34M12 11c7 5 7 21 0 26M36 11c-7 5-7 21 0 26" stroke="#431407" stroke-width="2"/>',
+            eq_bask_2: '<circle cx="24" cy="13" r="9" fill="#fbbf24" stroke="#b45309" stroke-width="2"/><path d="M15 13h18M24 4v18M18 7c3 4 3 8 0 12M30 7c-3 4-3 8 0 12" stroke="#92400e" stroke-width="1.5"/><path d="M20 22h8l2 14H18z" fill="#fcd34d" stroke="#b45309" stroke-width="2"/><rect x="13" y="36" width="22" height="7" rx="2" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="2"/>',
+            eq_tenn_1: '<g transform="rotate(-40 24 24)"><ellipse cx="24" cy="15" rx="10" ry="12.5" stroke="#e2e8f0" stroke-width="3.5"/><path d="M24 3v25M14 15h20M16.5 8h15M16.5 22h15" stroke="#94a3b8" stroke-width="1.2"/><path d="M24 28v5" stroke="#e2e8f0" stroke-width="3"/><rect x="21" y="32" width="6" height="12" rx="2.5" fill="#ef4444"/></g>',
+            eq_tenn_2: '<circle cx="24" cy="24" r="17" fill="#bef264" stroke="#4d7c0f" stroke-width="2"/><path d="M10 12c9 6 9 18 0 24M38 12c-9 6-9 18 0 24" stroke="#fff" stroke-width="3"/>',
+            eq_f1_1: '<rect x="21" y="5" width="6" height="35" rx="3" fill="#ef4444"/><rect x="10" y="5" width="28" height="4" rx="1.5" fill="#f8fafc"/><rect x="12" y="38" width="24" height="5" rx="1.5" fill="#f8fafc"/><g fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"><rect x="8" y="11" width="8" height="10" rx="2"/><rect x="32" y="11" width="8" height="10" rx="2"/><rect x="7" y="27" width="9" height="11" rx="2"/><rect x="32" y="27" width="9" height="11" rx="2"/></g><path d="M16 16h5M27 16h5M16 32h5M27 32h5" stroke="#94a3b8" stroke-width="2"/><ellipse cx="24" cy="24" rx="3" ry="4" fill="#0f172a"/>',
+            eq_f1_2: '<path d="M10 30C10 20 16 14 26 14H32C38 14 40 18 40 22C40 27 36 29 31 29H26C22 29 22 35 18 35H15C12 35 10 33 10 30Z" stroke="#64748b" stroke-width="7"/><path d="M10 30C10 20 16 14 26 14H32C38 14 40 18 40 22C40 27 36 29 31 29H26C22 29 22 35 18 35H15C12 35 10 33 10 30Z" stroke="#f8fafc" stroke-width="1" stroke-dasharray="2 3"/><rect x="29" y="34" width="14" height="9" fill="#fff" stroke="#94a3b8"/><path d="M29 34h3.5v4.5H29zM36 34h3.5v4.5H36zM32.5 38.5H36v4.5h-3.5zM39.5 38.5H43v4.5h-3.5z" fill="#111"/>',
+            eq_rugb_1: '<g transform="rotate(-30 24 24)"><path d="M4 24C9 10 39 10 44 24 39 38 9 38 4 24Z" fill="#b45309" stroke="#451a03" stroke-width="2"/><path d="M15 24h18M19 20.5v7M24 20.5v7M29 20.5v7M10 20c-2 3-2 5 0 8M38 20c2 3 2 5 0 8" stroke="#fff" stroke-width="2"/></g>',
+            eq_rugb_2: '<path d="M12 5v22M36 5v22M12 27h24M24 27v15" stroke="#fbbf24" stroke-width="4"/><rect x="21" y="34" width="6" height="7" fill="#ef4444"/><rect x="6" y="40" width="36" height="4" rx="2" fill="#16a34a"/>',
+            eq_athl_1: '<rect x="3" y="11" width="42" height="26" rx="13" fill="#c2410c"/><rect x="9" y="17" width="30" height="14" rx="7" fill="#16a34a"/><rect x="5.5" y="13.5" width="37" height="21" rx="10.5" stroke="#fff" stroke-width="1.2"/><rect x="7.5" y="15.5" width="33" height="17" rx="8.5" stroke="#fff" stroke-width="1.2"/><path d="M24 11v6" stroke="#fff" stroke-width="2.5"/>',
+            eq_athl_2: '<path d="M6 35V17q4-1 7 0l3 6 8 2 10 6c6 1 9 2 9 4z" fill="#38bdf8" stroke="#075985" stroke-width="2"/><path d="M17 24l4-2M21 27l4-2M26 29l4-2" stroke="#fff" stroke-width="2"/><path d="M5 35h38c0 2-1 4-3 4H8c-2 0-3-2-3-4z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/><path d="M12 39l1.5 5 1.5-5M24 39l1.5 5 1.5-5M36 39l1.5 5 1.5-5" fill="#facc15"/>',
+            eq_nata_1: '<path d="M8 20H3M40 20h5" stroke="#f8fafc" stroke-width="3"/><rect x="8" y="12" width="14" height="16" rx="7" fill="#38bdf8" stroke="#0c4a6e" stroke-width="3"/><rect x="26" y="12" width="14" height="16" rx="7" fill="#38bdf8" stroke="#0c4a6e" stroke-width="3"/><path d="M22 20h4" stroke="#0c4a6e" stroke-width="3"/><path d="M12 17a4 4 0 0 1 3-2M30 17a4 4 0 0 1 3-2" stroke="#fff" stroke-width="2"/><path d="M3 38q3.5-4 7 0t7 0 7 0 7 0 7 0 7 0" stroke="#38bdf8" stroke-width="2.5"/>',
+            eq_nata_2: '<path d="M11 28a13 13 0 0 0 26 0z" fill="#fcd9b6" stroke="#b45309" stroke-width="1.5"/><path d="M8 28a16 16 0 0 1 32 0z" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><path d="M16 14c3 4 3 9 3 14M24 12v16M32 14c-3 4-3 9-3 14" stroke="#fecaca" stroke-width="1.5"/><circle cx="19" cy="32" r="1.4" fill="#1e293b"/><circle cx="29" cy="32" r="1.4" fill="#1e293b"/><path d="M3 45q3.5-4 7 0t7 0 7 0 7 0 7 0 7 0" stroke="#38bdf8" stroke-width="2.5"/>',
+            eq_comb_1: '<path d="M12 22c0-9 5-15 15-15s13 6 13 14v9c0 3-2 5-5 5H17c-3 0-5-2-5-5z" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><path d="M13 21c-5 0-7 4-5 8s6 3 8 2" fill="#dc2626" stroke="#7f1d1d" stroke-width="2"/><path d="M18 14c3-2 7-2 10 0" stroke="#fca5a5" stroke-width="2"/><rect x="15" y="35" width="20" height="8" rx="2" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>',
+            eq_comb_2: '<path d="M16 7l8 9 8-9 12 7-3 11-5-1v17H12V24l-5 1L4 14z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><path d="M16 7l12 20M32 7L20 27" stroke="#94a3b8" stroke-width="2"/><rect x="12" y="27" width="24" height="5" fill="#111827"/><path d="M24 31l-3 9M24 31l3 9" stroke="#111827" stroke-width="3"/>',
+            eq_hand_1: '<circle cx="24" cy="24" r="17" fill="#facc15" stroke="#1d4ed8" stroke-width="2.5"/><path d="M7.5 20c10 3 23 3 33 0M7.5 28c10-3 23-3 33 0M24 7c-5 7-5 27 0 34" stroke="#1d4ed8" stroke-width="2.5"/>',
+            eq_hand_2: '<path d="M8 42V10h32v32" stroke="#f43f5e" stroke-width="4.5"/><path d="M12 14h24M12 20h24M12 26h24M12 32h24M12 38h24M16 12v30M22 12v30M28 12v30M34 12v30" stroke="#94a3b8" stroke-width="1"/>'
+        };
+        function eqSvg(id) {
+            return `<svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${EQ_SVG[id] || ''}</svg>`;
+        }
+
+        (function () {
+            const scene = document.querySelector('.bg-scene'), cv = document.getElementById('bg-canvas');
+            if (!scene || !cv) return;
+            const ctx = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches || matchMedia('(max-width: 767px)').matches;
+            const cols = ['251,191,36', '56,189,248', '244,114,182', '255,255,255'];
+            const m = { tx: innerWidth / 2, ty: innerHeight * 0.4, sx: innerWidth / 2, sy: innerHeight * 0.4, on: false };
+            let ps = [], sparks = [];
+            function size() {
+                const dpr = Math.min(devicePixelRatio || 1, 2);
+                cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const n = Math.round(Math.min(90, innerWidth * innerHeight / 16000));
+                ps = Array.from({ length: n }, () => ({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, r: Math.random() * 1.8 + 0.8, c: cols[Math.random() * 4 | 0], z: Math.random() * 0.8 + 0.2 }));
+            }
+            function setVars() {
+                scene.style.setProperty('--mx', m.sx + 'px'); scene.style.setProperty('--my', m.sy + 'px');
+                scene.style.setProperty('--px', (m.sx / innerWidth - 0.5) * 2); scene.style.setProperty('--py', (m.sy / innerHeight - 0.5) * 2);
+            }
+            addEventListener('resize', size);
+            document.addEventListener('mouseleave', () => { m.on = false; });
+            addEventListener('mousemove', e => {
+                m.tx = e.clientX; m.ty = e.clientY; m.on = true;
+                if (reduce) { m.sx = m.tx; m.sy = m.ty; setVars(); return; }
+                if (Math.random() < 0.5 && sparks.length < 60) sparks.push({ x: e.clientX, y: e.clientY, vx: (Math.random() - 0.5) * 1.4, vy: (Math.random() - 0.5) * 1.4 - 0.3, l: 1, c: cols[Math.random() * 3 | 0] });
+            });
+            function tick() {
+                m.sx += (m.tx - m.sx) * 0.12; m.sy += (m.ty - m.sy) * 0.12; setVars();
+                ctx.clearRect(0, 0, innerWidth, innerHeight);
+                const ox = (m.sx / innerWidth - 0.5) * -30, oy = (m.sy / innerHeight - 0.5) * -30;
+                for (const p of ps) {
+                    p.x += p.vx; p.y += p.vy;
+                    const dx = p.x - m.sx, dy = p.y - m.sy, d = Math.hypot(dx, dy) || 1;
+                    if (m.on && d < 80) { p.x += dx / d * (80 - d) * 0.06; p.y += dy / d * (80 - d) * 0.06; }
+                    if (p.x < -10) p.x = innerWidth + 10; else if (p.x > innerWidth + 10) p.x = -10;
+                    if (p.y < -10) p.y = innerHeight + 10; else if (p.y > innerHeight + 10) p.y = -10;
+                    const px = p.x + ox * p.z, py = p.y + oy * p.z;
+                    if (m.on && d < 190) {
+                        ctx.strokeStyle = `rgba(251,191,36,${(1 - d / 190) * 0.4})`; ctx.lineWidth = 1;
+                        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(m.sx, m.sy); ctx.stroke();
+                    }
+                    ctx.fillStyle = `rgba(${p.c},${0.3 + 0.4 * p.z})`;
+                    ctx.beginPath(); ctx.arc(px, py, p.r * (d < 190 && m.on ? 1.6 : 1), 0, 6.283); ctx.fill();
+                }
+                for (let i = sparks.length - 1; i >= 0; i--) {
+                    const s = sparks[i]; s.x += s.vx; s.y += s.vy; s.vy += 0.02; s.l -= 0.025;
+                    if (s.l <= 0) { sparks.splice(i, 1); continue; }
+                    ctx.fillStyle = `rgba(${s.c},${s.l})`;
+                    ctx.beginPath(); ctx.arc(s.x, s.y, 2.2 * s.l, 0, 6.283); ctx.fill();
+                }
+                if (!reduce) requestAnimationFrame(tick);
+            }
+            size(); setVars();
+            tick();
+        })();
+
+        /* ===== OBJECTIFS : albums, succès, favoris, boosters ciblés + effets ===== */
+        const has = id => (userState.collection[id] || 0) > 0;
+        const ownedCount = () => Object.keys(userState.collection).filter(id => !id.startsWith('v_') && has(id)).length;
+        const hasRar = r => athletesData.some(a => a.rarityId >= r && has(a.id));
+        const ACHIEVEMENTS = [
+            { id: 'first', name: 'Première carte', desc: 'Obtiens ta première carte', sp: 50, t: () => ownedCount() >= 1 },
+            { id: 'c50', name: 'Collectionneur', desc: '50 cartes différentes', sp: 300, t: () => ownedCount() >= 50 },
+            { id: 'c200', name: 'Grand collectionneur', desc: '200 cartes différentes', sp: 1000, t: () => ownedCount() >= 200 },
+            { id: 'c500', name: 'Légende de la collection', desc: '500 cartes différentes', sp: 3000, t: () => ownedCount() >= 500 },
+            { id: 'p10', name: 'Apprenti', desc: 'Ouvre 10 boosters', sp: 100, t: () => (userState.totalPacksOpened || 0) >= 10 },
+            { id: 'p100', name: 'Accro aux boosters', desc: 'Ouvre 100 boosters', sp: 1000, t: () => (userState.totalPacksOpened || 0) >= 100 },
+            { id: 'ult', name: 'Étincelle', desc: 'Obtiens une carte Ultra rare', sp: 150, t: () => hasRar(R_ULT) },
+            { id: 'leg', name: 'Légendaire !', desc: 'Obtiens une carte Légendaire', sp: 500, t: () => hasRar(R_LEG) },
+            { id: 'myt', name: 'Mythique !!', desc: 'Obtiens une carte Mythique', sp: 2000, t: () => hasRar(R_MYT) },
+            { id: 'vint', name: 'Remonter le temps', desc: 'Achète une légende Vintage', sp: 500, t: () => Object.keys(userState.collection).some(id => id.startsWith('v_')) },
+            { id: 'team', name: 'Équipe au complet', desc: 'Place 5 athlètes dans ton équipe', sp: 100, t: () => userState.deck.every(Boolean) },
+            { id: 'syn', name: 'Alchimie parfaite', desc: 'Atteins +4 de bonus de synergie', sp: 300, t: () => getTeamBonus().bonus >= 4 },
+            { id: 'eq', name: 'Bien équipé', desc: 'Achète un équipement', sp: 100, t: () => userState.ownedEquipments.length >= 1 },
+            { id: 'fav', name: 'Coup de cœur', desc: 'Ajoute une carte en favori', sp: 30, t: () => Object.keys(userState.favorites || {}).length >= 1 },
+            { id: 'alb', name: 'Albumiste', desc: 'Complète un album à 100 %', sp: 1000, t: () => Object.keys(userState.claimed || {}).some(k => k.endsWith('_100')) }
+        ];
+        function checkAchievements() {
+            const ach = userState.achievements = userState.achievements || {}, got = [];
+            ACHIEVEMENTS.forEach(a => { if (!ach[a.id]) { let ok = false; try { ok = a.t(); } catch (e) {} if (ok) { ach[a.id] = Date.now(); userState.sportsPoints += a.sp; got.push(a); } } });
+            if (got.length) {
+                showToast('Succès : ' + got.slice(0, 3).map(a => a.name).join(', ') + (got.length > 3 ? ' et ' + (got.length - 3) + ' autres' : '') + ' (+' + got.reduce((s, a) => s + a.sp, 0) + ' SP)', 'success');
+                saveUser();
+            }
+        }
+        // Albums : un par sport, un par pays (>= 10 athlètes) + lots Légendaires / Mythiques. 50 % = SP, 100 % = SP + 1 point de bonus d'équipe.
+        let _albums = null;
+        function getAlbums() {
+            if (_albums) return _albums;
+            const A = [], cc = {};
+            sportsNames.forEach(sp => A.push({ key: 'sport_' + sp, label: sp, icon: sportIcons[sp] || 'fa-trophy', ids: athletesData.filter(a => a.sport === sp).map(a => a.id), r: [400, 2000] }));
+            athletesData.forEach(a => cc[a.country] = (cc[a.country] || 0) + 1);
+            Object.entries(cc).filter(([, n]) => n >= 10).sort((a, b) => b[1] - a[1]).forEach(([c]) => A.push({ key: 'country_' + c, label: teamCountryName(c), icon: 'fa-flag', ids: athletesData.filter(a => a.country === c).map(a => a.id), r: [400, 2000] }));
+            A.push({ key: 'rar_4', label: 'Toutes les Légendaires', icon: 'fa-crown', ids: athletesData.filter(a => a.rarityId === R_LEG).map(a => a.id), r: [800, 4000] });
+            A.push({ key: 'rar_5', label: 'Tous les Mythiques', icon: 'fa-gem', ids: athletesData.filter(a => a.rarityId === R_MYT).map(a => a.id), r: [1000, 6000] });
+            return _albums = A;
+        }
+        function claimAlbum(i, tier) {
+            const al = getAlbums()[i]; if (!al) return;
+            const cl = userState.claimed = userState.claimed || {}, id = al.key + '_' + tier;
+            if (cl[id] || al.ids.filter(has).length < Math.ceil(al.ids.length * tier / 100)) return;
+            cl[id] = Date.now(); const sp = al.r[tier === 100 ? 1 : 0]; userState.sportsPoints += sp;
+            playSparkleSound(); showToast('Album « ' + al.label + ' » ' + tier + ' % : +' + sp + ' SP' + (tier === 100 ? ' et +1 bonus d\'équipe !' : ''), 'success');
+            saveUser(); renderGoals();
+        }
+        function renderGoals() {
+            const el = document.getElementById('goals-content'); if (!el) return;
+            const cl = userState.claimed || {}, ach = userState.achievements || {};
+            const bar = (p, c) => `<div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full ${c}" style="width:${p}%"></div></div>`;
+            const albums = getAlbums().map((al, i) => {
+                const have = al.ids.filter(has).length, tot = al.ids.length, pct = Math.floor(have / tot * 100);
+                const btn = t => { const need = Math.ceil(tot * t / 100), sp = al.r[t === 100 ? 1 : 0];
+                    return cl[al.key + '_' + t] ? `<span class="text-[11px] text-emerald-400 font-bold">✓ ${t} % récupéré</span>`
+                        : have >= need ? `<button onclick="claimAlbum(${i},${t})" class="px-2 py-1 rounded-lg bg-amber-400 text-slate-950 text-[11px] font-black">Récupérer ${t} % : +${sp} SP${t === 100 ? ' +1 équipe' : ''}</button>`
+                        : `<span class="text-[11px] text-slate-500">${t} % : encore ${need - have} carte(s)</span>`; };
+                return `<div class="textured-panel p-3 rounded-2xl space-y-2"><div class="flex items-center justify-between text-sm font-bold text-white"><span><i class="fa-solid ${al.icon} text-cyan-400"></i> ${al.label}</span><span class="text-xs text-slate-300">${have}/${tot}</span></div>${bar(pct, pct >= 100 ? 'bg-emerald-400' : 'bg-cyan-500')}<div class="flex flex-wrap gap-2 items-center justify-between">${btn(50)}${btn(100)}</div></div>`;
+            }).join('');
+            const succ = ACHIEVEMENTS.map(a => { const ok = ach[a.id]; return `<div class="p-3 rounded-2xl border ${ok ? 'border-amber-400/50 bg-amber-400/10' : 'border-slate-800 bg-slate-900/60 opacity-70'} flex items-center gap-3"><i class="fa-solid ${ok ? 'fa-trophy text-amber-300' : 'fa-lock text-slate-500'} text-lg w-6 text-center"></i><div class="min-w-0"><div class="text-sm font-bold text-white">${a.name} <span class="text-[11px] text-amber-300">+${a.sp} SP</span></div><div class="text-[11px] text-slate-400">${a.desc}</div></div></div>`; }).join('');
+            const h = (ic, t, extra = '') => `<h3 class="text-xl font-bold font-sport uppercase tracking-wide text-white mb-3"><i class="fa-solid ${ic} text-amber-400"></i> ${t} ${extra}</h3>`;
+            el.innerHTML = h('fa-trophy', 'Succès', `<span class="text-sm text-slate-400">${ACHIEVEMENTS.filter(a => ach[a.id]).length}/${ACHIEVEMENTS.length}</span>`) + `<div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">${succ}</div>` + h('fa-book-open', 'Albums') + `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-8">${albums}</div>`;
+        }
+        // Favoris
+        let showFavOnly = false;
+        function toggleFavorite(id) { const f = userState.favorites = userState.favorites || {}; if (f[id]) delete f[id]; else f[id] = 1; saveUser(); renderCardsCatalogue(); }
+        function updateFavBtn() {
+            const b = document.getElementById('zoom-fav-btn'), id = window._zoomId; if (!b) return;
+            const own = !!id && has(id); b.classList.toggle('hidden', !own);
+            b.innerHTML = own && (userState.favorites || {})[id] ? '★ Retirer des favoris' : '☆ Ajouter aux favoris';
+        }
+        function toggleFavoriteZoom() { toggleFavorite(window._zoomId); openZoomCard(window._zoomId); }
+        function toggleFavFilter() {
+            showFavOnly = !showFavOnly; const b = document.getElementById('btn-toggle-fav');
+            b.classList.toggle('text-amber-300', showFavOnly); b.classList.toggle('border-amber-400', showFavOnly); renderCardsCatalogue();
+        }
+        // Boosters ciblés (payés en SP)
+        const TARGET_PRICES = { sport: 450, country: 600 };
+        function targetCountries() { const c = {}; athletesData.forEach(a => c[a.country] = (c[a.country] || 0) + 1); return Object.entries(c).filter(([, n]) => n >= 10).sort((a, b) => b[1] - a[1]).map(([k]) => k); }
+        function fillTargetValues() {
+            const tt = document.getElementById('target-type'), sel = document.getElementById('target-value'); if (!tt || !sel) return;
+            sel.innerHTML = (tt.value === 'sport' ? sportsNames.map(s => [s, s]) : targetCountries().map(c => [c, teamCountryName(c)])).map(([v, n]) => `<option value="${v}">${n}</option>`).join('');
+            document.getElementById('target-price').textContent = TARGET_PRICES[tt.value];
+        }
+        function openTargetedPack() { const t = document.getElementById('target-type').value; startPackOpeningProcess(1, { type: t, value: document.getElementById('target-value').value, price: TARGET_PRICES[t] }); }
+        // Effets de révélation (rareté élevée) : flash, secousse, vibration, son
+        function playLegendSound() {
+            if (isAudioMuted) return;
+            try { const c = getAudioContext(); [261.63, 329.63, 392, 523.25, 659.25].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + i * 0.07; o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + 1.2); }); } catch (e) {}
+        }
+        function revealFx(rid) {
+            if (rid < R_ULT) return;
+            const m = document.getElementById('pack-opening-modal'), f = document.createElement('div');
+            f.className = 'fx-flash'; f.style.setProperty('--fx', { 3: '#a855f7', 4: '#facc15', 5: '#f43f5e' }[rid] || '#fff'); m.appendChild(f); setTimeout(() => f.remove(), 900);
+            if (rid >= R_LEG) { m.classList.add('fx-shake'); setTimeout(() => m.classList.remove('fx-shake'), 600); playLegendSound(); }
+            if (navigator.vibrate) navigator.vibrate(rid >= R_MYT ? [80, 50, 80, 50, 160] : rid >= R_LEG ? [60, 40, 60] : [30]);
+        }
+        // Effet holographique au toucher + gyroscope (cartes des fenêtres zoom / booster)
+        (() => {
+            const sel = '#zoom-card-wrapper .pokemon-card, #pack-single-card-container .pokemon-card';
+            const tilt = (c, x, y) => { const r = c.getBoundingClientRect(); applyCardTilt(c, x - r.left - r.width / 2, y - r.top - r.height / 2, r.width, r.height); };
+            const onTouch = e => { const t = e.touches[0], el = document.elementFromPoint(t.clientX, t.clientY), c = el && el.closest(sel); if (c) tilt(c, t.clientX, t.clientY); };
+            document.addEventListener('touchstart', onTouch, { passive: true });
+            document.addEventListener('touchmove', onTouch, { passive: true });
+            document.addEventListener('touchend', () => document.querySelectorAll(sel).forEach(c => { c.style.transform = ''; const s = c.querySelector('.holo-sheen'); if (s) s.style.backgroundPosition = '0% 0%'; }), { passive: true });
+            let gyro = false, raf = 0, last = null;
+            const onOri = e => { if (e.gamma == null) return; last = e; if (raf) return; raf = requestAnimationFrame(() => { raf = 0; document.querySelectorAll(sel).forEach(c => { const r = c.getBoundingClientRect(); applyCardTilt(c, Math.max(-1, Math.min(1, last.gamma / 30)) * r.width / 2, Math.max(-1, Math.min(1, (last.beta - 40) / 30)) * r.height / 2, r.width, r.height); }); }); };
+            const enable = async () => { if (gyro || !window.DeviceOrientationEvent) return; try { if (DeviceOrientationEvent.requestPermission && (await DeviceOrientationEvent.requestPermission()) !== 'granted') return; } catch (e) { return; } gyro = true; window.addEventListener('deviceorientation', onOri); };
+            if (matchMedia('(pointer: coarse)').matches) document.addEventListener('click', enable, { once: true });
+        })();
+        // Accessibilité : Entrée / Espace activent les éléments role="button"
+        document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[role="button"][tabindex]')) { e.preventDefault(); e.target.click(); } });
+        fillTargetValues();
+        if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+        
+initUser();
+    </script>
+</body>
+</html>
