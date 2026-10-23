@@ -411,6 +411,52 @@
         @media (prefers-reduced-motion: reduce) { .mx-rays { animation: none; } }
         @media (max-width: 767px) { [class*="text-[8px]"] { font-size: 10px !important; } [class*="text-[9px]"] { font-size: 10.5px !important; } }
     </style>
+<style>
+.pv-panel{background:rgba(8,12,24,.85);border:1px solid #1e293b;border-radius:20px;padding:16px}
+.pv-h{font:900 15px Outfit,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;margin-bottom:10px}
+.pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.pv-obj{padding:10px;border-radius:14px;border:1px solid #1e293b;background:rgba(15,23,42,.6)}
+.pv-obj.ok{border-color:#fbbf24;background:rgba(251,191,36,.1)}.pv-obj.done{border-color:#10b981;background:rgba(16,185,129,.1)}
+.pv-row{display:flex;align-items:center;gap:10px}
+.pv-t{font-weight:700;color:#fff;font-size:13px}.pv-s{font-size:11px;color:#94a3b8}
+.pv-bar{height:8px;border-radius:99px;background:#1e293b;overflow:hidden;margin-top:6px}
+.pv-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#06b6d4,#fbbf24);transition:width .8s}
+.pv-bar.full>i{background:linear-gradient(90deg,#f59e0b,#fde047);box-shadow:0 0 10px #fbbf24}
+.pv-btn{font:900 12px Outfit,sans-serif;padding:8px 14px;border-radius:10px;border:2px solid #fbbf24;cursor:pointer;background:#fbbf24;color:#0f172a;text-transform:uppercase}
+.pv-btn.off{background:transparent;color:#fbbf24}.pv-btn:disabled{opacity:.3;cursor:not-allowed}
+.pv-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;font-size:12px;font-weight:700}
+.pv-chip img{width:20px;height:14px;object-fit:cover;border-radius:2px}.pv-chip b{color:#fbbf24}
+.pv-syn{position:absolute;top:4px;left:4px;z-index:40;display:flex;flex-direction:column;gap:3px}
+.pv-syn span{background:rgba(2,6,23,.92);border:1px solid #10b981;border-radius:8px;padding:2px 5px;font-size:10px;color:#6ee7b7;font-weight:800}
+.pv-arena{position:relative;border-radius:24px;padding:18px;text-align:left;background:radial-gradient(ellipse at 20% 0,rgba(6,182,212,.22),transparent 55%),radial-gradient(ellipse at 80% 0,rgba(244,63,94,.22),transparent 55%),#050810;border:1px solid #1e293b;overflow:hidden}
+.pv-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pv-side{font:900 16px Outfit,sans-serif;color:#fff}.pv-side small{display:block;font:700 11px monospace;color:#fbbf24}
+.pv-pot{text-align:center;color:#fbbf24;font:900 12px Outfit,sans-serif;letter-spacing:.12em}
+.pv-tug{height:14px;border-radius:99px;background:#f43f5e;overflow:hidden;margin:8px 0 14px;position:relative}
+.pv-tug>i{position:absolute;left:0;top:0;bottom:0;background:#06b6d4;transition:width .7s cubic-bezier(.2,.8,.2,1);width:50%}
+.pv-lane{display:grid;grid-template-columns:1fr 46px 1fr;align-items:center;gap:6px;margin-bottom:8px;opacity:.3;transition:opacity .3s}
+.pv-lane.on{opacity:1}
+.pv-f{display:flex;align-items:center;gap:8px;padding:8px;border-radius:14px;background:rgba(15,23,42,.8);border:2px solid #334155;transition:all .3s;min-width:0;min-height:62px}
+.pv-f.b{flex-direction:row-reverse;text-align:right}.pv-f.a{color:#22d3ee}.pv-f.b{color:#fb7185}
+.pv-f img{width:42px;height:42px;border-radius:50%;object-fit:cover;background:#1e293b;border:2px solid currentColor;flex:none}
+.pv-f .n{font-weight:800;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-f .m{font-size:10px;color:#94a3b8}.pv-f .tx{min-width:0;flex:1}
+.pv-f .sc{font:900 20px monospace;color:#fff}
+.pv-f.win{border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,.6);transform:scale(1.04)}.pv-f.lose{opacity:.5;filter:grayscale(.6)}
+.pv-vs{text-align:center;font:900 14px Outfit,sans-serif;color:#64748b}
+.pv-lane.in .pv-f.a{animation:pvL .45s cubic-bezier(.2,.9,.3,1.2)}.pv-lane.in .pv-f.b{animation:pvR .45s cubic-bezier(.2,.9,.3,1.2)}
+.pv-lane.hit .pv-vs{animation:pvHit .5s;color:#fbbf24}
+@keyframes pvL{from{transform:translateX(-120%);opacity:0}}@keyframes pvR{from{transform:translateX(120%);opacity:0}}
+@keyframes pvHit{0%{transform:scale(.5)}40%{transform:scale(2.2) rotate(-12deg)}100%{transform:scale(1)}}
+.pv-shake{animation:pvShake .4s}
+@keyframes pvShake{20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,3px)}}
+.pv-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 80px Outfit,sans-serif;color:#fff;text-shadow:0 0 40px #f43f5e;z-index:5;pointer-events:none;animation:pvCount .8s forwards}
+@keyframes pvCount{from{transform:scale(2.5);opacity:0}30%{opacity:1}to{transform:scale(.9);opacity:0}}
+.pv-end{text-align:center;margin-top:14px;animation:pvPop .6s}@keyframes pvPop{from{transform:scale(.3);opacity:0}}
+.pv-end h4{font:900 34px Outfit,sans-serif;margin:0}.pv-end.w h4{color:#fde047;text-shadow:0 0 24px #f59e0b}.pv-end.l h4{color:#fb7185}.pv-end.d h4{color:#cbd5e1}
+.pv-conf{position:absolute;top:-16px;width:8px;height:14px;z-index:6;animation:pvConf 3s linear forwards;pointer-events:none}
+@keyframes pvConf{to{transform:translateY(560px) rotate(720deg);opacity:0}}
+</style>
 </head>
 <body class="flex flex-col md:flex-row h-screen selection:bg-cyan-500 selection:text-white">
     <div class="bg-scene" aria-hidden="true"><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div><div class="bg-dots"></div><div class="bg-spot"></div><canvas id="bg-canvas"></canvas></div>
@@ -646,6 +692,7 @@
                     </div>
                 </div>
                 
+                <div id="sport-progress" class="pv-panel"></div>
                 <div class="textured-panel p-5 rounded-3xl space-y-4 md:sticky md:top-0 z-30 shadow-2xl backdrop-blur-md bg-[#03050a]/95">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/50 pb-4">
                         <span id="collection-counter-text" class="text-sm text-amber-400 font-black font-sport tracking-wider bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">0 / <span class="total-cards-label">0</span> DÉBLOQUÉS</span>
@@ -701,6 +748,7 @@
                             <h3 class="text-lg font-bold font-sport uppercase text-white mb-2"><i class="fa-solid fa-plus-circle text-rose-400"></i> Créer un salon</h3>
                             <p class="text-xs text-slate-400">Générez un code unique et communiquez-le à votre ami pour jouer.</p>
                         </div>
+                        <div><div class="pv-s" style="margin-bottom:6px">Mise en SP : le gagnant remporte tout le pot</div><div id="pvp-stake-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
                         <button onclick="createPvPRoom()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-black font-sport uppercase text-sm rounded-xl shadow-lg transition-transform hover:scale-105">
                             Générer un salon
                         </button>
@@ -720,6 +768,7 @@
                 </div>
 
                 <!-- ÉCRAN DE SALON D'ATTENTE & RESULTAT (Caché par défaut) -->
+                <div id="pvp-objectives" class="pv-panel"></div>
                 <div id="pvp-arena-panel" class="hidden textured-panel p-6 rounded-3xl space-y-6 text-center border border-slate-800">
                     <div id="pvp-status-header" class="space-y-2">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Code du salon</span>
@@ -727,7 +776,7 @@
                         <p id="pvp-waiting-msg" class="text-sm text-cyan-400 font-sport animate-pulse">En attente d'un adversaire...</p>
                     </div>
 
-                    <div id="pvp-versus-container" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+                    <div id="pvp-stage" class="hidden"></div><div id="pvp-versus-container" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                         <!-- Joueur local -->
                         <div class="bg-slate-950/80 p-4 rounded-2xl border border-rose-500/30 flex flex-col items-center">
                             <span class="text-xs font-bold text-rose-400 uppercase">Vous</span>
@@ -1677,7 +1726,7 @@
             for (const [key, label] of [['country', teamCountryName], ['sport', x => x]]) {
                 const groups = {};
                 players.forEach(p => { if (p[key]) groups[p[key]] = (groups[p[key]] || 0) + 1; });
-                for (const [v, n] of Object.entries(groups)) if (n >= 2) { bonus += n - 1; details.push({ label: label(v), n, pts: n - 1 }); }
+                for (const [v, n] of Object.entries(groups)) if (n >= 2) { bonus += n - 1; details.push({ label: label(v), n, pts: n - 1, kind: key, v }); }
             }
             const ab = Object.keys(userState.claimed || {}).filter(k => k.endsWith('_100')).length;
             if (ab) { bonus += ab; details.push({ label: 'Albums complétés', n: ab, pts: ab, album: true }); }
@@ -1688,6 +1737,7 @@
             const container = document.getElementById('active-deck-slots');
             if (!container) return;
             let totalOvr = 0, activeCount = 0, htmlContent = '';
+            const _tbd = getTeamBonus().details, _syn = a => _tbd.filter(d => (d.kind === 'country' && d.v === a.country) || (d.kind === 'sport' && d.v === a.sport)).map(d => `<span>${d.label} ×${d.n}</span>`).join('');
             for (let i = 0; i < 5; i++) {
                 const id = userState.deck[i];
                 if (id) {
@@ -1697,7 +1747,7 @@
                         totalOvr += (typeof calculatedScore === 'number' ? calculatedScore : 95);
                         activeCount++;
                         const photoUrl = await fetchWikiPhoto(athlete.wikiSlug);
-                        htmlContent += `<div class="relative flex flex-col items-center group"><div class="w-full">${getCardHTML(athlete, photoUrl, true, false, false, false, false)}</div><button onclick="event.stopPropagation(); removeFromDeck(${i})" class="absolute top-2 right-2 z-30 w-7 h-7 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-lg"><i class="fa-solid fa-xmark text-xs"></i></button></div>`;
+                        htmlContent += `<div class="relative flex flex-col items-center group"><div class="pv-syn">${_syn(athlete)}</div><div class="w-full">${getCardHTML(athlete, photoUrl, true, false, false, false, false)}</div><button onclick="event.stopPropagation(); removeFromDeck(${i})" class="absolute top-2 right-2 z-30 w-7 h-7 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-lg"><i class="fa-solid fa-xmark text-xs"></i></button></div>`;
                     }
                 } else {
                     htmlContent += `<div class="pokemon-card w-full border-2 border-dashed border-slate-700/60 bg-slate-950/40 flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-plus mb-2 opacity-50 text-xl"></i><span class="text-[10px] uppercase font-bold">Slot Vide</span></div>`;
@@ -1707,7 +1757,7 @@
             const avg = activeCount > 0 ? Math.round(totalOvr / activeCount) : 0, tb = getTeamBonus();
             const avgEl = document.getElementById('deck-average-ovr'); if (avgEl) avgEl.textContent = avg + tb.bonus;
             const bonusEl = document.getElementById('deck-bonus-info');
-            if (bonusEl) bonusEl.innerHTML = tb.bonus > 0 ? `<span class="font-bold text-emerald-300"><i class="fa-solid fa-link"></i> Bonus +${tb.bonus}</span>` : `<span class="text-slate-400">Aucun bonus</span>`;
+            if (bonusEl) bonusEl.innerHTML = teamBonusHTML(tb);
         }
 
         async function renderDeckQuickAdd() {
@@ -2040,109 +2090,151 @@
             document.body.appendChild(bar);
         }
 
+        // --- BONUS D'ÉQUIPE VISIBLES ---
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        function teamBonusHTML(tb) {
+            if (!tb.bonus) return '<span style="color:#94a3b8">Aucun bonus : aligne 2 athlètes du même pays ou du même sport pour +1.</span>';
+            return `<span class="font-bold" style="color:#6ee7b7"><i class="fa-solid fa-link"></i> Bonus d'équipe +${tb.bonus}</span>` + tb.details.map(d => {
+                const ic = d.kind === 'country' ? `<img src="https://flagcdn.com/w40/${esc(String(d.v).toLowerCase())}.png" alt="" onerror="this.style.display='none'">` : d.kind === 'sport' ? `<i class="fa-solid ${sportIcons[d.v] || 'fa-trophy'}"></i>` : '<i class="fa-solid fa-book"></i>';
+                const lbl = d.album ? `${d.n} album(s) complété(s)` : `${d.n} × ${esc(d.label)}`;
+                return `<span class="pv-chip">${ic} ${lbl} <b>+${d.pts}</b></span>`;
+            }).join('');
+        }
+
+        // --- PROGRESSION PAR SPORT ---
+        function renderSportProgress() {
+            const el = document.getElementById('sport-progress'); if (!el) return;
+            el.innerHTML = '<div class="pv-h"><i class="fa-solid fa-chart-simple" style="color:#22d3ee"></i> Progression par sport</div><div class="pv-grid">' + sportsNames.map(sp => {
+                const l = athletesData.filter(a => a.sport === sp), n = l.filter(a => has(a.id)).length, t = l.length, pc = t ? Math.round(n / t * 100) : 0, full = pc === 100;
+                return `<div class="pv-obj ${full ? 'ok' : ''}"><div class="pv-row"><i class="fa-solid ${sportIcons[sp] || 'fa-trophy'}" style="color:${full ? '#fbbf24' : '#22d3ee'};width:22px;text-align:center"></i><div class="pv-t" style="flex:1">${sp}</div><span class="pv-s" style="font-family:monospace">${n}/${t} · ${pc}%</span></div><div class="pv-bar ${full ? 'full' : ''}"><i style="width:${pc}%"></i></div></div>`;
+            }).join('') + '</div>';
+        }
+        const _ugs = updateGlobalStats; updateGlobalStats = function () { _ugs.apply(this, arguments); renderSportProgress(); };
+        const _smt = switchMainTab; switchMainTab = function (id) { _smt.apply(this, arguments); if (id === 'tab-pvp') { renderPvPObjectives(); renderStakeChips(); } };
+
         // --- LOGIQUE PVP SOCKET.IO ---
-        const socket = io('http://localhost:3000');
-        let currentRoomCode = null;
+        let socket = null; try { socket = io('http://localhost:3000'); } catch (e) { console.warn('Socket.IO indisponible', e); }
+        const on = (ev, fn) => socket && socket.on(ev, fn);
+        let currentRoomCode = null, pvpStake = 0, pvpBusy = false, pvpMe = 0, pvpPl = [];
+        const sleep = ms => new Promise(r => setTimeout(r, ms)), PVP_WIN = 250, $ = id => document.getElementById(id);
+        const pv = () => userState.pvp = Object.assign({ w: 0, l: 0, d: 0, streak: 0, best: 0, played: 0, perfect: 0, under: 0, bigbet: 0, escrow: 0, claimed: {} }, userState.pvp || {});
+        const PVP_OBJ = [
+            { id: 'win1', ic: 'fa-medal', t: 'Première victoire', d: 'Gagne 1 combat', r: 150, v: p => p.w, g: 1 },
+            { id: 'play10', ic: 'fa-hand-fist', t: 'Habitué de l\'arène', d: 'Joue 10 combats', r: 300, v: p => p.played, g: 10 },
+            { id: 'streak3', ic: 'fa-fire', t: 'Série en feu', d: '3 victoires d\'affilée', r: 500, v: p => p.best, g: 3 },
+            { id: 'perfect', ic: 'fa-star', t: 'Sans faute', d: 'Gagne en remportant les 5 duels', r: 500, v: p => p.perfect, g: 1 },
+            { id: 'under', ic: 'fa-bolt', t: 'David contre Goliath', d: 'Bats une équipe au OVR plus élevé', r: 500, v: p => p.under, g: 1 },
+            { id: 'bet', ic: 'fa-coins', t: 'Grand parieur', d: 'Gagne un pari de 250 SP ou plus', r: 600, v: p => p.bigbet, g: 1 },
+            { id: 'win10', ic: 'fa-trophy', t: 'Gladiateur', d: 'Gagne 10 combats', r: 1000, v: p => p.w, g: 10 }
+        ];
+        function claimPvPObj(id) {
+            const o = PVP_OBJ.find(x => x.id === id), p = pv(); if (!o || p.claimed[id] || o.v(p) < o.g) return;
+            p.claimed[id] = Date.now(); userState.sportsPoints += o.r; playSparkleSound(); showToast(`Objectif PvP : +${o.r} SP !`, 'success'); saveUser(); updateUI(); renderPvPObjectives();
+        }
+        function renderPvPObjectives() {
+            const el = $('pvp-objectives'); if (!el) return; const p = pv(), ok = socket && socket.connected;
+            el.innerHTML = `<div class="pv-row" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:10px"><div class="pv-h" style="margin:0"><i class="fa-solid fa-bullseye" style="color:#fb7185"></i> Objectifs PvP</div><div class="pv-s" style="font-family:monospace">${p.w}V · ${p.d}N · ${p.l}D · série ${p.streak} · <span style="color:${ok ? '#34d399' : '#fb7185'}">${ok ? '● serveur en ligne' : '● serveur hors ligne'}</span></div></div><div class="pv-grid">` + PVP_OBJ.map(o => {
+                const val = Math.min(o.v(p), o.g), done = p.claimed[o.id], rdy = val >= o.g;
+                return `<div class="pv-obj ${done ? 'done' : rdy ? 'ok' : ''}"><div class="pv-row"><i class="fa-solid ${o.ic}" style="color:${rdy ? '#fbbf24' : '#64748b'};width:22px;text-align:center"></i><div style="flex:1;min-width:0"><div class="pv-t">${o.t} <span style="color:#fbbf24;font:700 11px monospace">+${o.r} SP</span></div><div class="pv-s">${o.d}</div></div>${done ? '<i class="fa-solid fa-check" style="color:#34d399"></i>' : rdy ? `<button class="pv-btn" onclick="claimPvPObj('${o.id}')">Réclamer</button>` : `<span class="pv-s" style="font-family:monospace">${val}/${o.g}</span>`}</div><div class="pv-bar"><i style="width:${val / o.g * 100}%"></i></div></div>`;
+            }).join('') + '</div>';
+        }
+        function renderStakeChips() {
+            const el = $('pvp-stake-chips'); if (!el) return; if (pvpStake > userState.sportsPoints) pvpStake = 0;
+            el.innerHTML = [0, 50, 100, 250, 500].map(v => `<button class="pv-btn ${v === pvpStake ? '' : 'off'}" ${v > userState.sportsPoints ? 'disabled' : ''} onclick="pvpStake=${v};renderStakeChips()">${v ? v + ' SP' : 'Amical'}</button>`).join('');
+        }
 
         function getPlayerDataPayload() {
-            const activeDeck = userState.deck.filter(Boolean);
-            if (activeDeck.length < 5) {
-                showToast("Vous devez composer une équipe complète de 5 athlètes dans l'onglet 'Mon Équipe' !", "warning");
-                return null;
-            }
-
-            let totalOvr = 0;
-            userState.deck.forEach(id => {
-                const athlete = allCardsData.find(a => a.id === id);
-                if (athlete) {
-                    const score = getAthleteCalculatedScore(athlete);
-                    totalOvr += (typeof score === 'number' ? score : 95);
-                }
-            });
-
-            const averageOvr = Math.round(totalOvr / 5) + getTeamBonus().bonus;
-
-            return {
-                name: "Joueur_" + socket.id.substring(0, 4),
-                deck: userState.deck,
-                equipments: userState.athleteEquipments,
-                ovr: averageOvr
-            };
+            const deck = userState.deck.filter(Boolean);
+            if (deck.length < 5) { showToast("Vous devez composer une équipe complète de 5 athlètes dans l'onglet 'Mon Équipe' !", "warning"); return null; }
+            if (!socket || !socket.connected) { showToast('Serveur PvP injoignable : lance server.js (port 3000).', 'error'); return null; }
+            const cards = deck.map(id => allCardsData.find(a => a.id === id)).filter(Boolean).map(a => { const s = getAthleteCalculatedScore(a); return { n: a.name, sl: a.wikiSlug, sp: a.sport, c: a.country, s: typeof s === 'number' ? s : 95 }; });
+            const tb = getTeamBonus(), avg = Math.round(cards.reduce((t, c) => t + c.s, 0) / 5);
+            return { name: 'Joueur_' + socket.id.substring(0, 4), deck: userState.deck, equipments: userState.athleteEquipments, ovr: avg + tb.bonus, cards, bonus: tb.bonus, stake: pvpStake };
         }
-
-        function createPvPRoom() {
-            const payload = getPlayerDataPayload();
-            if (!payload) return;
-            socket.emit('create_room', payload);
-        }
-
+        function createPvPRoom() { const p = getPlayerDataPayload(); if (p) socket.emit('create_room', p); }
         function joinPvPRoom() {
-            const codeInput = document.getElementById('pvp-room-code-input').value.trim().toUpperCase();
-            if (!codeInput) {
-                showToast("Veuillez entrer un code de salon valide.", "warning");
-                return;
-            }
-            const payload = getPlayerDataPayload();
-            if (!payload) return;
-            socket.emit('join_room', { roomCode: codeInput, playerData: payload });
+            const code = $('pvp-room-code-input').value.trim().toUpperCase();
+            if (!code) { showToast('Veuillez entrer un code de salon valide.', 'warning'); return; }
+            const p = getPlayerDataPayload(); if (!p) return;
+            currentRoomCode = code; socket.emit('join_room', { roomCode: code, playerData: p });
+        }
+        function triggerBattle() { if (currentRoomCode) { $('btn-start-battle').classList.add('hidden'); socket.emit('start_battle', currentRoomCode); } }
+        function pvpEnterArena() { ['pvp-lobby-panel', 'pvp-objectives'].forEach(i => $(i).classList.add('hidden')); $('pvp-arena-panel').classList.remove('hidden'); }
+        function pvpRefund() { const p = pv(); if (p.escrow > 0) { userState.sportsPoints += p.escrow; p.escrow = 0; saveUser(); updateUI(); } }
+        function pvpReset() {
+            pvpRefund(); currentRoomCode = null; pvpBusy = false;
+            ['pvp-lobby-panel', 'pvp-objectives'].forEach(i => $(i).classList.remove('hidden'));
+            ['pvp-arena-panel', 'pvp-stage', 'pvp-result-box', 'btn-start-battle'].forEach(i => $(i).classList.add('hidden')); $('pvp-stage').innerHTML = '';
+            renderPvPObjectives(); renderStakeChips();
         }
 
-        function triggerBattle() {
-            if (currentRoomCode) {
-                socket.emit('start_battle', currentRoomCode);
-            }
+        const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span></small>`;
+        async function pvpFill(el, c, i) {
+            const img = c && c.sl ? await fetchWikiPhoto(c.sl).catch(() => '') : '';
+            el.innerHTML = `<img alt="" src="${esc(img || '')}" ${img ? '' : 'style="visibility:hidden"'} onerror="this.style.visibility='hidden'"><div class="tx"><div class="n">${esc(c ? c.n : 'Athlète ' + (i + 1))}</div><div class="m">${c ? `<i class="fa-solid ${sportIcons[c.sp] || 'fa-trophy'}"></i> ${esc(c.sp)}` : ''}</div></div><div class="sc">?</div>`;
+        }
+        function pvpRounds(side, cards, S, seed) {
+            if (Array.isArray(side.rounds) && side.rounds.length === 5) return side.rounds.map(Number);
+            const w = cards && cards.length === 5 ? cards.map(c => c.s) : [0, 1, 2, 3, 4].map(i => 90 + ((seed * (i + 3) * 7919) % 20)), sum = w.reduce((a, b) => a + b, 0), r = w.map(x => Math.round(S * x / sum));
+            r[4] += S - r.reduce((a, b) => a + b, 0); return r;
+        }
+        function countUp(el, to, ms) { const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / ms); el.textContent = Math.round(to * k); if (k < 1) requestAnimationFrame(f); })(t0); }
+        function confetti(host) {
+            for (let i = 0; i < 50; i++) { const c = document.createElement('i'); c.className = 'pv-conf'; c.style.cssText = `left:${Math.random() * 100}%;background:hsl(${Math.random() * 360},90%,60%);animation-delay:${Math.random() * .8}s`; host.appendChild(c); setTimeout(() => c.remove(), 4200); }
         }
 
-        socket.on('room_created', (data) => {
-            currentRoomCode = data.roomCode;
-            document.getElementById('pvp-lobby-panel').classList.add('hidden');
-            document.getElementById('pvp-arena-panel').classList.remove('hidden');
-            document.getElementById('display-room-code').textContent = currentRoomCode;
-            document.getElementById('pvp-waiting-msg').textContent = "Salon créé ! Partagez ce code avec votre ami.";
-        });
-
-        socket.on('match_start', (data) => {
-            document.getElementById('pvp-lobby-panel').classList.add('hidden');
-            document.getElementById('pvp-arena-panel').classList.remove('hidden');
-            document.getElementById('pvp-waiting-msg').textContent = "Adversaire connecté ! Le combat est prêt.";
-            document.getElementById('pvp-versus-container').classList.remove('hidden');
-            
-            document.getElementById('pvp-p1-name').textContent = data.players[0].name;
-            document.getElementById('pvp-p1-ovr').textContent = `${data.players[0].ovr} OVR`;
-
-            document.getElementById('pvp-p2-name').textContent = data.players[1].name;
-            document.getElementById('pvp-p2-ovr').textContent = `${data.players[1].ovr} OVR`;
-
-            if (socket.id === data.players[0].id) {
-                document.getElementById('btn-start-battle').classList.remove('hidden');
+        function pvpScores(data) {
+            const A = pvpMe === 0 ? data.p1 : data.p2, B = pvpMe === 0 ? data.p2 : data.p1, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe], div = Math.max(A.total, B.total) > 200 ? 1 : 5;
+            return { ra: pvpRounds(A, L.cards, A.total * div, 3), rb: pvpRounds(B, R.cards, B.total * div, 7), div };
+        }
+        async function pvpPlay(sc) {
+            const arena = $('pv-arena'), L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe], { ra, rb, div } = sc;
+            for (const t of ['3', '2', '1', 'COMBAT !']) { const c = document.createElement('div'); c.className = 'pv-count'; c.textContent = t; arena.appendChild(c); await sleep(800); c.remove(); }
+            let ca = 0, cb = 0, wa = 0;
+            for (let i = 0; i < 5; i++) {
+                const lane = $('pv-l' + i), fa = lane.children[0], fb = lane.children[2];
+                await Promise.all([pvpFill(fa, L.cards && L.cards[i], i), pvpFill(fb, R.cards && R.cards[i], i)]);
+                lane.classList.add('on', 'in'); await sleep(650);
+                countUp(fa.querySelector('.sc'), ra[i], 450); countUp(fb.querySelector('.sc'), rb[i], 450); await sleep(550);
+                const a = ra[i] > rb[i], b = rb[i] > ra[i]; if (a) wa++;
+                fa.classList.add(a ? 'win' : b ? 'lose' : 'x'); fb.classList.add(b ? 'win' : a ? 'lose' : 'x');
+                lane.classList.add('hit'); arena.classList.add('pv-shake'); setTimeout(() => arena.classList.remove('pv-shake'), 420);
+                ca += ra[i]; cb += rb[i]; $('pv-ta').textContent = Math.round(ca / div); $('pv-tb').textContent = Math.round(cb / div);
+                $('pv-tug').style.width = (ca / (ca + cb) * 100) + '%'; await sleep(700);
             }
+            return wa;
+        }
+
+        on('connect', renderPvPObjectives); on('disconnect', () => { renderPvPObjectives(); if (!pvpBusy) pvpRefund(); }); on('connect_error', renderPvPObjectives);
+        on('room_created', data => { currentRoomCode = data.roomCode; pvpEnterArena(); $('display-room-code').textContent = currentRoomCode; $('pvp-waiting-msg').textContent = 'Salon créé ! Partage ce code avec ton ami.'; });
+        on('match_start', data => {
+            pvpBusy = false; pvpPl = data.players; pvpMe = Math.max(0, pvpPl.findIndex(p => p.id === socket.id));
+            const stake = Number(pvpPl[0].stake) || 0, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe];
+            if (stake > userState.sportsPoints) { showToast(`Mise de ${stake} SP : tu n'as pas assez de SP.`, 'error'); socket.emit('decline_match', currentRoomCode); pvpReset(); return; }
+            pvpStake = stake; const p = pv(); p.escrow = stake; userState.sportsPoints -= stake; saveUser(); updateUI();
+            pvpEnterArena(); $('pvp-waiting-msg').textContent = stake ? `Mise bloquée : ${stake} SP chacun` : 'Adversaire connecté ! Combat amical.';
+            const st = $('pvp-stage'); st.classList.remove('hidden');
+            st.innerHTML = `<div class="pv-arena" id="pv-arena"><div class="pv-top"><div class="pv-side">${sideInfo(L, true)}</div><div class="pv-pot">${stake ? '<i class="fa-solid fa-coins"></i> POT ' + stake * 2 + ' SP' : 'COMBAT AMICAL'}</div><div class="pv-side" style="text-align:right">${sideInfo(R, false)}</div></div><div class="pv-tug"><i id="pv-tug"></i></div>${[0, 1, 2, 3, 4].map(i => `<div class="pv-lane" id="pv-l${i}"><div class="pv-f a"></div><div class="pv-vs">VS</div><div class="pv-f b"></div></div>`).join('')}<div id="pv-end"></div></div>`;
+            if (pvpMe === 0) $('btn-start-battle').classList.remove('hidden');
         });
-
-        socket.on('battle_result', (data) => {
-            document.getElementById('btn-start-battle').classList.add('hidden');
-            const resultBox = document.getElementById('pvp-result-box');
-            const resultTitle = document.getElementById('pvp-result-title');
-            const resultDetails = document.getElementById('pvp-result-details');
-
-            resultBox.classList.remove('hidden');
-
-            if (data.winnerId === socket.id) {
-                resultTitle.textContent = "VICTOIRE ! 🏆";
-                showToast("Victoire PvP ! +250 SP remportés !", "success");
-                userState.sportsPoints += 250;
-                saveUser();
-            } else if (data.winnerId === null) {
-                resultTitle.textContent = "ÉGALITÉ ! 🤝";
-            } else {
-                resultTitle.textContent = "DÉFAITE... 💀";
-            }
-            resultDetails.textContent = `${data.p1.name} (Score: ${data.p1.total}) vs ${data.p2.name} (Score: ${data.p2.total})`;
+        on('opponent_left', () => { showToast("L'adversaire a quitté le salon.", 'warning'); pvpReset(); });
+        on('battle_result', async data => {
+            if (pvpBusy) return; pvpBusy = true; $('btn-start-battle').classList.add('hidden');
+            const stake = pvpStake, p = pv(), won = data.winnerId === socket.id, draw = data.winnerId === null;
+            const sc = pvpScores(data), wa = sc.ra.filter((x, i) => x > sc.rb[i]).length;
+            let net = -stake;
+            p.played++;
+            if (won) { net = stake + PVP_WIN; p.w++; p.streak++; p.best = Math.max(p.best, p.streak); if (wa === 5) p.perfect++; if (pvpPl[1 - pvpMe].ovr > pvpPl[pvpMe].ovr) p.under++; if (stake >= 250) p.bigbet++; }
+            else if (draw) { net = 0; p.d++; p.streak = 0; } else { p.l++; p.streak = 0; }
+            p.escrow = 0; userState.sportsPoints += won ? stake * 2 + PVP_WIN : draw ? stake : 0; saveUser(); updateUI();
+            await pvpPlay(sc);
+            const cls = won ? 'w' : draw ? 'd' : 'l', arena = $('pv-arena');
+            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels remportés : ${wa}/5 · Score ${data.p1.total} - ${data.p2.total}<br><b style="color:${net >= 0 ? '#fbbf24' : '#fb7185'}">${net >= 0 ? '+' : ''}${net} SP</b></div><button class="pv-btn" onclick="pvpReset()">Retour à l'arène</button></div>`;
+            if (won) { confetti(arena); playSparkleSound(); showToast(`Victoire PvP ! +${net} SP`, 'success'); }
         });
+        on('error_message', msg => showToast(msg, 'error'));
 
-        socket.on('error_message', (msg) => {
-            showToast(msg, "error");
-        });
-
+        renderSportProgress(); renderPvPObjectives(); renderStakeChips();
         fillTargetValues();
         initUser();
     </script>
