@@ -604,7 +604,10 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             </section>
 
             <!-- ONGLET OBJECTIFS -->
-            <section id="tab-goals" class="tab-content w-full"><div id="goals-content"></div></section>
+            <section id="tab-goals" class="tab-content w-full space-y-6">
+                <div id="goals-content"></div>
+                <div id="pvp-objectives" class="pv-panel"></div>
+            </section>
 
             <!-- ONGLET BOUTIQUE & VINTAGE -->
             <section id="tab-vintage" class="tab-content w-full space-y-8">
@@ -800,7 +803,6 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 </div>
 
                 <!-- ÉCRAN DE SALON D'ATTENTE & RESULTAT (Caché par défaut) -->
-                <div id="pvp-objectives" class="pv-panel"></div>
                 <div id="pvp-arena-panel" class="hidden textured-panel p-6 rounded-3xl space-y-6 text-center border border-slate-800">
                     <div id="pvp-status-header" class="space-y-2">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Code du salon</span>
@@ -1228,7 +1230,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (tabId === 'tab-collection') { displayedCardLimit = 24; renderCardsCatalogue(); updateGlobalStats(); }
             else if (tabId === 'tab-deck') { renderDeck(); renderDeckQuickAdd(); }
             else if (tabId === 'tab-vintage') { renderEquipmentShop(); renderVintageShop(); }
-            else if (tabId === 'tab-goals') { renderGoals(); }
+            else if (tabId === 'tab-goals') { renderGoals(); renderPvPObjectives(); }
+            else if (tabId === 'tab-pvp') { renderStakeChips(); }
         }
 
         function updateGlobalStats() {
@@ -2142,7 +2145,6 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             }).join('') + '</div>';
         }
         const _ugs = updateGlobalStats; updateGlobalStats = function () { _ugs.apply(this, arguments); renderSportProgress(); };
-        const _smt = switchMainTab; switchMainTab = function (id) { _smt.apply(this, arguments); if (id === 'tab-pvp') { renderPvPObjectives(); renderStakeChips(); } };
 
         // --- LOGIQUE PVP SOCKET.IO ---
         let socket = null; try { socket = io('http://localhost:3000'); } catch (e) { console.warn('Socket.IO indisponible', e); }
@@ -2160,12 +2162,12 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             { id: 'win10', ic: 'fa-trophy', t: 'Gladiateur', d: 'Gagne 10 combats', r: 1000, v: p => p.w, g: 10 }
         ];
         function claimPvPObj(id) {
-            const o = PVP_OBJ.find(x => x.id === id), p = pv(); if (!o || p.claimed[id] || o.v(p) < o.g) return;
-            p.claimed[id] = Date.now(); userState.sportsPoints += o.r; playSparkleSound(); showToast(`Objectif PvP : +${o.r} SP !`, 'success'); saveUser(); updateUI(); renderPvPObjectives();
+            const o = PVP_OBJ.find(x => x.id === id), p = pv(); if (!o || p.claimed[o.id] || o.v(p) < o.g) return;
+            p.claimed[o.id] = Date.now(); userState.sportsPoints += o.r; playSparkleSound(); showToast(`Objectif PvP : +${o.r} SP !`, 'success'); saveUser(); updateUI(); renderPvPObjectives();
         }
         function renderPvPObjectives() {
             const el = $('pvp-objectives'); if (!el) return; const p = pv(), ok = socket && socket.connected;
-            el.innerHTML = `<div class="pv-row" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:10px"><div class="pv-h" style="margin:0"><i class="fa-solid fa-bullseye" style="color:#fb7185"></i> Objectifs PvP</div><div class="pv-s" style="font-family:monospace">${p.w}V · ${p.d}N · ${p.l}D · série ${p.streak} · <span style="color:${ok ? '#34d399' : '#fb7185'}">${ok ? '● serveur en ligne' : '● serveur hors ligne'}</span></div></div><div class="pv-grid">` + PVP_OBJ.map(o => {
+            el.innerHTML = `<div class="pv-row" style="justify-space-between;flex-wrap:wrap;margin-bottom:10px"><div class="pv-h" style="margin:0"><i class="fa-solid fa-swords" style="color:#fb7185"></i> Objectifs PvP</div><div class="pv-s" style="font-family:monospace">${p.w}V · ${p.d}N · ${p.l}D · série ${p.streak} · <span style="color:${ok ? '#34d399' : '#fb7185'}">${ok ? '● serveur en ligne' : '● serveur hors ligne'}</span></div></div><div class="pv-grid">` + PVP_OBJ.map(o => {
                 const val = Math.min(o.v(p), o.g), done = p.claimed[o.id], rdy = val >= o.g;
                 return `<div class="pv-obj ${done ? 'done' : rdy ? 'ok' : ''}"><div class="pv-row"><i class="fa-solid ${o.ic}" style="color:${rdy ? '#fbbf24' : '#64748b'};width:22px;text-align:center"></i><div style="flex:1;min-width:0"><div class="pv-t">${o.t} <span style="color:#fbbf24;font:700 11px monospace">+${o.r} SP</span></div><div class="pv-s">${o.d}</div></div>${done ? '<i class="fa-solid fa-check" style="color:#34d399"></i>' : rdy ? `<button class="pv-btn" onclick="claimPvPObj('${o.id}')">Réclamer</button>` : `<span class="pv-s" style="font-family:monospace">${val}/${o.g}</span>`}</div><div class="pv-bar"><i style="width:${val / o.g * 100}%"></i></div></div>`;
             }).join('') + '</div>';
@@ -2191,11 +2193,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             currentRoomCode = code; socket.emit('join_room', { roomCode: code, playerData: p });
         }
         function triggerBattle() { if (currentRoomCode) { $('btn-start-battle').classList.add('hidden'); socket.emit('start_battle', currentRoomCode); } }
-        function pvpEnterArena() { ['pvp-lobby-panel', 'pvp-objectives'].forEach(i => $(i).classList.add('hidden')); $('pvp-arena-panel').classList.remove('hidden'); }
+        function pvpEnterArena() { $('pvp-lobby-panel').classList.add('hidden'); $('pvp-arena-panel').classList.remove('hidden'); }
         function pvpRefund() { const p = pv(); if (p.escrow > 0) { userState.sportsPoints += p.escrow; p.escrow = 0; saveUser(); updateUI(); } }
         function pvpReset() {
             pvpRefund(); currentRoomCode = null; pvpBusy = false;
-            ['pvp-lobby-panel', 'pvp-objectives'].forEach(i => $(i).classList.remove('hidden'));
+            $('pvp-lobby-panel').classList.remove('hidden');
             ['pvp-arena-panel', 'pvp-stage', 'pvp-result-box', 'btn-start-battle'].forEach(i => $(i).classList.add('hidden')); $('pvp-stage').innerHTML = '';
             renderPvPObjectives(); renderStakeChips();
         }
