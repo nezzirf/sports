@@ -2148,7 +2148,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         const _ugs = updateGlobalStats; updateGlobalStats = function () { _ugs.apply(this, arguments); renderSportProgress(); };
 
         // --- LOGIQUE PVP SOCKET.IO ---
-        let socket = null; try { socket = io('http://localhost:3000'); } catch (e) { console.warn('Socket.IO indisponible', e); }
+        let socket = null; try { socket = io(location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://https://site--hall-of-legend--ymz2867hln78.code.run'); } catch (e) { console.warn('Socket.IO indisponible', e); }
         const on = (ev, fn) => socket && socket.on(ev, fn);
         let currentRoomCode = null, pvpStake = 0, pvpBusy = false, pvpMe = 0, pvpPl = [];
         const sleep = ms => new Promise(r => setTimeout(r, ms)), PVP_WIN = 250, $ = id => document.getElementById(id);
