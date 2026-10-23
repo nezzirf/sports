@@ -439,6 +439,7 @@
 .pv-f{display:flex;align-items:center;gap:8px;padding:8px;border-radius:14px;background:rgba(15,23,42,.8);border:2px solid #334155;transition:all .3s;min-width:0;min-height:62px}
 .pv-f.b{flex-direction:row-reverse;text-align:right}.pv-f.a{color:#22d3ee}.pv-f.b{color:#fb7185}
 .pv-f img{width:42px;height:42px;border-radius:50%;object-fit:cover;background:#1e293b;border:2px solid currentColor;flex:none}
+.pv-f .pv-av{position:relative;width:42px;height:42px;border-radius:50%;border:2px solid currentColor;background:#1e293b;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:17px}.pv-f .pv-av img{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;object-fit:cover}
 .pv-f .n{font-weight:800;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pv-f .m{font-size:10px;color:#94a3b8}.pv-f .tx{min-width:0;flex:1}
 .pv-f .sc{font:900 20px monospace;color:#fff}
@@ -2177,11 +2178,14 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             el.innerHTML = [0, 50, 100, 250, 500].map(v => `<button class="pv-btn ${v === pvpStake ? '' : 'off'}" ${v > userState.sportsPoints ? 'disabled' : ''} onclick="pvpStake=${v};renderStakeChips()">${v ? v + ' SP' : 'Amical'}</button>`).join('');
         }
 
+        function pvpLocalCards() {
+            return (userState.deck || []).filter(Boolean).map(id => allCardsData.find(a => a.id === id)).filter(Boolean).map(a => { const s = getAthleteCalculatedScore(a); return { n: a.name, sl: a.wikiSlug, sp: a.sport, c: a.country, s: typeof s === 'number' ? s : 95 }; });
+        }
         function getPlayerDataPayload() {
             const deck = userState.deck.filter(Boolean);
             if (deck.length < 5) { showToast("Vous devez composer une équipe complète de 5 athlètes dans l'onglet 'Mon Équipe' !", "warning"); return null; }
             if (!socket || !socket.connected) { showToast('Serveur PvP injoignable : lance server.js (port 3000).', 'error'); return null; }
-            const cards = deck.map(id => allCardsData.find(a => a.id === id)).filter(Boolean).map(a => { const s = getAthleteCalculatedScore(a); return { n: a.name, sl: a.wikiSlug, sp: a.sport, c: a.country, s: typeof s === 'number' ? s : 95 }; });
+            const cards = pvpLocalCards();
             const tb = getTeamBonus(), avg = Math.round(cards.reduce((t, c) => t + c.s, 0) / 5);
             return { name: 'Joueur_' + socket.id.substring(0, 4), deck: userState.deck, equipments: userState.athleteEquipments, ovr: avg + tb.bonus, cards, bonus: tb.bonus, stake: pvpStake };
         }
@@ -2204,8 +2208,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span></small>`;
         async function pvpFill(el, c, i) {
-            const img = c && c.sl ? await fetchWikiPhoto(c.sl).catch(() => '') : '';
-            el.innerHTML = `<img alt="" src="${esc(img || '')}" ${img ? '' : 'style="visibility:hidden"'} onerror="this.style.visibility='hidden'"><div class="tx"><div class="n">${esc(c ? c.n : 'Athlète ' + (i + 1))}</div><div class="m">${c ? `<i class="fa-solid ${sportIcons[c.sp] || 'fa-trophy'}"></i> ${esc(c.sp)}` : ''}</div></div><div class="sc">?</div>`;
+            const img = c && c.sl ? await fetchWikiPhoto(c.sl).catch(() => fallbackImage) : '';
+            const ico = `<i class="fa-solid ${(c && sportIcons[c.sp]) || 'fa-user'}"></i>`;
+            el.innerHTML = `<div class="pv-av">${ico}${img ? `<img alt="" src="${esc(img)}" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}</div><div class="tx"><div class="n">${esc(c ? c.n : 'Athlète ' + (i + 1))}</div><div class="m">${c ? `<i class="fa-solid ${sportIcons[c.sp] || 'fa-trophy'}"></i> ${esc(c.sp)}` : ''}</div></div><div class="sc">?</div>`;
         }
         function pvpRounds(side, cards, S, seed) {
             if (Array.isArray(side.rounds) && side.rounds.length === 5) return side.rounds.map(Number);
@@ -2244,6 +2249,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         on('match_start', data => {
             pvpBusy = false; pvpPl = data.players; pvpMe = Math.max(0, pvpPl.findIndex(p => p.id === socket.id));
             const stake = Number(pvpPl[0].stake) || 0, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe];
+            if (!(L.cards && L.cards.length === 5)) L.cards = pvpLocalCards();
+            [...(L.cards || []), ...(R.cards || [])].forEach(c => c && c.sl && fetchWikiPhoto(c.sl));
             if (stake > userState.sportsPoints) { showToast(`Mise de ${stake} SP : tu n'as pas assez de SP.`, 'error'); socket.emit('decline_match', currentRoomCode); pvpReset(); return; }
             pvpStake = stake; const p = pv(); p.escrow = stake; userState.sportsPoints -= stake; saveUser(); updateUI();
             pvpEnterArena(); $('pvp-waiting-msg').textContent = stake ? `Mise bloquée : ${stake} SP chacun` : 'Adversaire connecté ! Combat amical.';
