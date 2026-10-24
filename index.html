@@ -424,6 +424,42 @@
 .pv-bar.full>i{background:linear-gradient(90deg,#f59e0b,#fde047);box-shadow:0 0 10px #fbbf24}
 .pv-btn{font:900 12px Outfit,sans-serif;padding:8px 14px;border-radius:10px;border:2px solid #fbbf24;cursor:pointer;background:#fbbf24;color:#0f172a;text-transform:uppercase}
 .pv-btn.off{background:transparent;color:#fbbf24}.pv-btn:disabled{opacity:.3;cursor:not-allowed}
+.st-wrap{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.st-card{background:linear-gradient(160deg,rgba(15,28,48,.82),rgba(4,8,18,.92));border:1px solid rgba(34,211,238,.22);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.st-card h3{font:900 16px Outfit,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;display:flex;align-items:center;gap:8px;margin:0}
+.st-card p{font-size:12px;color:#94a3b8;margin:0}
+.st-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.st-sw{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:14px;border:2px solid #334155;background:#0b1220;color:#e2e8f0;font:800 14px Outfit,sans-serif;cursor:pointer}
+.st-sw:hover{border-color:#22d3ee}
+.st-range{flex:1;min-width:160px;accent-color:#22d3ee;cursor:pointer}
+.st-input{flex:1;min-width:160px;background:#020617;border:2px solid #334155;border-radius:12px;padding:10px 14px;color:#fff;font:700 15px Outfit,sans-serif;outline:none}
+.st-input:focus{border-color:#22d3ee}
+.st-msg{font-size:12px;min-height:16px}.st-msg.ok{color:#6ee7b7}.st-msg.err{color:#fb7185}
+.pv-hint{font-size:11px;color:#94a3b8;margin-top:6px}
+.pv-nick{font-size:12px;color:#94a3b8;margin-top:4px}.pv-nick b{color:#fbbf24}.pv-nick a{color:#22d3ee;cursor:pointer;text-decoration:underline}
+.tb-ov{position:fixed;inset:0;z-index:60;background:rgba(2,6,23,.92);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:12px}
+.tb-ov.on{display:flex}
+.tb-box{width:100%;max-width:880px;max-height:94vh;display:flex;flex-direction:column;background:#070d1a;border:1px solid rgba(34,211,238,.35);border-radius:24px;overflow:hidden}
+.tb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid #1e293b}
+.tb-head h3{font:900 18px Outfit,sans-serif;color:#fff;letter-spacing:.06em;text-transform:uppercase;margin:0}
+.tb-x{background:none;border:0;color:#94a3b8;font-size:20px;cursor:pointer}
+.tb-body{padding:14px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.tb-lbl{font:800 12px Outfit,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#fbbf24;margin-bottom:6px}
+.tb-groups{display:flex;flex-wrap:wrap;gap:6px}
+.tb-g{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;border:2px solid #334155;background:#0b1220;color:#e2e8f0;font:800 12px Outfit,sans-serif;cursor:pointer}
+.tb-g img{width:20px;height:14px;object-fit:cover;border-radius:2px}.tb-g small{color:#94a3b8;font-weight:700}
+.tb-g.on{border-color:#fbbf24;background:rgba(251,191,36,.12);color:#fde68a}.tb-g:disabled{opacity:.35;cursor:not-allowed}
+.tb-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.tb-slot{border:2px dashed #334155;border-radius:12px;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#64748b;text-align:center;padding:4px;overflow:hidden}
+.tb-slot.f{border-style:solid;border-color:#22d3ee;color:#fff;cursor:pointer;background:rgba(6,182,212,.08)}.tb-slot b{font:900 15px monospace;color:#fbbf24}
+.tb-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.tb-c{display:flex;align-items:center;gap:8px;padding:8px;border-radius:12px;border:2px solid #1e293b;background:rgba(15,23,42,.8);cursor:pointer;min-width:0;color:#fff}
+.tb-c:hover{border-color:#475569}.tb-c.sel{border-color:#fbbf24;box-shadow:0 0 14px rgba(251,191,36,.35)}
+.tb-av{position:relative;width:38px;height:38px;border-radius:50%;background:#1e293b;border:2px solid #334155;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:15px;color:#64748b}
+.tb-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tb-c .n{font-weight:800;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tb-c .m{font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tb-c .sc{margin-left:auto;font:900 16px monospace;color:#fbbf24}
+.tb-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid #1e293b}
+.tb-sum{font-size:12px;color:#94a3b8}.tb-sum b{color:#fbbf24}
 .pv-go{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:900 20px Outfit,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:16px 38px;border-radius:16px;border:3px solid #fff7ae;cursor:pointer;color:#1c1203;background:linear-gradient(135deg,#fde047,#f59e0b 55%,#f97316);box-shadow:0 8px 28px rgba(245,158,11,.55);animation:pvGoPulse 1.4s infinite;transition:transform .15s}
 .pv-go.hidden{display:none}.pv-go:hover{transform:scale(1.06)}.pv-go:active{transform:scale(.97)}
 .pv-go:disabled{animation:none;opacity:.6;cursor:not-allowed;transform:none;filter:grayscale(.4)}
@@ -550,13 +586,13 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             <button onclick="switchMainTab('tab-pvp')" id="nav-tab-pvp" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
                 <i class="fa-solid fa-gamepad w-5 text-center text-rose-500"></i><span>Combat PvP</span>
             </button>
+            <button onclick="switchMainTab('tab-settings')" id="nav-tab-settings" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
+                <i class="fa-solid fa-gear w-5 text-center text-slate-300"></i><span>Paramètres</span>
+            </button>
         </nav>
 
         <!-- OPTIONS AUDIO & SAUVEGARDE CLOUD -->
         <div class="p-4 border-t border-slate-800/80 flex flex-col space-y-2">
-            <button onclick="toggleAudio()" id="btn-toggle-audio" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
-                <i class="fa-solid fa-volume-high text-cyan-400" id="audio-icon"></i> <span id="audio-text">Son : Activé</span>
-            </button>
             <button onclick="openSaveModal()" class="w-full px-3 py-2 bg-slate-900 border border-cyan-500/40 hover:bg-slate-800 text-cyan-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"><i class="fa-solid fa-shield-halved text-cyan-400"></i> Sauvegarde &amp; restauration</button>
         </div>
     </aside>
@@ -774,12 +810,35 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             </section>
 
             <!-- ONGLET PVP EN LIGNE -->
+            <section id="tab-settings" class="tab-content w-full space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase"><i class="fa-solid fa-gear" style="color:#94a3b8"></i> Paramètres</h2>
+                </div>
+                <div class="st-wrap">
+                    <div class="st-card">
+                        <h3><i class="fa-solid fa-volume-high" style="color:#22d3ee"></i> Son</h3>
+                        <p>Active ou coupe tous les sons du jeu (boosters, combats PvP…) et règle le volume.</p>
+                        <div class="st-row"><button id="btn-toggle-audio" class="st-sw" onclick="toggleAudio()"><i class="fa-solid fa-volume-high" id="audio-icon" style="color:#22d3ee"></i> <span id="audio-text">Son : Activé</span></button></div>
+                        <div class="st-row"><i class="fa-solid fa-volume-low" style="color:#94a3b8"></i><input id="vol-range" class="st-range" type="range" min="0" max="100" step="5" value="100" oninput="setVolumeFromUI(this.value,false)" onchange="setVolumeFromUI(this.value,true)"><span id="vol-val" class="pv-s" style="width:42px;text-align:right">100%</span></div>
+                        <button class="pv-btn off" style="align-self:flex-start" onclick="testSound()"><i class="fa-solid fa-play"></i> Tester le son</button>
+                    </div>
+                    <div class="st-card">
+                        <h3><i class="fa-solid fa-user-pen" style="color:#fbbf24"></i> Pseudo</h3>
+                        <p>Ton pseudo est visible par ton adversaire en combat PvP. 2 à 16 caractères : lettres, chiffres, espaces, _ - .</p>
+                        <div class="st-row"><input id="nick-input" class="st-input" maxlength="16" placeholder="Ex : Champion92" autocomplete="off" onkeydown="if(event.key==='Enter')saveNickname()"><button class="pv-btn" onclick="saveNickname()">Enregistrer</button></div>
+                        <div id="nick-msg" class="st-msg"></div>
+                        <div class="pv-s">Pseudo utilisé en PvP : <b id="nick-current" style="color:#fbbf24"></b></div>
+                    </div>
+                </div>
+            </section>
+
             <section id="tab-pvp" class="tab-content w-full space-y-6">
                 <div class="border-b border-slate-800 pb-3">
                     <h2 class="text-2xl font-black font-sport text-rose-500 tracking-widest uppercase flex items-center gap-2">
                         <i class="fa-solid fa-shield-halved"></i> Arène PvP en Ligne
                     </h2>
                     <p class="text-xs text-slate-400 mt-0.5">Affrontez vos amis en créant ou en rejoignant un salon privé avec un code.</p>
+                    <div class="pv-nick" id="pvp-nick-line"></div>
                 </div>
 
                 <!-- BOÎTE DE CRÉATION ET REJOINTE DE SALON -->
@@ -791,6 +850,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                             <p class="text-xs text-slate-400">Générez un code unique et communiquez-le à votre ami pour jouer.</p>
                         </div>
                         <div><div class="pv-s" style="margin-bottom:6px">Mise en SP : le gagnant remporte tout le pot</div><div id="pvp-stake-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div></div>
+                        <div><div class="pv-s" style="margin-bottom:6px">Mode de combat</div><div id="pvp-mode-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div><div id="pvp-mode-hint" class="pv-hint"></div></div>
                         <button onclick="createPvPRoom()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-black font-sport uppercase text-sm rounded-xl shadow-lg transition-transform hover:scale-105">
                             Générer un salon
                         </button>
@@ -844,6 +904,22 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             </section>
         </div>
     </main>
+
+    <!-- Constructeur d'équipe pour les modes PvP spéciaux -->
+    <div id="tb-overlay" class="tb-ov" onclick="tbClose()">
+      <div class="tb-box" onclick="event.stopPropagation()" role="dialog" aria-modal="true">
+        <div class="tb-head"><h3 id="tb-title">Équipe du combat</h3><button class="tb-x" onclick="tbClose()" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="tb-body" id="tb-scroll">
+          <div><div class="tb-lbl" id="tb-step1"></div><div class="tb-groups" id="tb-groups"></div></div>
+          <div id="tb-pick" style="display:none;flex-direction:column;gap:10px">
+            <div class="tb-lbl" style="margin:0">2. Ton équipe pour ce combat (<span id="tb-count">0</span>/5) — elle ne remplace pas ton équipe de base</div>
+            <div class="tb-slots" id="tb-slots"></div>
+            <div class="tb-list" id="tb-list"></div>
+          </div>
+        </div>
+        <div class="tb-foot"><div class="tb-sum" id="tb-sum"></div><div class="st-row"><button class="pv-btn off" onclick="tbAuto()">Meilleure équipe auto</button><button class="pv-btn off" onclick="tbClose()">Annuler</button><button class="pv-go sm" id="tb-ok" onclick="tbValidate()" disabled>Valider l'équipe</button></div></div>
+      </div>
+    </div>
 
     <!-- Modal Sauvegarde -->
     <div id="save-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closeSaveModal()">
@@ -972,15 +1048,17 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         let globalAudioCtx = null;
         let isAudioMuted = false;
+        let masterVolume = 1, masterGainNode = null;
         function toggleAudio() {
-            isAudioMuted = !isAudioMuted;
-            const icon = document.getElementById('audio-icon'), text = document.getElementById('audio-text');
-            if (isAudioMuted) { icon.className = "fa-solid fa-volume-xmark text-rose-400"; text.textContent = "Son : Coupé"; }
-            else { icon.className = "fa-solid fa-volume-high text-cyan-400"; text.textContent = "Son : Activé"; }
+            isAudioMuted = !isAudioMuted; cfg().muted = isAudioMuted; saveUser(); renderSettings();
         }
 
         function getAudioContext() {
-            if (!globalAudioCtx) globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (!globalAudioCtx) {
+                globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                // volume général : tous les sons passent par ce réglage
+                try { const real = globalAudioCtx.destination, m = globalAudioCtx.createGain(); m.gain.value = masterVolume; m.connect(real); Object.defineProperty(globalAudioCtx, 'destination', { value: m, configurable: true }); masterGainNode = m; } catch (e) { }
+            }
             if (globalAudioCtx.state === 'suspended') globalAudioCtx.resume();
             return globalAudioCtx;
         }
@@ -1176,6 +1254,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 if (best) { main = best.state; }
             }
             userState = main || migrateState({});
+            applySoundSettings();
             try {
                 const selCollection = document.getElementById('country-select-filter');
                 const selDeck = document.getElementById('deck-country-select-filter');
@@ -1238,7 +1317,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             else if (tabId === 'tab-deck') { renderDeck(); renderDeckQuickAdd(); }
             else if (tabId === 'tab-vintage') { renderEquipmentShop(); renderVintageShop(); }
             else if (tabId === 'tab-goals') { renderGoals(); renderPvPObjectives(); }
-            else if (tabId === 'tab-pvp') { renderStakeChips(); }
+            else if (tabId === 'tab-pvp') { renderStakeChips(); renderModeChips(); renderPvpNickLine(); }
+            else if (tabId === 'tab-settings') { renderSettings(); }
         }
 
         function updateGlobalStats() {
@@ -1762,8 +1842,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         function teamCountryName(c) { const sp = { 'GB-ENG': 'Angleterre', 'GB-SCT': 'Écosse', 'GB-WLS': 'Pays de Galles' }; try { return sp[c] || new Intl.DisplayNames(['fr'], { type: 'region' }).of(c); } catch(e) { return c; } }
         
-        function getTeamBonus() {
-            const players = [...new Set(userState.deck.filter(Boolean))].map(id => allCardsData.find(a => a.id === id)).filter(Boolean);
+        function getTeamBonus(ids) {
+            const players = [...new Set((ids || userState.deck).filter(Boolean))].map(id => allCardsData.find(a => a.id === id)).filter(Boolean);
             const details = []; let bonus = 0;
             for (const [key, label] of [['country', teamCountryName], ['sport', x => x]]) {
                 const groups = {};
@@ -2185,32 +2265,163 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             el.innerHTML = [0, 50, 100, 250, 500].map(v => `<button class="pv-btn ${v === pvpStake ? '' : 'off'}" ${v > userState.sportsPoints ? 'disabled' : ''} onclick="pvpStake=${v};renderStakeChips()">${v ? v + ' SP' : 'Amical'}</button>`).join('');
         }
 
-        function pvpLocalCards() {
-            return (userState.deck || []).filter(Boolean).map(id => allCardsData.find(a => a.id === id)).filter(Boolean).map(a => { const s = getAthleteCalculatedScore(a); return { n: a.name, sl: a.wikiSlug, sp: a.sport, c: a.country, s: typeof s === 'number' ? s : 95 }; });
+        // ===== PARAMÈTRES : SON + PSEUDO =====
+        const NICK_RE = /^[\p{L}\p{N} _.\-]{2,16}$/u;
+        function cfg() { if (!userState.settings || typeof userState.settings !== 'object') userState.settings = {}; return userState.settings; }
+        function pvpDisplayName() { const n = cfg().nickname; return n && NICK_RE.test(n) ? n : 'Joueur_' + (socket && socket.id ? socket.id.substring(0, 4) : '----'); }
+        function renderPvpNickLine() { const el = $('pvp-nick-line'); if (el) el.innerHTML = `Tu joues sous le pseudo <b>${esc(pvpDisplayName())}</b> · <a onclick="switchMainTab('tab-settings')">modifier</a>`; }
+        function applySoundSettings() {
+            const s = cfg(); isAudioMuted = !!s.muted;
+            masterVolume = Number.isFinite(Number(s.volume)) && s.volume !== undefined ? Math.min(1, Math.max(0, Number(s.volume) / 100)) : 1;
+            if (masterGainNode) masterGainNode.gain.value = masterVolume;
+            renderSettings();
         }
-        function getPlayerDataPayload() {
-            const deck = userState.deck.filter(Boolean);
+        function renderSettings() {
+            const icon = $('audio-icon'), text = $('audio-text');
+            if (icon) { icon.className = isAudioMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high'; icon.style.color = isAudioMuted ? '#fb7185' : '#22d3ee'; }
+            if (text) text.textContent = isAudioMuted ? 'Son : Coupé' : 'Son : Activé';
+            const v = Math.round(masterVolume * 100); if ($('vol-range')) $('vol-range').value = v; if ($('vol-val')) $('vol-val').textContent = v + '%';
+            const ni = $('nick-input'); if (ni && document.activeElement !== ni) ni.value = cfg().nickname || '';
+            if ($('nick-current')) $('nick-current').textContent = pvpDisplayName();
+            renderPvpNickLine();
+        }
+        function setVolumeFromUI(v, persist) {
+            v = Math.min(100, Math.max(0, Number(v) || 0)); masterVolume = v / 100;
+            if (masterGainNode && globalAudioCtx) masterGainNode.gain.setTargetAtTime(masterVolume, globalAudioCtx.currentTime, 0.01);
+            if ($('vol-val')) $('vol-val').textContent = v + '%';
+            if (persist) { cfg().volume = v; saveUser(); }
+        }
+        function testSound() {
+            if (isAudioMuted) { showToast('Le son est coupé : clique sur « Son : Coupé » pour le réactiver.', 'warning'); return; }
+            try { getAudioContext(); } catch (e) { } pvpSfx.count(2); setTimeout(() => pvpSfx.go(), 260);
+        }
+        function saveNickname() {
+            const v = ($('nick-input').value || '').trim().replace(/\s+/g, ' '), m = $('nick-msg');
+            if (!v) { delete cfg().nickname; saveUser(); renderSettings(); m.className = 'st-msg ok'; m.textContent = 'Pseudo supprimé : un pseudo automatique sera utilisé.'; return; }
+            if (!NICK_RE.test(v)) { m.className = 'st-msg err'; m.textContent = 'Pseudo invalide : 2 à 16 caractères (lettres, chiffres, espaces, _ - .).'; return; }
+            cfg().nickname = v; saveUser(); renderSettings(); m.className = 'st-msg ok'; m.textContent = 'Pseudo enregistré : ' + v;
+        }
+
+        // ===== MODES DE COMBAT PVP =====
+        let pvpMode = 'classic', pvpRoomMode = 'classic', pvpMyTeam = null, pvpPeekTimer = null, pvpPeekCode = null;
+        const PVP_MODES = {
+            classic: { t: 'Classique', d: 'Tu combats avec ton équipe de base (« Mon Équipe »).' },
+            nation: { t: 'Même nationalité', d: 'Tes 5 athlètes doivent avoir la même nationalité. Tu composes une équipe rien que pour ce combat.' },
+            sport: { t: 'Même sport', d: 'Tes 5 athlètes doivent pratiquer le même sport. Tu composes une équipe rien que pour ce combat.' }
+        };
+        function renderModeChips() {
+            const el = $('pvp-mode-chips'); if (!el) return;
+            el.innerHTML = Object.entries(PVP_MODES).map(([k, m]) => `<button class="pv-btn ${k === pvpMode ? '' : 'off'}" onclick="pvpMode='${k}';renderModeChips()">${m.t}</button>`).join('');
+            if ($('pvp-mode-hint')) $('pvp-mode-hint').textContent = PVP_MODES[pvpMode].d;
+        }
+
+        // ===== CONSTRUCTEUR D'ÉQUIPE (modes « même nationalité » / « même sport ») =====
+        let tb = null;
+        const tbKey = mode => mode === 'nation' ? 'country' : 'sport';
+        const tbScore = a => { const v = getAthleteCalculatedScore(a); return typeof v === 'number' ? v : 95; };
+        const tbOwned = () => allCardsData.filter(a => (userState.collection[a.id] || 0) > 0);
+        function tbGroupsList(mode) {
+            const k = tbKey(mode), m = {};
+            tbOwned().forEach(a => { if (a[k]) m[a[k]] = (m[a[k]] || 0) + 1; });
+            return Object.entries(m).map(([v, n]) => ({ v, n, label: mode === 'nation' ? teamCountryName(v) : v })).sort((x, y) => y.n - x.n || x.label.localeCompare(y.label, 'fr'));
+        }
+        function tbCards() {
+            if (!tb || tb.group == null) return [];
+            const k = tbKey(tb.mode);
+            return tbOwned().filter(a => a[k] === tb.group).map(a => ({ a, s: tbScore(a) })).sort((x, y) => y.s - x.s || x.a.name.localeCompare(y.a.name));
+        }
+        function openTeamBuilder(mode, onDone) {
+            const gs = tbGroupsList(mode), ok = gs.filter(g => g.n >= 5);
+            if (!ok.length) { showToast(mode === 'nation' ? "Tu n'as pas 5 athlètes de la même nationalité." : "Tu n'as pas 5 athlètes du même sport.", 'warning'); return; }
+            tb = { mode, group: null, sel: [], onDone, listFor: null, obs: null };
+            $('tb-title').innerHTML = mode === 'nation' ? '<i class="fa-solid fa-flag"></i> Équipe : même nationalité' : '<i class="fa-solid fa-medal"></i> Équipe : même sport';
+            $('tb-step1').textContent = mode === 'nation' ? '1. Choisis la nationalité (au moins 5 athlètes)' : '1. Choisis le sport (au moins 5 athlètes)';
+            $('tb-groups').innerHTML = gs.map(g => `<button class="tb-g" data-g="${esc(g.v)}" ${g.n < 5 ? 'disabled' : ''} onclick="tbPickGroup(this.dataset.g)">${mode === 'nation' ? `<img src="https://flagcdn.com/w40/${esc(String(g.v).toLowerCase())}.png" alt="" onerror="this.style.display='none'">` : `<i class="fa-solid ${sportIcons[g.v] || 'fa-trophy'}"></i>`} ${esc(g.label)} <small>${g.n}</small></button>`).join('');
+            $('tb-pick').style.display = 'none'; $('tb-list').innerHTML = '';
+            $('tb-overlay').classList.add('on'); $('tb-scroll').scrollTop = 0; tbRender();
+            if (ok.length === 1) tbPickGroup(ok[0].v);
+        }
+        function tbPickGroup(v) {
+            if (!tb) return; tb.group = v; tb.sel = [];
+            document.querySelectorAll('#tb-groups .tb-g').forEach(b => b.classList.toggle('on', b.dataset.g === v));
+            $('tb-pick').style.display = 'flex'; tbRender();
+        }
+        function tbToggle(id) {
+            if (!tb) return; const i = tb.sel.indexOf(id);
+            if (i >= 0) tb.sel.splice(i, 1);
+            else if (tb.sel.length < 5) tb.sel.push(id);
+            else { showToast("5 athlètes maximum : retire-en un d'abord.", 'warning'); return; }
+            tbRender();
+        }
+        function tbAuto() {
+            if (!tb || tb.group == null) { showToast('Choisis d\'abord ' + (tb && tb.mode === 'nation' ? 'une nationalité.' : 'un sport.'), 'warning'); return; }
+            tb.sel = tbCards().slice(0, 5).map(x => x.a.id); tbRender();
+        }
+        function tbClose() { const o = $('tb-overlay'); if (o) o.classList.remove('on'); if (tb && tb.obs) tb.obs.disconnect(); tb = null; }
+        function tbValidate() { if (!tb || tb.sel.length !== 5) return; const cb = tb.onDone, ids = tb.sel.slice(); tbClose(); cb(ids); }
+        function tbRender() {
+            if (!tb) return;
+            const cards = tbCards(), byId = {}; cards.forEach(x => { byId[x.a.id] = x; });
+            if (tb.group != null && tb.listFor !== tb.group) {
+                tb.listFor = tb.group;
+                $('tb-list').innerHTML = cards.map(x => `<div class="tb-c" data-id="${esc(x.a.id)}" onclick="tbToggle(this.dataset.id)"><div class="tb-av"><i class="fa-solid fa-user"></i><img data-slug="${esc(x.a.wikiSlug)}" alt="" referrerpolicy="no-referrer" style="display:none"></div><div style="min-width:0"><div class="n">${esc(x.a.name)}</div><div class="m">${esc(tb.mode === 'nation' ? x.a.sport : teamCountryName(x.a.country))} · ${esc(x.a.rarity)}</div></div><div class="sc">${x.s}</div></div>`).join('');
+                if (tb.obs) tb.obs.disconnect();
+                const load = async img => { try { const u = await fetchWikiPhoto(img.dataset.slug); if (u) { img.onload = () => { img.style.display = 'block'; }; img.onerror = () => img.remove(); img.src = u; } } catch (e) { } };
+                const imgs = [...document.querySelectorAll('#tb-list img[data-slug]')];
+                if ('IntersectionObserver' in window) { tb.obs = new IntersectionObserver((es, o) => es.forEach(e => { if (e.isIntersecting) { o.unobserve(e.target); load(e.target); } }), { root: $('tb-scroll'), rootMargin: '150px' }); imgs.forEach(i => tb.obs.observe(i)); }
+                else imgs.slice(0, 30).forEach(load);
+            }
+            document.querySelectorAll('#tb-list .tb-c').forEach(el => el.classList.toggle('sel', tb.sel.includes(el.dataset.id)));
+            $('tb-count').textContent = tb.sel.length;
+            $('tb-slots').innerHTML = [0, 1, 2, 3, 4].map(i => { const x = byId[tb.sel[i]]; return x ? `<div class="tb-slot f" data-id="${esc(x.a.id)}" onclick="tbToggle(this.dataset.id)" title="Retirer"><span>${esc(x.a.name.split(' ').slice(-1)[0])}</span><b>${x.s}</b></div>` : `<div class="tb-slot">Place ${i + 1}</div>`; }).join('');
+            const n = tb.sel.length, avg = n ? Math.round(tb.sel.reduce((t, id) => t + (byId[id] ? byId[id].s : 0), 0) / n) : 0, bonus = n ? getTeamBonus(tb.sel).bonus : 0;
+            $('tb-sum').innerHTML = n ? `OVR de l'équipe : <b>${avg + bonus}</b> (moyenne ${avg} + bonus ${bonus})` : 'Choisis 5 athlètes ou utilise « Meilleure équipe auto ».';
+            $('tb-ok').disabled = n !== 5;
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && tb) tbClose(); });
+
+        // ===== PAYLOAD / CRÉER / REJOINDRE =====
+        function pvpCardsFrom(ids) {
+            return ids.map(id => allCardsData.find(a => a.id === id)).filter(Boolean).map(a => { const s = getAthleteCalculatedScore(a); return { n: a.name, sl: a.wikiSlug, sp: a.sport, c: a.country, s: typeof s === 'number' ? s : 95 }; });
+        }
+        function pvpLocalCards() { return pvpCardsFrom((userState.deck || []).filter(Boolean)); }
+        function getPlayerDataPayload(ids, mode) {
+            const deck = ids || userState.deck.filter(Boolean);
             if (deck.length < 5) { showToast("Vous devez composer une équipe complète de 5 athlètes dans l'onglet 'Mon Équipe' !", "warning"); return null; }
             if (!socket || !socket.connected) { showToast('Serveur PvP injoignable pour le moment. Vérifie ta connexion puis réessaie dans quelques secondes.', 'error'); return null; }
-            const cards = pvpLocalCards();
-            const tb = getTeamBonus(), avg = Math.round(cards.reduce((t, c) => t + c.s, 0) / 5);
-            return { name: 'Joueur_' + socket.id.substring(0, 4), deck: userState.deck, equipments: userState.athleteEquipments, ovr: avg + tb.bonus, cards, bonus: tb.bonus, stake: pvpStake };
+            const cards = pvpCardsFrom(deck);
+            const tb2 = getTeamBonus(deck), avg = Math.round(cards.reduce((t, c) => t + c.s, 0) / 5);
+            pvpMyTeam = cards;
+            return { name: pvpDisplayName(), deck, equipments: userState.athleteEquipments, ovr: avg + tb2.bonus, cards, bonus: tb2.bonus, stake: pvpStake, mode: mode || 'classic' };
         }
-        function createPvPRoom() { const p = getPlayerDataPayload(); if (p) socket.emit('create_room', p); }
+        function createPvPRoom() {
+            try { getAudioContext(); } catch (e) { }
+            if (pvpMode === 'classic') { const p = getPlayerDataPayload(); if (p) { pvpRoomMode = 'classic'; socket.emit('create_room', p); } return; }
+            if (!socket || !socket.connected) { showToast('Serveur PvP injoignable pour le moment. Vérifie ta connexion puis réessaie dans quelques secondes.', 'error'); return; }
+            const mode = pvpMode;
+            openTeamBuilder(mode, ids => { const p = getPlayerDataPayload(ids, mode); if (p) { pvpRoomMode = mode; socket.emit('create_room', p); } });
+        }
         function joinPvPRoom() {
+            try { getAudioContext(); } catch (e) { }
             const code = $('pvp-room-code-input').value.trim().toUpperCase();
             if (!code) { showToast('Veuillez entrer un code de salon valide.', 'warning'); return; }
-            const p = getPlayerDataPayload(); if (!p) return;
-            currentRoomCode = code; socket.emit('join_room', { roomCode: code, playerData: p });
+            if (!socket || !socket.connected) { showToast('Serveur PvP injoignable pour le moment. Vérifie ta connexion puis réessaie dans quelques secondes.', 'error'); return; }
+            pvpPeekCode = code; clearTimeout(pvpPeekTimer); socket.emit('peek_room', code);
+            // ancien serveur (sans modes) : pas de réponse -> on rejoint en mode classique
+            pvpPeekTimer = setTimeout(() => { if (pvpPeekCode === code) { pvpPeekCode = null; pvpJoinWith(code, 'classic'); } }, 3000);
+        }
+        function pvpJoinWith(code, mode) {
+            const go = ids => { const p = getPlayerDataPayload(ids, mode); if (p) { currentRoomCode = code; pvpRoomMode = mode; socket.emit('join_room', { roomCode: code, playerData: p }); } };
+            if (mode === 'nation' || mode === 'sport') openTeamBuilder(mode, ids => go(ids)); else go(null);
         }
         function triggerBattle() { try { getAudioContext(); } catch (e) { } if (currentRoomCode) { $('btn-start-battle').classList.add('hidden'); socket.emit('start_battle', currentRoomCode); } }
         function pvpEnterArena() { $('pvp-lobby-panel').classList.add('hidden'); $('pvp-arena-panel').classList.remove('hidden'); }
         function pvpRefund() { const p = pv(); if (p.escrow > 0) { userState.sportsPoints += p.escrow; p.escrow = 0; saveUser(); updateUI(); } }
         function pvpReset() {
-            pvpRefund(); currentRoomCode = null; pvpBusy = false; pvpOppRematch = pvpRematchSent = pvpOppLeft = false; clearTimeout(pvpRematchTimer);
+            pvpRefund(); currentRoomCode = null; pvpBusy = false; pvpMyTeam = null; pvpRoomMode = 'classic'; pvpOppRematch = pvpRematchSent = pvpOppLeft = false; clearTimeout(pvpRematchTimer);
             $('pvp-lobby-panel').classList.remove('hidden');
             ['pvp-arena-panel', 'pvp-stage', 'pvp-result-box', 'btn-start-battle'].forEach(i => $(i).classList.add('hidden')); $('pvp-stage').innerHTML = '';
-            renderPvPObjectives(); renderStakeChips();
+            renderPvPObjectives(); renderStakeChips(); renderModeChips();
         }
 
         // ===== SONS DU COMBAT PVP (générés par le navigateur, aucun fichier) =====
@@ -2275,7 +2486,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         }
         function pvpBack() { try { if (socket && socket.connected && currentRoomCode) socket.emit('leave_room'); } catch (e) { } pvpReset(); }
 
-        const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span></small>`;
+        const grpTag = p => (!p.group || pvpRoomMode === 'classic') ? '' : `<small style="color:#22d3ee">${esc(pvpRoomMode === 'nation' ? teamCountryName(p.group) : p.group)}</small>`;
+        const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span></small>${grpTag(p)}`;
         async function pvpFill(el, c, i) {
             const img = c && c.sl ? await fetchWikiPhoto(c.sl).catch(() => fallbackImage) : '';
             const ico = `<i class="fa-solid ${(c && sportIcons[c.sp]) || 'fa-user'}"></i>`;
@@ -2314,17 +2526,23 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         }
 
         on('connect', renderPvPObjectives); on('disconnect', () => { renderPvPObjectives(); if (!pvpBusy) pvpRefund(); }); on('connect_error', renderPvPObjectives);
-        on('room_created', data => { currentRoomCode = data.roomCode; pvpEnterArena(); $('display-room-code').textContent = currentRoomCode; $('pvp-waiting-msg').textContent = 'Salon créé ! Partage ce code avec ton ami.'; });
+        on('room_created', data => {
+            if (pvpRoomMode !== 'classic' && data.mode !== pvpRoomMode) { // ancien serveur : il ne connaît pas les modes
+                showToast("Le serveur n'est pas à jour : envoie aussi le nouveau server.js sur GitHub.", 'error'); currentRoomCode = data.roomCode; socket.emit('leave_room'); pvpReset(); return;
+            }
+            currentRoomCode = data.roomCode; pvpEnterArena(); $('display-room-code').textContent = currentRoomCode;
+            $('pvp-waiting-msg').textContent = 'Salon créé ! Partage ce code avec ton ami.' + (pvpRoomMode !== 'classic' ? ' Mode : ' + PVP_MODES[pvpRoomMode].t + '.' : '');
+        });
         on('match_start', data => {
-            pvpOppRematch = pvpRematchSent = pvpOppLeft = false; clearTimeout(pvpRematchTimer); pvpBusy = false; pvpPl = data.players; pvpMe = Math.max(0, pvpPl.findIndex(p => p.id === socket.id));
-            const stake = Number(pvpPl[0].stake) || 0, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe];
-            if (!(L.cards && L.cards.length === 5)) L.cards = pvpLocalCards();
+            pvpOppRematch = pvpRematchSent = pvpOppLeft = false; clearTimeout(pvpRematchTimer); pvpBusy = false; pvpRoomMode = data.mode || 'classic'; pvpPl = data.players; pvpMe = Math.max(0, pvpPl.findIndex(p => p.id === socket.id));
+            const stake = Number(pvpPl[0].stake) || 0, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe], modeTag = pvpRoomMode === 'nation' ? '<br>MÊME NATIONALITÉ' : pvpRoomMode === 'sport' ? '<br>MÊME SPORT' : '';
+            if (!(L.cards && L.cards.length === 5)) L.cards = pvpMyTeam || pvpLocalCards();
             [...(L.cards || []), ...(R.cards || [])].forEach(c => c && c.sl && fetchWikiPhoto(c.sl));
             if (stake > userState.sportsPoints) { showToast(`Mise de ${stake} SP : tu n'as pas assez de SP.`, 'error'); socket.emit('decline_match', currentRoomCode); pvpReset(); return; }
             pvpStake = stake; const p = pv(); p.escrow = stake; userState.sportsPoints -= stake; saveUser(); updateUI();
             pvpEnterArena(); $('pvp-waiting-msg').textContent = stake ? `Mise bloquée : ${stake} SP chacun` : 'Adversaire connecté ! Combat amical.';
             const st = $('pvp-stage'); st.classList.remove('hidden');
-            st.innerHTML = `<div class="pv-arena" id="pv-arena"><div class="pv-top"><div class="pv-side">${sideInfo(L, true)}</div><div class="pv-pot">${stake ? '<i class="fa-solid fa-coins"></i> POT ' + stake * 2 + ' SP' : 'COMBAT AMICAL'}</div><div class="pv-side" style="text-align:right">${sideInfo(R, false)}</div></div><div class="pv-tug"><i id="pv-tug"></i></div>${[0, 1, 2, 3, 4].map(i => `<div class="pv-lane" id="pv-l${i}"><div class="pv-f a"></div><div class="pv-vs">VS</div><div class="pv-f b"></div></div>`).join('')}<div id="pv-end"></div></div>`;
+            st.innerHTML = `<div class="pv-arena" id="pv-arena"><div class="pv-top"><div class="pv-side">${sideInfo(L, true)}</div><div class="pv-pot">${stake ? '<i class="fa-solid fa-coins"></i> POT ' + stake * 2 + ' SP' : 'COMBAT AMICAL'}${modeTag}</div><div class="pv-side" style="text-align:right">${sideInfo(R, false)}</div></div><div class="pv-tug"><i id="pv-tug"></i></div>${[0, 1, 2, 3, 4].map(i => `<div class="pv-lane" id="pv-l${i}"><div class="pv-f a"></div><div class="pv-vs">VS</div><div class="pv-f b"></div></div>`).join('')}<div id="pv-end"></div></div>`;
             if (pvpMe === 0) $('btn-start-battle').classList.remove('hidden');
         });
         on('opponent_left', () => {
@@ -2352,8 +2570,14 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             else if (draw) pvpSfx.draw(); else pvpSfx.defeat();
         });
         on('error_message', msg => showToast(msg, 'error'));
+        on('room_info', info => {
+            if (!pvpPeekCode || info.roomCode !== pvpPeekCode) return;
+            clearTimeout(pvpPeekTimer); const code = pvpPeekCode; pvpPeekCode = null;
+            if (!info.ok) { showToast(info.full ? 'Le salon est complet.' : 'Salon introuvable.', 'error'); return; }
+            pvpJoinWith(code, info.mode || 'classic');
+        });
 
-        renderSportProgress(); renderPvPObjectives(); renderStakeChips();
+        renderSportProgress(); renderPvPObjectives(); renderStakeChips(); renderModeChips();
         fillTargetValues();
         initUser();
     </script>

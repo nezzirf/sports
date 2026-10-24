@@ -15,6 +15,7 @@ const io = new Server(server, {
 const rooms = {};              // code du salon -> { id, stake, players: [...] }
 const socketRoom = new Map();  // id du socket -> code du salon
 const ALLOWED_STAKES = [0, 50, 100, 250, 500]; // mêmes mises que dans le jeu
+const MODES = ['classic', 'nation', 'sport'];   // classique / même nationalité / même sport
 
 // ---------- Utilitaires ----------
 function generateRoomCode() {
@@ -39,16 +40,31 @@ function cleanCards(cards) {
     }));
 }
 
-function buildPlayer(socket, data, fallbackName) {
+const cleanMode = m => (MODES.includes(m) ? m : 'classic');
+
+// Vérifie que l'équipe respecte le mode du salon (5 athlètes différents, même pays ou même sport)
+function validTeam(mode, cards) {
+    if (mode === 'classic') return true;
+    if (!Array.isArray(cards) || cards.length !== 5) return false;
+    const key = mode === 'nation' ? 'c' : 'sp';
+    const first = cards[0][key];
+    if (!first) return false;
+    if (new Set(cards.map(c => c.sl || c.n)).size !== 5) return false;
+    return cards.every(c => c[key] === first);
+}
+
+function buildPlayer(socket, data, fallbackName, mode) {
     data = data && typeof data === 'object' ? data : {};
     const stake = num(data.stake, 0);
+    const cards = cleanCards(data.cards);
     return {
         id: socket.id,
         name: txt(data.name, 30) || fallbackName,
         ovr: num(data.ovr, 0),
         bonus: num(data.bonus, 0),
         stake: ALLOWED_STAKES.includes(stake) ? stake : 0,
-        cards: cleanCards(data.cards),
+        cards,
+        group: mode === 'nation' ? (cards[0] && cards[0].c) || '' : mode === 'sport' ? (cards[0] && cards[0].sp) || '' : '',
         deck: Array.isArray(data.deck) ? data.deck.slice(0, 5) : [],
         equipments: data.equipments && typeof data.equipments === 'object' ? data.equipments : {}
     };
@@ -73,15 +89,26 @@ io.on('connection', (socket) => {
 
     // 1. Créer un salon
     socket.on('create_room', (playerData) => {
+        const mode = cleanMode(playerData && playerData.mode);
+        const host = buildPlayer(socket, playerData, 'Joueur 1', mode);
+        if (!validTeam(mode, host.cards)) { socket.emit('error_message', 'Équipe invalide pour ce mode de combat.'); return; }
+
         leaveRoom(socket); // un joueur ne peut avoir qu'un seul salon à la fois
         const roomCode = generateRoomCode();
-        const host = buildPlayer(socket, playerData, 'Joueur 1');
-        rooms[roomCode] = { id: roomCode, stake: host.stake, players: [host], finished: false, rematch: new Set() };
+        rooms[roomCode] = { id: roomCode, stake: host.stake, mode, players: [host], finished: false, rematch: new Set() };
         socketRoom.set(socket.id, roomCode);
 
         socket.join(roomCode);
-        socket.emit('room_created', { roomCode });
-        console.log(`Salon créé : ${roomCode} par ${socket.id} (mise ${host.stake} SP)`);
+        socket.emit('room_created', { roomCode, mode });
+        console.log(`Salon créé : ${roomCode} par ${socket.id} (mode ${mode}, mise ${host.stake} SP)`);
+    });
+
+    // 1b. Un joueur regarde un salon avant de le rejoindre (pour connaître son mode de combat)
+    socket.on('peek_room', (roomCode) => {
+        const code = txt(roomCode, 12).toUpperCase();
+        const room = rooms[code];
+        if (!room || room.players.length >= 2) { socket.emit('room_info', { ok: false, roomCode: code, full: !!room }); return; }
+        socket.emit('room_info', { ok: true, roomCode: code, mode: room.mode, stake: room.stake, host: room.players[0].name });
     });
 
     // 2. Rejoindre un salon
@@ -94,16 +121,17 @@ io.on('connection', (socket) => {
         if (room.players.some(p => p.id === socket.id)) { socket.emit('error_message', 'Tu ne peux pas rejoindre ton propre salon.'); return; }
         if (room.players.length >= 2) { socket.emit('error_message', 'Le salon est complet.'); return; }
 
-        leaveRoom(socket); // quitte un éventuel autre salon
+        const guest = buildPlayer(socket, playerData, 'Joueur 2', room.mode);
+        if (!validTeam(room.mode, guest.cards)) { socket.emit('error_message', 'Équipe invalide pour ce mode de combat.'); return; }
 
-        const guest = buildPlayer(socket, playerData, 'Joueur 2');
+        leaveRoom(socket); // quitte un éventuel autre salon
         guest.stake = room.stake; // la mise est celle fixée par le créateur du salon
         room.players.push(guest);
         socketRoom.set(socket.id, code);
         socket.join(code);
 
         // Les deux joueurs reçoivent le deck complet (noms, photos, scores, bonus, mise)
-        io.to(code).emit('match_start', { players: room.players });
+        io.to(code).emit('match_start', { players: room.players, mode: room.mode });
         console.log(`Joueur ${socket.id} a rejoint le salon : ${code}`);
     });
 
@@ -156,7 +184,7 @@ io.on('connection', (socket) => {
         if (room.rematch.size >= 2) {
             room.finished = false;
             room.rematch = new Set();
-            io.to(code).emit('match_start', { players: room.players });
+            io.to(code).emit('match_start', { players: room.players, mode: room.mode });
         } else {
             socket.to(code).emit('rematch_waiting');
         }
