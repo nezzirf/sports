@@ -474,6 +474,10 @@
 .pv-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .pv-side{font:900 16px Outfit,sans-serif;color:#fff}.pv-side small{display:block;font:700 11px monospace;color:#fbbf24}
 .pv-pot{text-align:center;color:#fbbf24;font:900 12px Outfit,sans-serif;letter-spacing:.12em}
+.pv-team-h{text-align:center;font:900 12px Outfit,sans-serif;letter-spacing:.16em;color:#fbbf24;margin:12px 0 6px;text-shadow:0 0 14px rgba(245,158,11,.6)}
+.pv-lane.team .pv-f{min-height:74px;border-color:#78350f;background:linear-gradient(135deg,rgba(120,53,15,.35),rgba(15,23,42,.85))}
+.pv-lane.team .pv-vs{color:#fbbf24;font-size:18px}
+.pv-lane.team .pv-f.win{border-color:#fde047;box-shadow:0 0 26px rgba(253,224,71,.75)}
 .pv-tug{height:14px;border-radius:99px;background:#f43f5e;overflow:hidden;margin:8px 0 14px;position:relative}
 .pv-tug>i{position:absolute;left:0;top:0;bottom:0;background:#06b6d4;transition:width .7s cubic-bezier(.2,.8,.2,1);width:50%}
 .pv-lane{display:grid;grid-template-columns:1fr 46px 1fr;align-items:center;gap:6px;margin-bottom:8px;opacity:.3;transition:opacity .3s}
@@ -2244,7 +2248,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             { id: 'win1', ic: 'fa-medal', t: 'Première victoire', d: 'Gagne 1 combat', r: 150, v: p => p.w, g: 1 },
             { id: 'play10', ic: 'fa-hand-fist', t: 'Habitué de l\'arène', d: 'Joue 10 combats', r: 300, v: p => p.played, g: 10 },
             { id: 'streak3', ic: 'fa-fire', t: 'Série en feu', d: '3 victoires d\'affilée', r: 500, v: p => p.best, g: 3 },
-            { id: 'perfect', ic: 'fa-star', t: 'Sans faute', d: 'Gagne en remportant les 5 duels', r: 500, v: p => p.perfect, g: 1 },
+            { id: 'perfect', ic: 'fa-star', t: 'Sans faute', d: 'Gagne en remportant les 5 duels d\'athlètes', r: 500, v: p => p.perfect, g: 1 },
             { id: 'under', ic: 'fa-bolt', t: 'David contre Goliath', d: 'Bats une équipe au OVR plus élevé', r: 500, v: p => p.under, g: 1 },
             { id: 'bet', ic: 'fa-coins', t: 'Grand parieur', d: 'Gagne un pari de 250 SP ou plus', r: 600, v: p => p.bigbet, g: 1 },
             { id: 'win10', ic: 'fa-trophy', t: 'Gladiateur', d: 'Gagne 10 combats', r: 1000, v: p => p.w, g: 10 }
@@ -2456,7 +2460,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 miss: play(c => tone(c, 180, 0, 0.24, 'sine', 0.28, 80)),
                 // fin du match
                 defeat: play(c => [392, 349.23, 311.13, 261.63].forEach((f, i) => tone(c, f, i * 0.2, 0.3, 'triangle', 0.2))),
-                draw: play(c => { tone(c, 440, 0, 0.25, 'triangle', 0.2); tone(c, 440, 0.25, 0.25, 'triangle', 0.2); })
+                draw: play(c => { tone(c, 440, 0, 0.25, 'triangle', 0.2); tone(c, 440, 0.25, 0.25, 'triangle', 0.2); }),
+                // duel d'équipe : double choc + grosse caisse
+                big: play(c => { noise(c, 0, 0.22, 'highpass', 2500, 0, 0.55); [1180, 1760, 2640, 3510].forEach((f, i) => tone(c, f, 0, 0.6 - i * 0.07, 'sine', 0.11)); tone(c, 110, 0, 0.5, 'sine', 0.7, 40); noise(c, 0.14, 0.2, 'highpass', 3200, 0, 0.35); })
             };
         })();
         // Débloque le son dès le premier clic / la première touche (obligatoire sur mobile et Safari)
@@ -2487,7 +2493,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function pvpBack() { try { if (socket && socket.connected && currentRoomCode) socket.emit('leave_room'); } catch (e) { } pvpReset(); }
 
         const grpTag = p => (!p.group || pvpRoomMode === 'classic') ? '' : `<small style="color:#22d3ee">${esc(pvpRoomMode === 'nation' ? teamCountryName(p.group) : p.group)}</small>`;
-        const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span></small>${grpTag(p)}`;
+        const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span> pts</small>${grpTag(p)}`;
         async function pvpFill(el, c, i) {
             const img = c && c.sl ? await fetchWikiPhoto(c.sl).catch(() => fallbackImage) : '';
             const ico = `<i class="fa-solid ${(c && sportIcons[c.sp]) || 'fa-user'}"></i>`;
@@ -2503,26 +2509,48 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             for (let i = 0; i < 50; i++) { const c = document.createElement('i'); c.className = 'pv-conf'; c.style.cssText = `left:${Math.random() * 100}%;background:hsl(${Math.random() * 360},90%,60%);animation-delay:${Math.random() * .8}s`; host.appendChild(c); setTimeout(() => c.remove(), 4200); }
         }
 
+        const PVP_TEAM_PTS = 2; // le duel d'équipe compte double
         function pvpScores(data) {
-            const A = pvpMe === 0 ? data.p1 : data.p2, B = pvpMe === 0 ? data.p2 : data.p1, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe], div = Math.max(A.total, B.total) > 200 ? 1 : 5;
-            return { ra: pvpRounds(A, L.cards, A.total * div, 3), rb: pvpRounds(B, R.cards, B.total * div, 7), div };
+            const A = pvpMe === 0 ? data.p1 : data.p2, B = pvpMe === 0 ? data.p2 : data.p1, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe];
+            const has5 = x => Array.isArray(x.rounds) && x.rounds.length === 5;
+            if (has5(A) && has5(B)) return { ra: A.rounds.map(Number), rb: B.rounds.map(Number), ta: Number(A.team), tb: Number(B.team) };
+            // ancien serveur : on retombe sur l'ancienne répartition proportionnelle
+            const div = Math.max(A.total, B.total) > 200 ? 1 : 5;
+            return { ra: pvpRounds(A, L.cards, A.total * div, 3), rb: pvpRounds(B, R.cards, B.total * div, 7), ta: Number(A.total), tb: Number(B.total) };
+        }
+        // Points : 1 par duel d'athlète gagné, 2 pour le duel d'équipe
+        function pvpTally(sc) {
+            let pa = 0, pb = 0, wa = 0;
+            sc.ra.forEach((x, i) => { if (x > sc.rb[i]) { pa++; wa++; } else if (sc.rb[i] > x) pb++; });
+            const teamRes = sc.ta > sc.tb ? 1 : sc.tb > sc.ta ? -1 : 0;
+            if (teamRes > 0) pa += PVP_TEAM_PTS; else if (teamRes < 0) pb += PVP_TEAM_PTS;
+            return { pa, pb, wa, teamRes };
+        }
+        function pvpFillTeam(el, p, you) {
+            const bonus = Number(p.bonus) || 0, avg = Math.round((Number(p.ovr) || 0) - bonus);
+            el.innerHTML = `<div class="pv-av"><i class="fa-solid fa-users"></i></div><div class="tx"><div class="n">${esc(p.name)}${you ? ' (toi)' : ''}</div><div class="m">Moyenne ${avg} + bonus ${bonus}</div></div><div class="sc">?</div>`;
         }
         async function pvpPlay(sc) {
-            const arena = $('pv-arena'), L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe], { ra, rb, div } = sc;
+            const arena = $('pv-arena'), L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe], { ra, rb } = sc;
             for (const t of ['3', '2', '1', 'COMBAT !']) { if (t === 'COMBAT !') pvpSfx.go(); else pvpSfx.count(+t); const c = document.createElement('div'); c.className = 'pv-count'; c.textContent = t; arena.appendChild(c); await sleep(800); c.remove(); }
-            let ca = 0, cb = 0, wa = 0;
-            for (let i = 0; i < 5; i++) {
-                const lane = $('pv-l' + i), fa = lane.children[0], fb = lane.children[2];
-                await Promise.all([pvpFill(fa, L.cards && L.cards[i], i), pvpFill(fb, R.cards && R.cards[i], i)]);
-                lane.classList.add('on', 'in'); pvpSfx.whoosh(); await sleep(650);
-                countUp(fa.querySelector('.sc'), ra[i], 450); countUp(fb.querySelector('.sc'), rb[i], 450); await sleep(550);
-                const a = ra[i] > rb[i], b = rb[i] > ra[i]; if (a) wa++;
+            let pa = 0, pb = 0;
+            for (let i = 0; i < 6; i++) {
+                const team = i === 5, lane = $('pv-l' + i), fa = lane.children[0], fb = lane.children[2];
+                try { lane.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { }
+                if (team) { pvpFillTeam(fa, L, true); pvpFillTeam(fb, R, false); await sleep(500); }
+                else await Promise.all([pvpFill(fa, L.cards && L.cards[i], i), pvpFill(fb, R.cards && R.cards[i], i)]);
+                lane.classList.add('on', 'in'); pvpSfx.whoosh(); await sleep(team ? 800 : 560);
+                const va = team ? sc.ta : ra[i], vb = team ? sc.tb : rb[i];
+                countUp(fa.querySelector('.sc'), va, 450); countUp(fb.querySelector('.sc'), vb, 450); await sleep(team ? 700 : 480);
+                const a = va > vb, b = vb > va, pts = team ? PVP_TEAM_PTS : 1;
                 fa.classList.add(a ? 'win' : b ? 'lose' : 'x'); fb.classList.add(b ? 'win' : a ? 'lose' : 'x');
-                lane.classList.add('hit'); pvpSfx.clash(); setTimeout(() => { if (a) pvpSfx.win(); else if (b) pvpSfx.miss(); }, 140); arena.classList.add('pv-shake'); setTimeout(() => arena.classList.remove('pv-shake'), 420);
-                ca += ra[i]; cb += rb[i]; $('pv-ta').textContent = Math.round(ca / div); $('pv-tb').textContent = Math.round(cb / div);
-                $('pv-tug').style.width = (ca / (ca + cb) * 100) + '%'; await sleep(700);
+                lane.classList.add('hit'); if (team) pvpSfx.big(); else pvpSfx.clash();
+                setTimeout(() => { if (a) pvpSfx.win(); else if (b) pvpSfx.miss(); }, 140);
+                arena.classList.add('pv-shake'); setTimeout(() => arena.classList.remove('pv-shake'), 420);
+                if (a) pa += pts; else if (b) pb += pts;
+                $('pv-ta').textContent = pa; $('pv-tb').textContent = pb;
+                $('pv-tug').style.width = (pa + pb ? pa / (pa + pb) * 100 : 50) + '%'; await sleep(team ? 900 : 560);
             }
-            return wa;
         }
 
         on('connect', renderPvPObjectives); on('disconnect', () => { renderPvPObjectives(); if (!pvpBusy) pvpRefund(); }); on('connect_error', renderPvPObjectives);
@@ -2542,7 +2570,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             pvpStake = stake; const p = pv(); p.escrow = stake; userState.sportsPoints -= stake; saveUser(); updateUI();
             pvpEnterArena(); $('pvp-waiting-msg').textContent = stake ? `Mise bloquée : ${stake} SP chacun` : 'Adversaire connecté ! Combat amical.';
             const st = $('pvp-stage'); st.classList.remove('hidden');
-            st.innerHTML = `<div class="pv-arena" id="pv-arena"><div class="pv-top"><div class="pv-side">${sideInfo(L, true)}</div><div class="pv-pot">${stake ? '<i class="fa-solid fa-coins"></i> POT ' + stake * 2 + ' SP' : 'COMBAT AMICAL'}${modeTag}</div><div class="pv-side" style="text-align:right">${sideInfo(R, false)}</div></div><div class="pv-tug"><i id="pv-tug"></i></div>${[0, 1, 2, 3, 4].map(i => `<div class="pv-lane" id="pv-l${i}"><div class="pv-f a"></div><div class="pv-vs">VS</div><div class="pv-f b"></div></div>`).join('')}<div id="pv-end"></div></div>`;
+            st.innerHTML = `<div class="pv-arena" id="pv-arena"><div class="pv-top"><div class="pv-side">${sideInfo(L, true)}</div><div class="pv-pot">${stake ? '<i class="fa-solid fa-coins"></i> POT ' + stake * 2 + ' SP' : 'COMBAT AMICAL'}${modeTag}</div><div class="pv-side" style="text-align:right">${sideInfo(R, false)}</div></div><div class="pv-tug"><i id="pv-tug"></i></div>${[0, 1, 2, 3, 4].map(i => `<div class="pv-lane" id="pv-l${i}"><div class="pv-f a"></div><div class="pv-vs">VS</div><div class="pv-f b"></div></div>`).join('')}<div class="pv-team-h"><i class="fa-solid fa-bolt"></i> DUEL D'ÉQUIPE · COMPTE DOUBLE (2 pts)</div><div class="pv-lane team" id="pv-l5"><div class="pv-f a"></div><div class="pv-vs">×2</div><div class="pv-f b"></div></div><div id="pv-end"></div></div>`;
             if (pvpMe === 0) $('btn-start-battle').classList.remove('hidden');
         });
         on('opponent_left', () => {
@@ -2556,7 +2584,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (pvpBusy) return; pvpBusy = true; $('btn-start-battle').classList.add('hidden');
             const stake = pvpStake, p = pv(), won = data.winnerId === socket.id, draw = data.winnerId === null;
             const friendly = stake === 0, bonus = friendly ? 0 : PVP_WIN; // combat amical : aucun SP gagné
-            const sc = pvpScores(data), wa = sc.ra.filter((x, i) => x > sc.rb[i]).length;
+            const sc = pvpScores(data), tl = pvpTally(sc), wa = tl.wa;
             let net = -stake;
             p.played++;
             if (won) { net = stake + bonus; p.w++; p.streak++; p.best = Math.max(p.best, p.streak); if (wa === 5) p.perfect++; if (pvpPl[1 - pvpMe].ovr > pvpPl[pvpMe].ovr) p.under++; if (stake >= 250) p.bigbet++; }
@@ -2564,7 +2592,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             p.escrow = 0; userState.sportsPoints += won ? stake * 2 + bonus : draw ? stake : 0; saveUser(); updateUI();
             await pvpPlay(sc);
             const cls = won ? 'w' : draw ? 'd' : 'l', arena = $('pv-arena');
-            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels remportés : ${wa}/5 · Score ${data.p1.total} - ${data.p2.total}<br><b style="color:${net > 0 ? '#fbbf24' : net < 0 ? '#fb7185' : '#cbd5e1'}">${net > 0 ? '+' : ''}${net} SP</b></div><div class="pv-end-actions"><button id="pv-rematch" class="pv-go sm" onclick="pvpRematch()"></button><button class="pv-btn" onclick="pvpBack()">Retour à l'arène</button></div></div>`;
+            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels d'athlètes : ${wa}/5 · Duel d'équipe : ${tl.teamRes > 0 ? 'gagné (+2)' : tl.teamRes < 0 ? 'perdu' : 'égalité'}<br>Score final : <b>${tl.pa} - ${tl.pb}</b><br><b style="color:${net > 0 ? '#fbbf24' : net < 0 ? '#fb7185' : '#cbd5e1'}">${net > 0 ? '+' : ''}${net} SP</b></div><div class="pv-end-actions"><button id="pv-rematch" class="pv-go sm" onclick="pvpRematch()"></button><button class="pv-btn" onclick="pvpBack()">Retour à l'arène</button></div></div>`;
             pvpRematchRender();
             if (won) { confetti(arena); playSparkleSound(); showToast(friendly ? 'Victoire amicale !' : `Victoire PvP ! +${net} SP`, 'success'); }
             else if (draw) pvpSfx.draw(); else pvpSfx.defeat();

@@ -16,6 +16,37 @@ const rooms = {};              // code du salon -> { id, stake, players: [...] }
 const socketRoom = new Map();  // id du socket -> code du salon
 const ALLOWED_STAKES = [0, 50, 100, 250, 500]; // mêmes mises que dans le jeu
 const MODES = ['classic', 'nation', 'sport'];   // classique / même nationalité / même sport
+const ROLL_MAX = 4;          // chaque duel ajoute un tirage aléatoire de 0 à 4
+const TEAM_DUEL_POINTS = 2;  // le duel d'équipe (note générale, bonus compris) compte double
+const roll = () => Math.floor(Math.random() * (ROLL_MAX + 1));
+
+// 5 duels d'athlètes (note de base, sans bonus d'équipe) + 1 duel d'équipe (2 points) = 7 points en jeu
+function resolveBattle(p1, p2) {
+    const base = (p, i) => (p.cards[i] && Number.isFinite(p.cards[i].s) ? p.cards[i].s : Math.round(p.ovr - p.bonus));
+    const side = p => ({ name: p.name, ovr: p.ovr, bonus: p.bonus, rounds: [], rolls: [], points: 0 });
+    const s1 = side(p1), s2 = side(p2);
+
+    for (let i = 0; i < 5; i++) {
+        const r1 = roll(), r2 = roll();
+        const a = base(p1, i) + r1, b = base(p2, i) + r2;
+        s1.rounds.push(a); s1.rolls.push(r1);
+        s2.rounds.push(b); s2.rolls.push(r2);
+        if (a > b) s1.points += 1;
+        else if (b > a) s2.points += 1;
+    }
+
+    s1.teamRoll = roll(); s2.teamRoll = roll();
+    s1.team = p1.ovr + s1.teamRoll;
+    s2.team = p2.ovr + s2.teamRoll;
+    if (s1.team > s2.team) s1.points += TEAM_DUEL_POINTS;
+    else if (s2.team > s1.team) s2.points += TEAM_DUEL_POINTS;
+
+    let winnerId = null;
+    if (s1.points > s2.points) winnerId = p1.id;
+    else if (s2.points > s1.points) winnerId = p2.id;
+
+    return { version: 2, p1: s1, p2: s2, winnerId };
+}
 
 // ---------- Utilitaires ----------
 function generateRoomCode() {
@@ -150,25 +181,13 @@ io.on('connection', (socket) => {
 
         const [p1, p2] = room.players;
 
-        // Combat basé sur l'OVR + un facteur aléatoire
-        const roll1 = Math.floor(Math.random() * 10);
-        const roll2 = Math.floor(Math.random() * 10);
-        const score1 = p1.ovr + roll1;
-        const score2 = p2.ovr + roll2;
-
-        let winnerId = null;
-        if (score1 > score2) winnerId = p1.id;
-        else if (score2 > score1) winnerId = p2.id;
+        const result = resolveBattle(p1, p2);
 
         // Le salon reste ouvert pour permettre de rejouer
         room.finished = true;
         room.rematch = new Set();
 
-        io.to(code).emit('battle_result', {
-            p1: { name: p1.name, ovr: p1.ovr, roll: roll1, total: score1 },
-            p2: { name: p2.name, ovr: p2.ovr, roll: roll2, total: score2 },
-            winnerId
-        });
+        io.to(code).emit('battle_result', result);
 
     });
 
