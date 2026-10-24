@@ -76,7 +76,7 @@ io.on('connection', (socket) => {
         leaveRoom(socket); // un joueur ne peut avoir qu'un seul salon à la fois
         const roomCode = generateRoomCode();
         const host = buildPlayer(socket, playerData, 'Joueur 1');
-        rooms[roomCode] = { id: roomCode, stake: host.stake, players: [host] };
+        rooms[roomCode] = { id: roomCode, stake: host.stake, players: [host], finished: false, rematch: new Set() };
         socketRoom.set(socket.id, roomCode);
 
         socket.join(roomCode);
@@ -118,6 +118,7 @@ io.on('connection', (socket) => {
         const room = code && rooms[code];
         if (!room || room.players.length < 2) return;
         if (room.players[0].id !== socket.id) return;
+        if (room.finished) return; // ce combat a déjà été joué
 
         const [p1, p2] = room.players;
 
@@ -131,15 +132,39 @@ io.on('connection', (socket) => {
         if (score1 > score2) winnerId = p1.id;
         else if (score2 > score1) winnerId = p2.id;
 
+        // Le salon reste ouvert pour permettre de rejouer
+        room.finished = true;
+        room.rematch = new Set();
+
         io.to(code).emit('battle_result', {
             p1: { name: p1.name, ovr: p1.ovr, roll: roll1, total: score1 },
             p2: { name: p2.name, ovr: p2.ovr, roll: roll2, total: score2 },
             winnerId
         });
 
-        // Nettoyage du salon après le match
-        delete rooms[code];
-        room.players.forEach(p => socketRoom.delete(p.id));
+    });
+
+    // 5. Rejouer : quand les deux joueurs cliquent, un nouveau match démarre dans le même salon
+    socket.on('rematch', () => {
+        const code = socketRoom.get(socket.id);
+        const room = code && rooms[code];
+        if (!room || room.players.length < 2 || !room.finished) return;
+
+        socket.emit('rematch_ack');
+        room.rematch.add(socket.id);
+
+        if (room.rematch.size >= 2) {
+            room.finished = false;
+            room.rematch = new Set();
+            io.to(code).emit('match_start', { players: room.players });
+        } else {
+            socket.to(code).emit('rematch_waiting');
+        }
+    });
+
+    // 6. Un joueur quitte volontairement le salon (bouton « Retour à l'arène »)
+    socket.on('leave_room', () => {
+        leaveRoom(socket);
     });
 
     socket.on('disconnect', () => {

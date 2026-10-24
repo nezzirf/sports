@@ -424,6 +424,12 @@
 .pv-bar.full>i{background:linear-gradient(90deg,#f59e0b,#fde047);box-shadow:0 0 10px #fbbf24}
 .pv-btn{font:900 12px Outfit,sans-serif;padding:8px 14px;border-radius:10px;border:2px solid #fbbf24;cursor:pointer;background:#fbbf24;color:#0f172a;text-transform:uppercase}
 .pv-btn.off{background:transparent;color:#fbbf24}.pv-btn:disabled{opacity:.3;cursor:not-allowed}
+.pv-go{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:900 20px Outfit,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:16px 38px;border-radius:16px;border:3px solid #fff7ae;cursor:pointer;color:#1c1203;background:linear-gradient(135deg,#fde047,#f59e0b 55%,#f97316);box-shadow:0 8px 28px rgba(245,158,11,.55);animation:pvGoPulse 1.4s infinite;transition:transform .15s}
+.pv-go.hidden{display:none}.pv-go:hover{transform:scale(1.06)}.pv-go:active{transform:scale(.97)}
+.pv-go:disabled{animation:none;opacity:.6;cursor:not-allowed;transform:none;filter:grayscale(.4)}
+.pv-go.sm{font-size:15px;padding:11px 24px;border-radius:12px;border-width:2px}
+@keyframes pvGoPulse{0%{box-shadow:0 0 0 0 rgba(251,191,36,.8),0 8px 28px rgba(245,158,11,.55)}70%{box-shadow:0 0 0 20px rgba(251,191,36,0),0 8px 28px rgba(245,158,11,.55)}100%{box-shadow:0 0 0 0 rgba(251,191,36,0),0 8px 28px rgba(245,158,11,.55)}}
+.pv-end-actions{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:6px}
 .pv-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;font-size:12px;font-weight:700}
 .pv-chip img{width:20px;height:14px;object-fit:cover;border-radius:2px}.pv-chip b{color:#fbbf24}
 .pv-syn{position:absolute;top:4px;left:4px;z-index:40;display:flex;flex-direction:column;gap:3px}
@@ -831,7 +837,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         <p id="pvp-result-details" class="text-xs text-slate-300 font-mono"></p>
                     </div>
 
-                    <button id="btn-start-battle" onclick="triggerBattle()" class="hidden py-3 px-8 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black font-sport uppercase rounded-xl shadow-lg">
+                    <button id="btn-start-battle" onclick="triggerBattle()" class="hidden pv-go"><i class="fa-solid fa-bolt"></i>
                         Lancer le combat !
                     </button>
                 </div>
@@ -2151,6 +2157,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         let socket = null; try { socket = io('https://site--hall-of-legend--ymz2867hln78.code.run'); } catch (e) { console.warn('Socket.IO indisponible', e); }
         const on = (ev, fn) => socket && socket.on(ev, fn);
         let currentRoomCode = null, pvpStake = 0, pvpBusy = false, pvpMe = 0, pvpPl = [];
+        let pvpOppRematch = false, pvpRematchSent = false, pvpOppLeft = false, pvpAck = false, pvpRematchTimer = null;
         const sleep = ms => new Promise(r => setTimeout(r, ms)), PVP_WIN = 250, $ = id => document.getElementById(id);
         const pv = () => userState.pvp = Object.assign({ w: 0, l: 0, d: 0, streak: 0, best: 0, played: 0, perfect: 0, under: 0, bigbet: 0, escrow: 0, claimed: {} }, userState.pvp || {});
         const PVP_OBJ = [
@@ -2196,15 +2203,77 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const p = getPlayerDataPayload(); if (!p) return;
             currentRoomCode = code; socket.emit('join_room', { roomCode: code, playerData: p });
         }
-        function triggerBattle() { if (currentRoomCode) { $('btn-start-battle').classList.add('hidden'); socket.emit('start_battle', currentRoomCode); } }
+        function triggerBattle() { try { getAudioContext(); } catch (e) { } if (currentRoomCode) { $('btn-start-battle').classList.add('hidden'); socket.emit('start_battle', currentRoomCode); } }
         function pvpEnterArena() { $('pvp-lobby-panel').classList.add('hidden'); $('pvp-arena-panel').classList.remove('hidden'); }
         function pvpRefund() { const p = pv(); if (p.escrow > 0) { userState.sportsPoints += p.escrow; p.escrow = 0; saveUser(); updateUI(); } }
         function pvpReset() {
-            pvpRefund(); currentRoomCode = null; pvpBusy = false;
+            pvpRefund(); currentRoomCode = null; pvpBusy = false; pvpOppRematch = pvpRematchSent = pvpOppLeft = false; clearTimeout(pvpRematchTimer);
             $('pvp-lobby-panel').classList.remove('hidden');
             ['pvp-arena-panel', 'pvp-stage', 'pvp-result-box', 'btn-start-battle'].forEach(i => $(i).classList.add('hidden')); $('pvp-stage').innerHTML = '';
             renderPvPObjectives(); renderStakeChips();
         }
+
+        // ===== SONS DU COMBAT PVP (générés par le navigateur, aucun fichier) =====
+        const pvpSfx = (() => {
+            let nb = null;
+            const ctx = () => { if (isAudioMuted) return null; try { return getAudioContext(); } catch (e) { return null; } };
+            const noiseBuf = c => { if (!nb) { nb = c.createBuffer(1, c.sampleRate, c.sampleRate); const d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return nb; };
+            const tone = (c, f, t0, dur, type, vol, f2) => {
+                const o = c.createOscillator(), g = c.createGain(), t = c.currentTime + t0;
+                o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+                g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+                o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+            };
+            const noise = (c, t0, dur, type, f1, f2, vol) => {
+                const s = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain(), t = c.currentTime + t0;
+                s.buffer = noiseBuf(c); fl.type = type; fl.Q.value = 1.2; fl.frequency.setValueAtTime(f1, t); if (f2) fl.frequency.exponentialRampToValueAtTime(f2, t + dur);
+                g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.03, dur / 3)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+                s.connect(fl); fl.connect(g); g.connect(c.destination); s.start(t); s.stop(t + dur + 0.05);
+            };
+            const play = fn => (...a) => { const c = ctx(); if (!c) return; try { fn(c, ...a); } catch (e) { } };
+            return {
+                // bip du compte à rebours : 3, 2, 1 (de plus en plus aigu)
+                count: play((c, n) => { const f = { 3: 523.25, 2: 659.25, 1: 783.99 }[n] || 523.25; tone(c, f, 0, 0.2, 'sine', 0.22); tone(c, f, 0, 0.14, 'square', 0.05); }),
+                // "COMBAT !" : bip long aigu + balayage
+                go: play(c => { tone(c, 1046.5, 0, 0.5, 'sine', 0.26); tone(c, 1568, 0, 0.5, 'sine', 0.14); tone(c, 1046.5, 0, 0.3, 'square', 0.05); noise(c, 0, 0.35, 'bandpass', 500, 4000, 0.2); }),
+                // arrivée des deux athlètes
+                whoosh: play(c => noise(c, 0, 0.24, 'bandpass', 500, 3000, 0.22)),
+                // choc des épées
+                clash: play(c => { noise(c, 0, 0.18, 'highpass', 3000, 0, 0.45); [1180, 1760, 2640, 3510].forEach((f, i) => tone(c, f, 0, 0.45 - i * 0.06, 'sine', 0.09)); tone(c, 140, 0, 0.18, 'sine', 0.5, 55); }),
+                // ton duel gagné / perdu
+                win: play(c => { tone(c, 1046.5, 0, 0.18, 'triangle', 0.18); tone(c, 1568, 0.08, 0.3, 'triangle', 0.18); }),
+                miss: play(c => tone(c, 180, 0, 0.24, 'sine', 0.28, 80)),
+                // fin du match
+                defeat: play(c => [392, 349.23, 311.13, 261.63].forEach((f, i) => tone(c, f, i * 0.2, 0.3, 'triangle', 0.2))),
+                draw: play(c => { tone(c, 440, 0, 0.25, 'triangle', 0.2); tone(c, 440, 0.25, 0.25, 'triangle', 0.2); })
+            };
+        })();
+        // Débloque le son dès le premier clic / la première touche (obligatoire sur mobile et Safari)
+        ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { try { getAudioContext(); } catch (e) { } }, { passive: true }));
+
+        // ===== REJOUER / RETOUR =====
+        function pvpRematchRender() {
+            const b = $('pv-rematch'); if (!b) return;
+            const ico = '<i class="fa-solid fa-rotate-right"></i> ';
+            let label = ico + 'Rejouer', off = false;
+            if (pvpOppLeft) { label = 'Adversaire parti'; off = true; }
+            else if (pvpRematchSent) { label = 'En attente de l\'adversaire…'; off = true; }
+            else if (pvpStake > userState.sportsPoints) { label = 'Pas assez de SP pour rejouer'; off = true; }
+            else if (pvpOppRematch) label = ico + 'Rejouer · l\'adversaire attend !';
+            b.innerHTML = label; b.disabled = off;
+        }
+        function pvpRematch() {
+            try { getAudioContext(); } catch (e) { }
+            if (!socket || !socket.connected || !currentRoomCode) { showToast('Connexion perdue : retourne à l\'arène.', 'error'); return; }
+            if (pvpOppLeft || pvpRematchSent) return;
+            if (pvpStake > userState.sportsPoints) { showToast(`Il te faut ${pvpStake} SP pour rejouer.`, 'error'); return; }
+            pvpRematchSent = true; pvpAck = false; pvpRematchRender(); socket.emit('rematch');
+            clearTimeout(pvpRematchTimer);
+            pvpRematchTimer = setTimeout(() => {
+                if (pvpRematchSent && !pvpAck) { pvpRematchSent = false; pvpRematchRender(); showToast('Le serveur n\'est pas à jour : envoie aussi le nouveau server.js sur GitHub.', 'error'); }
+            }, 4000);
+        }
+        function pvpBack() { try { if (socket && socket.connected && currentRoomCode) socket.emit('leave_room'); } catch (e) { } pvpReset(); }
 
         const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span></small>`;
         async function pvpFill(el, c, i) {
@@ -2228,16 +2297,16 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         }
         async function pvpPlay(sc) {
             const arena = $('pv-arena'), L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe], { ra, rb, div } = sc;
-            for (const t of ['3', '2', '1', 'COMBAT !']) { const c = document.createElement('div'); c.className = 'pv-count'; c.textContent = t; arena.appendChild(c); await sleep(800); c.remove(); }
+            for (const t of ['3', '2', '1', 'COMBAT !']) { if (t === 'COMBAT !') pvpSfx.go(); else pvpSfx.count(+t); const c = document.createElement('div'); c.className = 'pv-count'; c.textContent = t; arena.appendChild(c); await sleep(800); c.remove(); }
             let ca = 0, cb = 0, wa = 0;
             for (let i = 0; i < 5; i++) {
                 const lane = $('pv-l' + i), fa = lane.children[0], fb = lane.children[2];
                 await Promise.all([pvpFill(fa, L.cards && L.cards[i], i), pvpFill(fb, R.cards && R.cards[i], i)]);
-                lane.classList.add('on', 'in'); await sleep(650);
+                lane.classList.add('on', 'in'); pvpSfx.whoosh(); await sleep(650);
                 countUp(fa.querySelector('.sc'), ra[i], 450); countUp(fb.querySelector('.sc'), rb[i], 450); await sleep(550);
                 const a = ra[i] > rb[i], b = rb[i] > ra[i]; if (a) wa++;
                 fa.classList.add(a ? 'win' : b ? 'lose' : 'x'); fb.classList.add(b ? 'win' : a ? 'lose' : 'x');
-                lane.classList.add('hit'); arena.classList.add('pv-shake'); setTimeout(() => arena.classList.remove('pv-shake'), 420);
+                lane.classList.add('hit'); pvpSfx.clash(); setTimeout(() => { if (a) pvpSfx.win(); else if (b) pvpSfx.miss(); }, 140); arena.classList.add('pv-shake'); setTimeout(() => arena.classList.remove('pv-shake'), 420);
                 ca += ra[i]; cb += rb[i]; $('pv-ta').textContent = Math.round(ca / div); $('pv-tb').textContent = Math.round(cb / div);
                 $('pv-tug').style.width = (ca / (ca + cb) * 100) + '%'; await sleep(700);
             }
@@ -2247,7 +2316,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         on('connect', renderPvPObjectives); on('disconnect', () => { renderPvPObjectives(); if (!pvpBusy) pvpRefund(); }); on('connect_error', renderPvPObjectives);
         on('room_created', data => { currentRoomCode = data.roomCode; pvpEnterArena(); $('display-room-code').textContent = currentRoomCode; $('pvp-waiting-msg').textContent = 'Salon créé ! Partage ce code avec ton ami.'; });
         on('match_start', data => {
-            pvpBusy = false; pvpPl = data.players; pvpMe = Math.max(0, pvpPl.findIndex(p => p.id === socket.id));
+            pvpOppRematch = pvpRematchSent = pvpOppLeft = false; clearTimeout(pvpRematchTimer); pvpBusy = false; pvpPl = data.players; pvpMe = Math.max(0, pvpPl.findIndex(p => p.id === socket.id));
             const stake = Number(pvpPl[0].stake) || 0, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe];
             if (!(L.cards && L.cards.length === 5)) L.cards = pvpLocalCards();
             [...(L.cards || []), ...(R.cards || [])].forEach(c => c && c.sl && fetchWikiPhoto(c.sl));
@@ -2258,20 +2327,29 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             st.innerHTML = `<div class="pv-arena" id="pv-arena"><div class="pv-top"><div class="pv-side">${sideInfo(L, true)}</div><div class="pv-pot">${stake ? '<i class="fa-solid fa-coins"></i> POT ' + stake * 2 + ' SP' : 'COMBAT AMICAL'}</div><div class="pv-side" style="text-align:right">${sideInfo(R, false)}</div></div><div class="pv-tug"><i id="pv-tug"></i></div>${[0, 1, 2, 3, 4].map(i => `<div class="pv-lane" id="pv-l${i}"><div class="pv-f a"></div><div class="pv-vs">VS</div><div class="pv-f b"></div></div>`).join('')}<div id="pv-end"></div></div>`;
             if (pvpMe === 0) $('btn-start-battle').classList.remove('hidden');
         });
-        on('opponent_left', () => { showToast("L'adversaire a quitté le salon.", 'warning'); pvpReset(); });
+        on('opponent_left', () => {
+            showToast("L'adversaire a quitté le salon.", 'warning');
+            if (pvpBusy) { pvpOppLeft = true; pvpRematchRender(); return; } // combat terminé : on garde l'écran de résultat
+            pvpReset();
+        });
+        on('rematch_ack', () => { pvpAck = true; });
+        on('rematch_waiting', () => { pvpOppRematch = true; pvpRematchRender(); showToast("L'adversaire veut rejouer !", 'info'); });
         on('battle_result', async data => {
             if (pvpBusy) return; pvpBusy = true; $('btn-start-battle').classList.add('hidden');
             const stake = pvpStake, p = pv(), won = data.winnerId === socket.id, draw = data.winnerId === null;
+            const friendly = stake === 0, bonus = friendly ? 0 : PVP_WIN; // combat amical : aucun SP gagné
             const sc = pvpScores(data), wa = sc.ra.filter((x, i) => x > sc.rb[i]).length;
             let net = -stake;
             p.played++;
-            if (won) { net = stake + PVP_WIN; p.w++; p.streak++; p.best = Math.max(p.best, p.streak); if (wa === 5) p.perfect++; if (pvpPl[1 - pvpMe].ovr > pvpPl[pvpMe].ovr) p.under++; if (stake >= 250) p.bigbet++; }
+            if (won) { net = stake + bonus; p.w++; p.streak++; p.best = Math.max(p.best, p.streak); if (wa === 5) p.perfect++; if (pvpPl[1 - pvpMe].ovr > pvpPl[pvpMe].ovr) p.under++; if (stake >= 250) p.bigbet++; }
             else if (draw) { net = 0; p.d++; p.streak = 0; } else { p.l++; p.streak = 0; }
-            p.escrow = 0; userState.sportsPoints += won ? stake * 2 + PVP_WIN : draw ? stake : 0; saveUser(); updateUI();
+            p.escrow = 0; userState.sportsPoints += won ? stake * 2 + bonus : draw ? stake : 0; saveUser(); updateUI();
             await pvpPlay(sc);
             const cls = won ? 'w' : draw ? 'd' : 'l', arena = $('pv-arena');
-            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels remportés : ${wa}/5 · Score ${data.p1.total} - ${data.p2.total}<br><b style="color:${net >= 0 ? '#fbbf24' : '#fb7185'}">${net >= 0 ? '+' : ''}${net} SP</b></div><button class="pv-btn" onclick="pvpReset()">Retour à l'arène</button></div>`;
-            if (won) { confetti(arena); playSparkleSound(); showToast(`Victoire PvP ! +${net} SP`, 'success'); }
+            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels remportés : ${wa}/5 · Score ${data.p1.total} - ${data.p2.total}<br><b style="color:${net > 0 ? '#fbbf24' : net < 0 ? '#fb7185' : '#cbd5e1'}">${net > 0 ? '+' : ''}${net} SP</b></div><div class="pv-end-actions"><button id="pv-rematch" class="pv-go sm" onclick="pvpRematch()"></button><button class="pv-btn" onclick="pvpBack()">Retour à l'arène</button></div></div>`;
+            pvpRematchRender();
+            if (won) { confetti(arena); playSparkleSound(); showToast(friendly ? 'Victoire amicale !' : `Victoire PvP ! +${net} SP`, 'success'); }
+            else if (draw) pvpSfx.draw(); else pvpSfx.defeat();
         });
         on('error_message', msg => showToast(msg, 'error'));
 
