@@ -12,15 +12,6 @@
     <title>Sports TCG Elite - Jeu de Booster & Équipements</title>
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="tailwind.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                }
-            }
-        }
-    </script>
     <!-- Socket.io client -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <!-- FontAwesome & Google Fonts -->
@@ -678,7 +669,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                             <h2 class="text-2xl font-black font-sport text-amber-400 tracking-widest uppercase flex items-center gap-2">
                                 <i class="fa-solid fa-crown"></i> Légendes Vintage
                             </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Acquérez des légendes historiques rarissimes (8 000 SP chacune).</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Acquérez des légendes historiques rarissimes (15 000 SP chacune).</p>
                         </div>
                     </div>
                     <div id="vintage-shop-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 pb-12"></div>
@@ -1044,7 +1035,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const icons = { success: 'fa-circle-check text-emerald-400', error: 'fa-circle-xmark text-rose-400', info: 'fa-circle-info text-cyan-400', warning: 'fa-triangle-exclamation text-amber-400' };
             const borders = { success: 'border-emerald-500/40', error: 'border-rose-500/40', info: 'border-cyan-500/40', warning: 'border-amber-500/40' };
             toast.className = `pointer-events-auto bg-slate-900/95 border ${borders[type] || borders.info} text-white px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 transform transition-all duration-300 translate-y-[-10px] opacity-0 text-xs font-sport tracking-wide`;
-            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-lg shrink-0"></i><span class="flex-1 font-medium">${message}</span>`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-lg shrink-0"></i><span class="flex-1 font-medium"></span>`;
+            toast.querySelector('span').textContent = message;
             container.appendChild(toast);
             requestAnimationFrame(() => toast.classList.remove('translate-y-[-10px]', 'opacity-0'));
             setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-[-10px]'); setTimeout(() => toast.remove(), 300); }, 3500);
@@ -1119,7 +1111,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const col = {};
             for (const [k, v] of Object.entries(s.collection && typeof s.collection === 'object' ? s.collection : {})) { const n = Math.floor(Number(v)); if (n > 0) { const id = mid(k); col[id] = (col[id] || 0) + n; } }
             s.collection = col;
-            s.deck = Array.from({ length: 5 }, (_, i) => { const d = Array.isArray(s.deck) ? s.deck[i] : null; return d ? mid(d) : null; });
+            // ni carte retirée du jeu, ni carte non possédée, ni doublon : sinon l'équipe compte moins de 5 athlètes valides en PvP
+            const seenDeck = new Set();
+            s.deck = Array.from({ length: 5 }, (_, i) => { const d = Array.isArray(s.deck) && s.deck[i] ? mid(s.deck[i]) : null; if (!d || !col[d] || seenDeck.has(d) || !allCardsData.some(a => a.id === d)) return null; seenDeck.add(d); return d; });
             const eq = {};
             for (const [k, v] of Object.entries(s.athleteEquipments && typeof s.athleteEquipments === 'object' ? s.athleteEquipments : {})) if (Array.isArray(v)) eq[mid(k)] = v.filter(x => typeof x === 'string');
             s.athleteEquipments = eq;
@@ -1300,7 +1294,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         }
 
         function saveUser() {
-            LS.set(SAVE_KEY, JSON.stringify({ schema: SCHEMA, ...userState }));
+            if (!LS.set(SAVE_KEY, JSON.stringify({ ...userState, schema: SCHEMA })) && !saveUser._warned) { saveUser._warned = true; showToast('Sauvegarde impossible : stockage du navigateur plein ou bloqué. Exporte ta collection.', 'error'); }
             snapshot(false); updateUI();
         }
 
@@ -1440,7 +1434,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         break;
                     }
                 }
-                const currentPrice = 3000;
+                const currentPrice = eq.price;
                 html += `
                     <div class="textured-panel p-4 rounded-2xl flex flex-col justify-between space-y-3 border border-cyan-500/20 shadow-lg">
                         <div class="flex items-center gap-3">
@@ -1509,9 +1503,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             return athlete.score + bonus;
         }
 
+        let vintageShopRun = 0;
         async function renderVintageShop() {
             const container = document.getElementById('vintage-shop-container');
             if (!container) return;
+            const run = ++vintageShopRun;
             const cardsHtmlList = await Promise.all(vintageAthletes.map(async (vintageCard) => {
                 const isOwned = (userState.collection[vintageCard.id] || 0) > 0;
                 const photoUrl = await fetchWikiPhoto(vintageCard.wikiSlug);
@@ -1526,7 +1522,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                     </div>
                 `;
             }));
-            container.innerHTML = cardsHtmlList.join('');
+            if (run === vintageShopRun) container.innerHTML = cardsHtmlList.join('');
         }
 
         async function buyVintageCard(cardId, price) {
@@ -1833,6 +1829,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function filterCards() { displayedCardLimit = 24; renderCardsCatalogue(); }
 
         function addToDeck(athleteId) {
+            if (userState.deck.includes(athleteId)) return; // double clic avant le rafraîchissement de la liste
             const emptyIdx = userState.deck.indexOf(null);
             if (emptyIdx === -1) { showToast("Équipe complète !", "error"); return; }
             userState.deck[emptyIdx] = athleteId; saveUser(); renderDeck(); renderDeckQuickAdd();
@@ -1859,9 +1856,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             return { bonus, details };
         }
 
+        let deckRun = 0;
         async function renderDeck() {
             const container = document.getElementById('active-deck-slots');
             if (!container) return;
+            const run = ++deckRun; // un rendu plus récent annule celui-ci, qui attend encore des photos
             let totalOvr = 0, activeCount = 0, htmlContent = '';
             const _tbd = getTeamBonus().details, _syn = a => _tbd.filter(d => (d.kind === 'country' && d.v === a.country) || (d.kind === 'sport' && d.v === a.sport)).map(d => `<span>${d.label} ×${d.n}</span>`).join('');
             for (let i = 0; i < 5; i++) {
@@ -1879,6 +1878,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                     htmlContent += `<div class="pokemon-card w-full border-2 border-dashed border-slate-700/60 bg-slate-950/40 flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-plus mb-2 opacity-50 text-xl"></i><span class="text-[10px] uppercase font-bold">Slot Vide</span></div>`;
                 }
             }
+            if (run !== deckRun) return;
             container.innerHTML = htmlContent;
             const avg = activeCount > 0 ? Math.round(totalOvr / activeCount) : 0, tb = getTeamBonus();
             const avgEl = document.getElementById('deck-average-ovr'); if (avgEl) avgEl.textContent = avg + tb.bonus;
@@ -1886,7 +1886,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (bonusEl) bonusEl.innerHTML = teamBonusHTML(tb);
         }
 
-        async function renderDeckQuickAdd() {
+        function renderDeckQuickAdd() {
             const container = document.getElementById('deck-quick-add-container');
             if (!container) return;
 
@@ -1922,11 +1922,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 return (scoreA !== scoreB) ? scoreB - scoreA : b.rarityId - a.rarityId;
             });
 
-            const cardsHtmlList = await Promise.all(owned.map(async (athlete) => {
-                const photoUrl = await fetchWikiPhoto(athlete.wikiSlug);
-                return `<div onclick="addToDeck('${athlete.id}')" class="w-full cursor-pointer transition-transform hover:scale-105">${getCardHTML(athlete, photoUrl, true, false, false, false, false)}</div>`;
-            }));
-            container.innerHTML = cardsHtmlList.join('');
+            // Photos chargées à l'affichage : ne pas interroger Wikipédia pour toute la collection d'un coup
+            container.innerHTML = owned.map(athlete => `<div onclick="addToDeck('${athlete.id}')" class="w-full cursor-pointer transition-transform hover:scale-105">${getCardHTML(athlete, null, true, false, false, false, false)}</div>`).join('');
             lazyLoadWikiImages();
         }
 
@@ -2382,7 +2379,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             $('tb-sum').innerHTML = n ? `OVR de l'équipe : <b>${avg + bonus}</b> (moyenne ${avg} + bonus ${bonus})` : 'Choisis 5 athlètes ou utilise « Meilleure équipe auto ».';
             $('tb-ok').disabled = n !== 5;
         }
-        document.addEventListener('keydown', e => { if (e.key === 'Escape' && tb) tbClose(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { if (tb) tbClose(); closeZoomModal(); closeSaveModal(); }
+            // Les cartes et le booster sont des <div role="button"> : Entrée et Espace doivent les activer
+            else if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role="button"]')) { e.preventDefault(); e.target.click(); }
+        });
 
         // ===== PAYLOAD / CRÉER / REJOINDRE =====
         function pvpCardsFrom(ids) {
@@ -2487,7 +2488,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             pvpRematchSent = true; pvpAck = false; pvpRematchRender(); socket.emit('rematch');
             clearTimeout(pvpRematchTimer);
             pvpRematchTimer = setTimeout(() => {
-                if (pvpRematchSent && !pvpAck) { pvpRematchSent = false; pvpRematchRender(); showToast('Le serveur n\'est pas à jour : envoie aussi le nouveau server.js sur GitHub.', 'error'); }
+                if (pvpRematchSent && !pvpAck) { pvpRematchSent = false; pvpRematchRender(); showToast('Le serveur n\'a pas répondu : réessaie dans quelques secondes.', 'error'); }
             }, 4000);
         }
         function pvpBack() { try { if (socket && socket.connected && currentRoomCode) socket.emit('leave_room'); } catch (e) { } pvpReset(); }
@@ -2553,10 +2554,16 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             }
         }
 
-        on('connect', renderPvPObjectives); on('disconnect', () => { renderPvPObjectives(); if (!pvpBusy) pvpRefund(); }); on('connect_error', renderPvPObjectives);
+        on('connect', renderPvPObjectives); on('connect_error', renderPvPObjectives);
+        on('disconnect', () => {
+            renderPvPObjectives();
+            if (pvpBusy) { pvpOppLeft = true; pvpRematchRender(); return; } // le salon est perdu : plus de revanche possible
+            if (currentRoomCode) { showToast('Connexion perdue : salon fermé, ta mise t\'est rendue.', 'warning'); pvpReset(); }
+            else pvpRefund();
+        });
         on('room_created', data => {
             if (pvpRoomMode !== 'classic' && data.mode !== pvpRoomMode) { // ancien serveur : il ne connaît pas les modes
-                showToast("Le serveur n'est pas à jour : envoie aussi le nouveau server.js sur GitHub.", 'error'); currentRoomCode = data.roomCode; socket.emit('leave_room'); pvpReset(); return;
+                showToast("Ce mode de combat n'est pas disponible sur le serveur pour le moment.", 'error'); currentRoomCode = data.roomCode; socket.emit('leave_room'); pvpReset(); return;
             }
             currentRoomCode = data.roomCode; pvpEnterArena(); $('display-room-code').textContent = currentRoomCode;
             $('pvp-waiting-msg').textContent = 'Salon créé ! Partage ce code avec ton ami.' + (pvpRoomMode !== 'classic' ? ' Mode : ' + PVP_MODES[pvpRoomMode].t + '.' : '');
@@ -2608,6 +2615,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         renderSportProgress(); renderPvPObjectives(); renderStakeChips(); renderModeChips();
         fillTargetValues();
         initUser();
+        pvpRefund(); // onglet fermé pendant un salon : la mise bloquée revient au joueur
+        renderStakeChips();
+        if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
     </script>
 </body>
 </html>
