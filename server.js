@@ -6,18 +6,23 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
+app.get('/health', (req, res) => res.json({ ok: true, rooms: Object.keys(rooms).length }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: { origin: '*', methods: ['GET', 'POST'] }
+    cors: { origin: '*', methods: ['GET', 'POST'] },
+    maxHttpBufferSize: 1e5 // une équipe pèse quelques Ko : inutile d'accepter le 1 Mo par défaut
 });
 
 const rooms = {};              // code du salon -> { id, stake, players: [...] }
 const socketRoom = new Map();  // id du socket -> code du salon
 const ALLOWED_STAKES = [0, 50, 100, 250, 500]; // mêmes mises que dans le jeu
 const MODES = ['classic', 'nation', 'sport'];   // classique / même nationalité / même sport
+const INVALID_TEAM = 'Équipe invalide : il faut 5 athlètes différents respectant le mode de combat.';
 const ROLL_MAX = 4;          // chaque duel ajoute un tirage aléatoire de 0 à 4
 const TEAM_DUEL_POINTS = 2;  // le duel d'équipe (note générale, bonus compris) compte double
+const MAX_CARD_SCORE = 110;  // note maximale d'une carte : 100 + 2 équipements à +5
+const MAX_TEAM_BONUS = 18;   // 4 (pays) + 4 (sport) + 10 (albums)
 const roll = () => Math.floor(Math.random() * (ROLL_MAX + 1));
 
 // 5 duels d'athlètes (note de base, sans bonus d'équipe) + 1 duel d'équipe (2 points) = 7 points en jeu
@@ -58,6 +63,7 @@ function generateRoomCode() {
 
 const txt = (v, max, fallback = '') => (typeof v === 'string' ? v.trim().slice(0, max) : fallback);
 const num = (v, fallback = 0) => (v !== null && v !== '' && Number.isFinite(Number(v)) ? Number(v) : fallback);
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
 // Les cartes envoyées par le client : { n: nom, sl: slug Wikipédia, sp: sport, c: pays, s: score }
 function cleanCards(cards) {
@@ -67,7 +73,7 @@ function cleanCards(cards) {
         sl: txt(c && c.sl, 120),
         sp: txt(c && c.sp, 40),
         c: txt(c && c.c, 10),
-        s: num(c && c.s, 95)
+        s: clamp(Math.round(num(c && c.s, 95)), 0, MAX_CARD_SCORE)
     }));
 }
 
@@ -75,12 +81,12 @@ const cleanMode = m => (MODES.includes(m) ? m : 'classic');
 
 // Vérifie que l'équipe respecte le mode du salon (5 athlètes différents, même pays ou même sport)
 function validTeam(mode, cards) {
-    if (mode === 'classic') return true;
     if (!Array.isArray(cards) || cards.length !== 5) return false;
+    if (new Set(cards.map(c => c.sl || c.n)).size !== 5) return false;
+    if (mode === 'classic') return true;
     const key = mode === 'nation' ? 'c' : 'sp';
     const first = cards[0][key];
     if (!first) return false;
-    if (new Set(cards.map(c => c.sl || c.n)).size !== 5) return false;
     return cards.every(c => c[key] === first);
 }
 
@@ -88,16 +94,16 @@ function buildPlayer(socket, data, fallbackName, mode) {
     data = data && typeof data === 'object' ? data : {};
     const stake = num(data.stake, 0);
     const cards = cleanCards(data.cards);
+    const bonus = clamp(Math.round(num(data.bonus, 0)), 0, MAX_TEAM_BONUS);
     return {
         id: socket.id,
         name: txt(data.name, 30) || fallbackName,
-        ovr: num(data.ovr, 0),
-        bonus: num(data.bonus, 0),
+        // La note d'équipe est recalculée ici : celle envoyée par le client n'est pas fiable
+        ovr: Math.round(cards.reduce((t, c) => t + c.s, 0) / 5) + bonus,
+        bonus,
         stake: ALLOWED_STAKES.includes(stake) ? stake : 0,
         cards,
-        group: mode === 'nation' ? (cards[0] && cards[0].c) || '' : mode === 'sport' ? (cards[0] && cards[0].sp) || '' : '',
-        deck: Array.isArray(data.deck) ? data.deck.slice(0, 5) : [],
-        equipments: data.equipments && typeof data.equipments === 'object' ? data.equipments : {}
+        group: mode === 'nation' ? (cards[0] && cards[0].c) || '' : mode === 'sport' ? (cards[0] && cards[0].sp) || '' : ''
     };
 }
 
@@ -111,7 +117,7 @@ function leaveRoom(socket) {
     delete rooms[code];
     room.players.forEach(p => { if (p.id !== socket.id) socketRoom.delete(p.id); });
     socket.to(code).emit('opponent_left');
-    socket.leave(code);
+    io.in(code).socketsLeave(code); // le joueur restant ne doit pas rester abonné à un salon supprimé
 }
 
 // ---------- Événements ----------
@@ -122,7 +128,7 @@ io.on('connection', (socket) => {
     socket.on('create_room', (playerData) => {
         const mode = cleanMode(playerData && playerData.mode);
         const host = buildPlayer(socket, playerData, 'Joueur 1', mode);
-        if (!validTeam(mode, host.cards)) { socket.emit('error_message', 'Équipe invalide pour ce mode de combat.'); return; }
+        if (!validTeam(mode, host.cards)) { socket.emit('error_message', INVALID_TEAM); return; }
 
         leaveRoom(socket); // un joueur ne peut avoir qu'un seul salon à la fois
         const roomCode = generateRoomCode();
@@ -153,7 +159,7 @@ io.on('connection', (socket) => {
         if (room.players.length >= 2) { socket.emit('error_message', 'Le salon est complet.'); return; }
 
         const guest = buildPlayer(socket, playerData, 'Joueur 2', room.mode);
-        if (!validTeam(room.mode, guest.cards)) { socket.emit('error_message', 'Équipe invalide pour ce mode de combat.'); return; }
+        if (!validTeam(room.mode, guest.cards)) { socket.emit('error_message', INVALID_TEAM); return; }
 
         leaveRoom(socket); // quitte un éventuel autre salon
         guest.stake = room.stake; // la mise est celle fixée par le créateur du salon

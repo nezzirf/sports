@@ -13,26 +13,26 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
         };
 
         const equipmentDefinitions = [
-            { id: 'eq_foot_1', name: "Ballon d'Or", sport: 'Football', price: 1500, bonus: 5 },
-            { id: 'eq_foot_2', name: "Coupe du Monde", sport: 'Football', price: 1500, bonus: 5 },
-            { id: 'eq_cycl_1', name: "Vélo", sport: 'Cyclisme', price: 1500, bonus: 5 },
-            { id: 'eq_cycl_2', name: "Maillot Jaune", sport: 'Cyclisme', price: 1500, bonus: 5 },
-            { id: 'eq_bask_1', name: "Ballon de Basket", sport: 'Basketball', price: 1500, bonus: 5 },
-            { id: 'eq_bask_2', name: "Trophée Champion NBA", sport: 'Basketball', price: 1500, bonus: 5 },
-            { id: 'eq_tenn_1', name: "Raquette", sport: 'Tennis', price: 1500, bonus: 5 },
-            { id: 'eq_tenn_2', name: "Balle de Tennis", sport: 'Tennis', price: 1500, bonus: 5 },
-            { id: 'eq_f1_1', name: "F1", sport: 'F1', price: 1500, bonus: 5 },
-            { id: 'eq_f1_2', name: "Circuit", sport: 'F1', price: 1500, bonus: 5 },
-            { id: 'eq_rugb_1', name: "Ballon de Rugby", sport: 'Rugby', price: 1500, bonus: 5 },
-            { id: 'eq_rugb_2', name: "Poteau de Rugby", sport: 'Rugby', price: 1500, bonus: 5 },
-            { id: 'eq_athl_1', name: "Piste d'Athlétisme", sport: 'Athlétisme', price: 1500, bonus: 5 },
-            { id: 'eq_athl_2', name: "Chaussures d'Athlétisme", sport: 'Athlétisme', price: 1500, bonus: 5 },
-            { id: 'eq_nata_1', name: "Lunettes de Natation", sport: 'Natation', price: 1500, bonus: 5 },
-            { id: 'eq_nata_2', name: "Bonnet de Natation", sport: 'Natation', price: 1500, bonus: 5 },
-            { id: 'eq_comb_1', name: "Gants de Boxe", sport: 'Sports de combat', price: 1500, bonus: 5 },
-            { id: 'eq_comb_2', name: "Kimono", sport: 'Sports de combat', price: 1500, bonus: 5 },
-            { id: 'eq_hand_1', name: "Ballon de Hand", sport: 'Handball', price: 1500, bonus: 5 },
-            { id: 'eq_hand_2', name: "Cages de Hand", sport: 'Handball', price: 1500, bonus: 5 }
+            { id: 'eq_foot_1', name: "Ballon d'Or", sport: 'Football', price: 3000, bonus: 5 },
+            { id: 'eq_foot_2', name: "Coupe du Monde", sport: 'Football', price: 3000, bonus: 5 },
+            { id: 'eq_cycl_1', name: "Vélo", sport: 'Cyclisme', price: 3000, bonus: 5 },
+            { id: 'eq_cycl_2', name: "Maillot Jaune", sport: 'Cyclisme', price: 3000, bonus: 5 },
+            { id: 'eq_bask_1', name: "Ballon de Basket", sport: 'Basketball', price: 3000, bonus: 5 },
+            { id: 'eq_bask_2', name: "Trophée Champion NBA", sport: 'Basketball', price: 3000, bonus: 5 },
+            { id: 'eq_tenn_1', name: "Raquette", sport: 'Tennis', price: 3000, bonus: 5 },
+            { id: 'eq_tenn_2', name: "Balle de Tennis", sport: 'Tennis', price: 3000, bonus: 5 },
+            { id: 'eq_f1_1', name: "F1", sport: 'F1', price: 3000, bonus: 5 },
+            { id: 'eq_f1_2', name: "Circuit", sport: 'F1', price: 3000, bonus: 5 },
+            { id: 'eq_rugb_1', name: "Ballon de Rugby", sport: 'Rugby', price: 3000, bonus: 5 },
+            { id: 'eq_rugb_2', name: "Poteau de Rugby", sport: 'Rugby', price: 3000, bonus: 5 },
+            { id: 'eq_athl_1', name: "Piste d'Athlétisme", sport: 'Athlétisme', price: 3000, bonus: 5 },
+            { id: 'eq_athl_2', name: "Chaussures d'Athlétisme", sport: 'Athlétisme', price: 3000, bonus: 5 },
+            { id: 'eq_nata_1', name: "Lunettes de Natation", sport: 'Natation', price: 3000, bonus: 5 },
+            { id: 'eq_nata_2', name: "Bonnet de Natation", sport: 'Natation', price: 3000, bonus: 5 },
+            { id: 'eq_comb_1', name: "Gants de Boxe", sport: 'Sports de combat', price: 3000, bonus: 5 },
+            { id: 'eq_comb_2', name: "Kimono", sport: 'Sports de combat', price: 3000, bonus: 5 },
+            { id: 'eq_hand_1', name: "Ballon de Hand", sport: 'Handball', price: 3000, bonus: 5 },
+            { id: 'eq_hand_2', name: "Cages de Hand", sport: 'Handball', price: 3000, bonus: 5 }
         ];
 
         const vintageAthletes = [
