@@ -569,7 +569,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 <i class="fa-solid fa-store w-5 text-center text-amber-400"></i><span>Boutique</span>
             </button>
             <button onclick="switchMainTab('tab-goals')" id="nav-tab-goals" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
-                <i class="fa-solid fa-trophy w-5 text-center text-yellow-400"></i><span>Objectifs</span>
+                <i class="fa-solid fa-trophy w-5 text-center text-yellow-400"></i><span>Objectifs</span><span id="goals-dot" style="display:none;width:9px;height:9px;border-radius:99px;background:#fbbf24;box-shadow:0 0 8px #fbbf24"></span>
             </button>
             <button onclick="switchMainTab('tab-deck')" id="nav-tab-deck" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
                 <i class="fa-solid fa-users w-5 text-center"></i><span>Mon Équipe</span>
@@ -1099,6 +1099,22 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         let displayedCardLimit = 24, filteredAthletesCache = [];
 
         const SAVE_KEY = 'sports_tcg_save_v3', BK_KEY = 'sports_tcg_backups', SCHEMA = 3;
+        const DAILY_POOL = [
+            { id: 'packs3', k: 'packs', ic: 'fa-box-open', t: 'Déballage', d: 'Ouvre 3 boosters', g: 3, r: 100 },
+            { id: 'packs6', k: 'packs', ic: 'fa-boxes-stacked', t: 'Grosse session', d: 'Ouvre 6 boosters', g: 6, r: 200 },
+            { id: 'new3', k: 'new', ic: 'fa-wand-magic-sparkles', t: 'Nouvelles recrues', d: 'Obtiens 3 cartes que tu n\'as pas', g: 3, r: 150 },
+            { id: 'new8', k: 'new', ic: 'fa-wand-magic-sparkles', t: 'Recruteur', d: 'Obtiens 8 cartes que tu n\'as pas', g: 8, r: 300 },
+            { id: 'rare1', k: 'rare', ic: 'fa-gem', t: 'Belle prise', d: 'Obtiens 1 carte Ultra rare ou mieux', g: 1, r: 200 },
+            { id: 'rare3', k: 'rare', ic: 'fa-gem', t: 'Main chanceuse', d: 'Obtiens 3 cartes Ultra rares ou mieux', g: 3, r: 400 },
+            { id: 'rec10', k: 'recycled', ic: 'fa-recycle', t: 'Grand ménage', d: 'Recycle 10 doublons', g: 10, r: 100 },
+            { id: 'rec30', k: 'recycled', ic: 'fa-recycle', t: 'Tri sélectif', d: 'Recycle 30 doublons', g: 30, r: 250 },
+            { id: 'spend500', k: 'spent', ic: 'fa-coins', t: 'Dépensier', d: 'Dépense 500 SP en boutique ou en booster ciblé', g: 500, r: 150 }
+        ];
+        const DAILY_PVP = [
+            { id: 'fight1', k: 'fights', ic: 'fa-hand-fist', t: 'Défi de l\'arène', d: 'Joue 1 combat avec mise', g: 1, r: 150, pvp: 1 },
+            { id: 'fight3', k: 'fights', ic: 'fa-hand-fist', t: 'Défi de l\'arène', d: 'Joue 3 combats avec mise', g: 3, r: 300, pvp: 1 },
+            { id: 'win1', k: 'wins', ic: 'fa-medal', t: 'Défi du vainqueur', d: 'Gagne 1 combat avec mise', g: 1, r: 250, pvp: 1 }
+        ];
         const LS = { get(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); return true; } catch(e) { return false; } } };
         const norm = t => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
         const richness = st => Object.keys(st.collection).length * 1e6 + (st.totalPacksOpened || 0) * 1e3 + (st.sportsPoints || 0);
@@ -1234,6 +1250,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const badge = document.getElementById('pack-count-badge'), timerEl = document.getElementById('pack-cooldown-timer'), spDisplay = document.getElementById('sports-points-display');
             if (badge) badge.textContent = `${userState.packsCount}/${MAX_PACKS}`;
             if (spDisplay) spDisplay.textContent = `${userState.sportsPoints} SP`;
+            const dot = document.getElementById('goals-dot'); if (dot) dot.style.display = dailyClaimable() ? 'inline-block' : 'none';
             if (timerEl) {
                 if (userState.packsCount >= MAX_PACKS) { timerEl.textContent = "MAXIMUM"; }
                 else {
@@ -1467,7 +1484,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (userState.ownedEquipments.includes(eqId)) { showToast("Vous possédez déjà cet équipement !", "warning"); return; }
             userState.sportsPoints -= price;
             userState.ownedEquipments.push(eqId);
-            saveUser(); playSparkleSound();
+            dailyAdd('spent', price); saveUser(); playSparkleSound();
             showToast("Équipement acheté avec succès !", "success");
             renderEquipmentShop();
         }
@@ -1530,7 +1547,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (userState.sportsPoints < price) { showToast(`Sports Points insuffisants ! Il vous faut ${price} SP.`, "error"); return; }
             userState.sportsPoints -= price;
             userState.collection[cardId] = (userState.collection[cardId] || 0) + 1;
-            saveUser(); playSparkleSound();
+            dailyAdd('spent', price); saveUser(); playSparkleSound();
             showToast("Félicitations ! Légende historique acquise !", "success");
             renderVintageShop();
             const vc = vintageAthletes.find(c => c.id === cardId); if (vc) openSingleReveal(vc);
@@ -1562,7 +1579,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 showToast(count > 1 ? `Il te faut ${count} paquets.` : "Plus de paquets disponibles !", "warning"); return;
             }
             const filterFn = target ? (a => a.sport === target.value) : null;
-            if (target) userState.sportsPoints -= target.price;
+            if (target) { userState.sportsPoints -= target.price; dailyAdd('spent', target.price); }
             else { const before = userState.packsCount; userState.packsCount -= count; if (before >= MAX_PACKS) userState.lastPackTime = Date.now(); }
             userState.totalPacksOpened = (userState.totalPacksOpened || 0) + count;
             isOpening = true; playTearSound();
@@ -1580,6 +1597,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const seen = {};
             const dropped = raw.map(card => { const isNew = !((userState.collection[card.id] || 0) > 0 || seen[card.id]); seen[card.id] = 1; return { card, isNew }; });
             dropped.forEach(d => { userState.collection[d.card.id] = (userState.collection[d.card.id] || 0) + 1; });
+            dailyAdd('packs', count); dailyAdd('new', dropped.filter(d => d.isNew).length); dailyAdd('rare', dropped.filter(d => d.card.rarityId >= R_ULT).length);
             saveUser(); updatePackSystem();
 
             const pack = document.getElementById('main-booster-card'), laser = document.getElementById('laser-line'), topPiece = document.getElementById('booster-top-piece');
@@ -1738,7 +1756,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (doublonsCount <= 0) return;
             const totalGain = (spRecycleValues[athlete.rarityId] || 1) * doublonsCount;
             userState.collection[athleteId] = 1; userState.sportsPoints += totalGain;
-            saveUser(); playSparkleSound();
+            noteRecycled(doublonsCount); saveUser(); playSparkleSound();
             showToast(`+${totalGain} SP gagnés !`, "success");
         }
 
@@ -1756,7 +1774,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 }
             }
             if (recycledCount === 0) { showToast("Aucun doublon à recycler.", "info"); return; }
-            userState.sportsPoints += totalGain; saveUser(); playSparkleSound();
+            userState.sportsPoints += totalGain; noteRecycled(recycledCount); saveUser(); playSparkleSound();
             showToast(`${recycledCount} doublon(s) recyclé(s) pour +${totalGain} SP !`, "success");
         }
 
@@ -2010,6 +2028,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         const has = id => (userState.collection[id] || 0) > 0;
         const ownedCount = () => Object.keys(userState.collection).filter(id => !id.startsWith('v_') && has(id)).length;
         const hasRar = r => athletesData.some(a => a.rarityId >= r && has(a.id));
+        const ownedRar = r => athletesData.filter(a => a.rarityId >= r && has(a.id)).length;
+        const ownedVintage = () => vintageAthletes.filter(a => has(a.id)).length;
+        const deckRar = r => userState.deck.filter(id => { const a = athletesData.find(x => x.id === id); return a && a.rarityId >= r; }).length;
         const ACHIEVEMENTS = [
             { id: 'first', name: 'Première carte', desc: 'Obtiens ta première carte', sp: 50, t: () => ownedCount() >= 1 },
             { id: 'c50', name: 'Collectionneur', desc: '50 cartes différentes', sp: 300, t: () => ownedCount() >= 50 },
@@ -2020,12 +2041,75 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             { id: 'myt', name: 'Mythique !!', desc: 'Obtiens une carte Mythique', sp: 2000, t: () => hasRar(R_MYT) },
             { id: 'vint', name: 'Remonter le temps', desc: 'Achète une légende Vintage ou obtiens-la', sp: 500, t: () => Object.keys(userState.collection).some(id => id.startsWith('v_')) },
             { id: 'team', name: 'Équipe au complet', desc: 'Place 5 athlètes dans ton équipe', sp: 100, t: () => userState.deck.every(Boolean) },
-            { id: 'eq', name: 'Bien équipé', desc: 'Achète un équipement', sp: 100, t: () => userState.ownedEquipments.length >= 1 }
+            { id: 'eq', name: 'Bien équipé', desc: 'Achète un équipement', sp: 100, t: () => userState.ownedEquipments.length >= 1 },
+            { id: 'c400', name: 'Expert', desc: '400 cartes différentes', sp: 3000, v: ownedCount, g: 400 },
+            { id: 'c600', name: 'Encyclopédie vivante', desc: '600 cartes différentes', sp: 8000, v: ownedCount, g: 600 },
+            { id: 'call', name: 'Hall of Fame', desc: 'Toutes les cartes de la collection', sp: 30000, v: ownedCount, g: athletesData.length },
+            { id: 'p50', name: 'Habitué des boosters', desc: 'Ouvre 50 boosters', sp: 300, v: () => userState.totalPacksOpened || 0, g: 50 },
+            { id: 'p250', name: 'Accro au papier alu', desc: 'Ouvre 250 boosters', sp: 1500, v: () => userState.totalPacksOpened || 0, g: 250 },
+            { id: 'p1000', name: 'Mille boosters', desc: 'Ouvre 1 000 boosters', sp: 6000, v: () => userState.totalPacksOpened || 0, g: 1000 },
+            { id: 'leg10', name: 'Panthéon', desc: '10 cartes Légendaires ou Mythiques différentes', sp: 2000, v: () => ownedRar(R_LEG), g: 10 },
+            { id: 'leg50', name: 'Mont Olympe', desc: '50 cartes Légendaires ou Mythiques différentes', sp: 10000, v: () => ownedRar(R_LEG), g: 50 },
+            { id: 'myt3', name: 'Trinité mythique', desc: '3 cartes Mythiques différentes', sp: 6000, v: () => ownedRar(R_MYT), g: 3 },
+            { id: 'mytall', name: 'Les dix immortels', desc: 'Les 10 cartes Mythiques', sp: 30000, v: () => ownedRar(R_MYT), g: 10 },
+            { id: 'sport', name: 'Spécialiste', desc: 'Complète toutes les cartes d\'un sport (progression en %)', sp: 4000, v: () => Math.max(...sportsNames.map(sp => { const l = athletesData.filter(a => a.sport === sp); return Math.floor(l.filter(a => has(a.id)).length / l.length * 100); })), g: 100 },
+            { id: 'eq5', name: 'Arsenal', desc: 'Possède 5 équipements', sp: 1000, v: () => userState.ownedEquipments.length, g: 5 },
+            { id: 'eqall', name: 'Équipementier', desc: 'Possède tous les équipements', sp: 8000, v: () => userState.ownedEquipments.length, g: equipmentDefinitions.length },
+            { id: 'vint5', name: 'Musée vivant', desc: '5 légendes Vintage', sp: 5000, v: ownedVintage, g: 5 },
+            { id: 'vintall', name: 'Gardien de l\'histoire', desc: 'Toutes les légendes Vintage', sp: 20000, v: ownedVintage, g: vintageAthletes.length },
+            { id: 'teamleg', name: 'Équipe de légende', desc: '5 Légendaires ou mieux dans ton équipe', sp: 2500, v: () => deckRar(R_LEG), g: 5 },
+            { id: 'teammyt', name: 'Dream Team', desc: '5 Mythiques dans ton équipe', sp: 10000, v: () => deckRar(R_MYT), g: 5 },
+            { id: 'rec500', name: 'Recycleur', desc: 'Recycle 500 doublons', sp: 800, v: () => userState.totalRecycled || 0, g: 500 },
+            { id: 'rec5000', name: 'Usine de tri', desc: 'Recycle 5 000 doublons', sp: 4000, v: () => userState.totalRecycled || 0, g: 5000 },
+            { id: 'str7', name: 'Semaine parfaite', desc: 'Finis les objectifs du jour 7 jours d\'affilée', sp: 1500, v: () => dailyStats().best, g: 7 },
+            { id: 'str30', name: 'Mois parfait', desc: 'Finis les objectifs du jour 30 jours d\'affilée', sp: 6000, v: () => dailyStats().best, g: 30 },
+            { id: 'day100', name: 'Fidèle au poste', desc: 'Finis les objectifs du jour 100 fois', sp: 8000, v: () => dailyStats().days, g: 100 }
         ];
+
+        const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const dailyStats = () => userState.dailyStats = Object.assign({ days: 0, streak: 0, best: 0, last: '' }, userState.dailyStats || {});
+        // même tirage pour tous les joueurs d'un jour donné : le défi PvP est à part car il exige un adversaire
+        function pickDaily(day) {
+            let h = 2166136261; for (const c of day) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+            const rnd = n => { h = Math.imul(h, 1664525) + 1013904223 | 0; return Math.floor((h >>> 0) / 4294967296 * n); };
+            const full = ownedCount() >= athletesData.length, pool = DAILY_POOL.filter(o => !(full && o.k === 'new')), ids = [], kinds = new Set();
+            while (ids.length < 3 && pool.length) { const o = pool.splice(rnd(pool.length), 1)[0]; if (!kinds.has(o.k)) { kinds.add(o.k); ids.push(o.id); } }
+            return [...ids, DAILY_PVP[rnd(DAILY_PVP.length)].id];
+        }
+        function daily() {
+            const today = dayKey(); let s = userState.daily;
+            if (!s || s.day !== today || !Array.isArray(s.ids)) s = userState.daily = { day: today, ids: pickDaily(today), n: {}, claimed: {}, bonus: false };
+            return s;
+        }
+        const dailyList = () => daily().ids.map(id => DAILY_POOL.concat(DAILY_PVP).find(o => o.id === id)).filter(Boolean);
+        function dailyAdd(k, n = 1) { if (n > 0) { const s = daily(); s.n[k] = (s.n[k] || 0) + n; } }
+        function noteRecycled(n) { userState.totalRecycled = (userState.totalRecycled || 0) + n; dailyAdd('recycled', n); }
+        const dailySoloDone = () => dailyList().filter(o => !o.pvp).every(o => daily().claimed[o.id]);
+        const dailyClaimable = () => { const s = daily(); return dailyList().some(o => !s.claimed[o.id] && (s.n[o.k] || 0) >= o.g) || (!s.bonus && dailySoloDone()); };
+        function claimDaily(id) {
+            const s = daily(), o = dailyList().find(x => x.id === id); if (!o || s.claimed[o.id] || (s.n[o.k] || 0) < o.g) { renderGoals(); return; }
+            s.claimed[o.id] = Date.now(); userState.sportsPoints += o.r; playSparkleSound(); showToast(`Objectif du jour : +${o.r} SP !`, 'success'); saveUser(); updateUI(); renderGoals();
+        }
+        function claimDailyBonus() {
+            const s = daily(); if (s.bonus || !dailySoloDone()) { renderGoals(); return; }
+            const st = dailyStats(), y = new Date(); y.setDate(y.getDate() - 1);
+            st.streak = st.last === dayKey(y) ? st.streak + 1 : 1; st.best = Math.max(st.best, st.streak); st.days++; st.last = s.day;
+            s.bonus = true; userState.packsCount++; playSparkleSound(); showToast('Objectifs du jour terminés : +1 booster !', 'success'); saveUser(); updateUI(); updatePackSystem(); renderGoals();
+        }
+        function dailyCard(o) {
+            const s = daily(), val = Math.min(s.n[o.k] || 0, o.g), done = s.claimed[o.id], rdy = val >= o.g;
+            return `<div class="pv-obj ${done ? 'done' : rdy ? 'ok' : ''}"><div class="pv-row"><i class="fa-solid ${o.ic}" style="color:${rdy ? '#fbbf24' : '#64748b'};width:22px;text-align:center"></i><div style="flex:1;min-width:0"><div class="pv-t">${o.t} <span style="color:#fbbf24;font:700 11px monospace">+${o.r} SP</span></div><div class="pv-s">${o.d}</div></div>${done ? '<i class="fa-solid fa-check" style="color:#34d399"></i>' : rdy ? `<button class="pv-btn" onclick="claimDaily('${o.id}')">Réclamer</button>` : `<span class="pv-s" style="font-family:monospace">${val}/${o.g}</span>`}</div><div class="pv-bar"><i style="width:${val / o.g * 100}%"></i></div></div>`;
+        }
+        function renderDaily() {
+            const s = daily(), st = dailyStats(), l = dailyList(), solo = l.filter(o => !o.pvp), left = solo.filter(o => !s.claimed[o.id]).length;
+            const streak = st.last === s.day || st.last === dayKey(new Date(Date.now() - 864e5)) ? st.streak : 0;
+            const bonus = s.bonus ? '<span class="pv-s" style="color:#34d399"><i class="fa-solid fa-check"></i> Booster bonus récupéré</span>' : left ? `<span class="pv-s">Encore ${left} objectif${left > 1 ? 's' : ''} pour gagner 1 booster</span>` : '<button class="pv-btn" onclick="claimDailyBonus()">Réclamer 1 booster</button>';
+            return `<div class="pv-panel" style="margin-bottom:24px"><div class="pv-row" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:10px"><div class="pv-h" style="margin:0"><i class="fa-solid fa-calendar-day" style="color:#22d3ee"></i> Objectifs du jour</div><div class="pv-s">Série : ${streak} jour${streak > 1 ? 's' : ''} · nouveaux objectifs à minuit</div></div><div class="pv-grid">${l.map(dailyCard).join('')}</div><div class="pv-row" style="justify-content:flex-end;margin-top:10px">${bonus}</div></div>`;
+        }
 
         function checkAchievements() {
             const ach = userState.achievements = userState.achievements || {}, got = [];
-            ACHIEVEMENTS.forEach(a => { if (!ach[a.id]) { let ok = false; try { ok = a.t(); } catch (e) {} if (ok) { ach[a.id] = Date.now(); userState.sportsPoints += a.sp; got.push(a); } } });
+            ACHIEVEMENTS.forEach(a => { if (!ach[a.id]) { let ok = false; try { ok = a.v ? a.v() >= a.g : a.t(); } catch (e) {} if (ok) { ach[a.id] = Date.now(); userState.sportsPoints += a.sp; got.push(a); } } });
             if (got.length) { showToast('Succès débloqué !', 'success'); saveUser(); }
         }
 
@@ -2049,8 +2133,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function renderGoals() {
             const el = document.getElementById('goals-content'); if (!el) return;
             const ach = userState.achievements || {};
-            const succ = ACHIEVEMENTS.map(a => { const ok = ach[a.id]; return `<div class="p-3 rounded-2xl border ${ok ? 'border-amber-400/50 bg-amber-400/15' : 'border-slate-800 bg-slate-900/60 opacity-70'} flex items-center gap-3"><i class="fa-solid ${ok ? 'fa-trophy text-amber-300' : 'fa-lock text-slate-500'} text-lg w-6 text-center"></i><div class="min-w-0"><div class="text-sm font-bold text-white">${a.name} <span class="text-[11px] text-amber-300">+${a.sp} SP</span></div><div class="text-[11px] text-slate-400">${a.desc}</div></div></div>`; }).join('');
-            el.innerHTML = `<h3 class="text-xl font-bold font-sport uppercase tracking-wide text-white mb-3"><i class="fa-solid fa-trophy text-amber-400"></i> Succès</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">${succ}</div>`;
+            const succ = ACHIEVEMENTS.map(a => { const ok = ach[a.id]; return `<div class="p-3 rounded-2xl border ${ok ? 'border-amber-400/50 bg-amber-400/15' : 'border-slate-800 bg-slate-900/60 opacity-70'} flex items-center gap-3"><i class="fa-solid ${ok ? 'fa-trophy text-amber-300' : 'fa-lock text-slate-500'} text-lg w-6 text-center"></i><div class="min-w-0"><div class="text-sm font-bold text-white">${a.name} <span class="text-[11px] text-amber-300">+${a.sp} SP</span></div><div class="text-[11px] text-slate-400">${a.desc}</div>${a.v && !ok ? `<div class="pv-s" style="font-family:monospace">${Math.min(a.v(), a.g)}/${a.g}</div>` : ''}</div></div>`; }).join('');
+            const n = ACHIEVEMENTS.filter(a => ach[a.id]).length;
+            el.innerHTML = renderDaily() + `<h3 class="text-xl font-bold font-sport uppercase tracking-wide text-white mb-3"><i class="fa-solid fa-trophy text-amber-400"></i> Succès (${n}/${ACHIEVEMENTS.length})</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">${succ}</div>`;
         }
 
         let showFavOnly = false;
@@ -2240,7 +2325,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         let currentRoomCode = null, pvpStake = 0, pvpBusy = false, pvpMe = 0, pvpPl = [];
         let pvpOppRematch = false, pvpRematchSent = false, pvpOppLeft = false, pvpAck = false, pvpRematchTimer = null;
         const sleep = ms => new Promise(r => setTimeout(r, ms)), PVP_WIN = 250, $ = id => document.getElementById(id);
-        const pv = () => userState.pvp = Object.assign({ w: 0, l: 0, d: 0, streak: 0, best: 0, played: 0, perfect: 0, under: 0, bigbet: 0, escrow: 0, claimed: {} }, userState.pvp || {});
+        const pv = () => userState.pvp = Object.assign({ w: 0, l: 0, d: 0, streak: 0, best: 0, played: 0, perfect: 0, under: 0, bigbet: 0, escrow: 0, claimed: {}, sp: 0, sw: 0, sstreak: 0, sbest: 0, bet500: 0 }, userState.pvp || {});
         const PVP_OBJ = [
             { id: 'win1', ic: 'fa-medal', t: 'Première victoire', d: 'Gagne 1 combat', r: 150, v: p => p.w, g: 1 },
             { id: 'play10', ic: 'fa-hand-fist', t: 'Habitué de l\'arène', d: 'Joue 10 combats', r: 300, v: p => p.played, g: 10 },
@@ -2248,7 +2333,12 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             { id: 'perfect', ic: 'fa-star', t: 'Sans faute', d: 'Gagne en remportant les 5 duels d\'athlètes', r: 500, v: p => p.perfect, g: 1 },
             { id: 'under', ic: 'fa-bolt', t: 'David contre Goliath', d: 'Bats une équipe au OVR plus élevé', r: 500, v: p => p.under, g: 1 },
             { id: 'bet', ic: 'fa-coins', t: 'Grand parieur', d: 'Gagne un pari de 250 SP ou plus', r: 600, v: p => p.bigbet, g: 1 },
-            { id: 'win10', ic: 'fa-trophy', t: 'Gladiateur', d: 'Gagne 10 combats', r: 1000, v: p => p.w, g: 10 }
+            { id: 'win10', ic: 'fa-trophy', t: 'Gladiateur', d: 'Gagne 10 combats', r: 1000, v: p => p.w, g: 10 },
+            { id: 'sp50', ic: 'fa-hand-fist', t: 'Vétéran', d: 'Joue 50 combats avec mise', r: 1000, v: p => p.sp, g: 50 },
+            { id: 'sw25', ic: 'fa-trophy', t: 'Champion', d: 'Gagne 25 combats avec mise', r: 2500, v: p => p.sw, g: 25 },
+            { id: 'sstreak5', ic: 'fa-fire', t: 'Intouchable', d: '5 victoires avec mise d\'affilée', r: 1500, v: p => p.sbest, g: 5 },
+            { id: 'bet500', ic: 'fa-coins', t: 'Tapis', d: 'Gagne 5 paris de 500 SP', r: 2000, v: p => p.bet500, g: 5 },
+            { id: 'sw100', ic: 'fa-crown', t: 'Légende de l\'arène', d: 'Gagne 100 combats avec mise', r: 10000, v: p => p.sw, g: 100 }
         ];
         function claimPvPObj(id) {
             const o = PVP_OBJ.find(x => x.id === id), p = pv(); if (!o || p.claimed[o.id] || o.v(p) < o.g) return;
@@ -2596,6 +2686,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             p.played++;
             if (won) { net = stake + bonus; p.w++; p.streak++; p.best = Math.max(p.best, p.streak); if (wa === 5) p.perfect++; if (pvpPl[1 - pvpMe].ovr > pvpPl[pvpMe].ovr) p.under++; if (stake >= 250) p.bigbet++; }
             else if (draw) { net = 0; p.d++; p.streak = 0; } else { p.l++; p.streak = 0; }
+            // les combats amicaux ne rapportent rien : ils ne comptent ni pour les objectifs du jour ni pour ceux avec mise
+            if (!friendly) { p.sp++; dailyAdd('fights'); if (won) { p.sw++; p.sstreak++; p.sbest = Math.max(p.sbest, p.sstreak); dailyAdd('wins'); if (stake >= 500) p.bet500++; } else p.sstreak = 0; }
             p.escrow = 0; userState.sportsPoints += won ? stake * 2 + bonus : draw ? stake : 0; saveUser(); updateUI();
             await pvpPlay(sc);
             const cls = won ? 'w' : draw ? 'd' : 'l', arena = $('pv-arena');
