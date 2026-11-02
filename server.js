@@ -19,30 +19,27 @@ const socketRoom = new Map();  // id du socket -> code du salon
 const ALLOWED_STAKES = [0, 50, 100, 250, 500]; // mêmes mises que dans le jeu
 const MODES = ['classic', 'nation', 'sport'];   // classique / même nationalité / même sport
 const INVALID_TEAM = 'Équipe invalide : il faut 5 athlètes différents respectant le mode de combat.';
-const ROLL_MAX = 4;          // chaque duel ajoute un tirage aléatoire de 0 à 4
 const TEAM_DUEL_POINTS = 2;  // le duel d'équipe (note générale, bonus compris) compte double
 const MAX_CARD_SCORE = 110;  // note maximale d'une carte : 100 + 2 équipements à +5
 const MAX_TEAM_BONUS = 18;   // 4 (pays) + 4 (sport) + 10 (albums)
-const roll = () => Math.floor(Math.random() * (ROLL_MAX + 1));
 
-// 5 duels d'athlètes (note de base, sans bonus d'équipe) + 1 duel d'équipe (2 points) = 7 points en jeu
+// 5 duels d'athlètes (note de base, sans bonus d'équipe) + 1 duel d'équipe (2 points) = 7 points en jeu.
+// Aucun hasard : la meilleure note gagne le duel, une note égale donne un duel nul.
 function resolveBattle(p1, p2) {
     const base = (p, i) => (p.cards[i] && Number.isFinite(p.cards[i].s) ? p.cards[i].s : Math.round(p.ovr - p.bonus));
-    const side = p => ({ name: p.name, ovr: p.ovr, bonus: p.bonus, rounds: [], rolls: [], points: 0 });
+    const side = p => ({ name: p.name, ovr: p.ovr, bonus: p.bonus, rounds: [], points: 0 });
     const s1 = side(p1), s2 = side(p2);
 
     for (let i = 0; i < 5; i++) {
-        const r1 = roll(), r2 = roll();
-        const a = base(p1, i) + r1, b = base(p2, i) + r2;
-        s1.rounds.push(a); s1.rolls.push(r1);
-        s2.rounds.push(b); s2.rolls.push(r2);
+        const a = base(p1, i), b = base(p2, i);
+        s1.rounds.push(a);
+        s2.rounds.push(b);
         if (a > b) s1.points += 1;
         else if (b > a) s2.points += 1;
     }
 
-    s1.teamRoll = roll(); s2.teamRoll = roll();
-    s1.team = p1.ovr + s1.teamRoll;
-    s2.team = p2.ovr + s2.teamRoll;
+    s1.team = p1.ovr;
+    s2.team = p2.ovr;
     if (s1.team > s2.team) s1.points += TEAM_DUEL_POINTS;
     else if (s2.team > s1.team) s2.points += TEAM_DUEL_POINTS;
 
