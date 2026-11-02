@@ -61,6 +61,21 @@ test('un combat va au bout et distribue au plus 7 points', async () => {
     assert.ok(r.p1.points + r.p2.points <= 7);
 });
 
+test('sans hasard : les notes affichées sont les vraies notes et la meilleure équipe gagne', async () => {
+    for (let n = 0; n < 5; n++) {
+        const { host, guest } = await match(team(91), team(90));
+        const result = once(guest, 'battle_result');
+        host.emit('start_battle');
+        const r = await result;
+        assert.deepStrictEqual(r.p1.rounds, [91, 91, 91, 91, 91]);
+        assert.deepStrictEqual(r.p2.rounds, [90, 90, 90, 90, 90]);
+        assert.strictEqual(r.p1.team, 91);
+        assert.strictEqual(r.p2.team, 90);
+        assert.strictEqual(r.winnerId, host.id);
+        host.disconnect(); guest.disconnect();
+    }
+});
+
 test('la note d\'équipe envoyée par le client est ignorée', async () => {
     const { start } = await match(team(90, { ovr: 9999 }), team());
     assert.strictEqual(start.players[0].ovr, 90);
