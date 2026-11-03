@@ -52,13 +52,17 @@ test('GET /health répond', async () => {
     assert.strictEqual((await res.json()).ok, true);
 });
 
-test('un combat va au bout et distribue au plus 7 points', async () => {
-    const { host, guest } = await match(team(), team());
+test('un combat est déterministe : chaque duel rapporte l\'écart des notes', async () => {
+    const { host, guest, start } = await match(team(95), team(90));
     const result = once(guest, 'battle_result');
     host.emit('start_battle');
     const r = await result;
     assert.strictEqual(r.p1.rounds.length, 5);
-    assert.ok(r.p1.points + r.p2.points <= 7);
+    assert.deepStrictEqual(r.p1.rounds, [95, 95, 95, 95, 95]);
+    assert.deepStrictEqual(r.p2.rounds, [90, 90, 90, 90, 90]);
+    assert.strictEqual(r.p1.points, 5 * 5 + (r.p1.team - r.p2.team) * 2);
+    assert.strictEqual(r.p2.points, 0);
+    assert.strictEqual(r.winnerId, start.players[0].id);
 });
 
 test('la note d\'équipe envoyée par le client est ignorée', async () => {

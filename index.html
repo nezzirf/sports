@@ -2600,7 +2600,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             for (let i = 0; i < 50; i++) { const c = document.createElement('i'); c.className = 'pv-conf'; c.style.cssText = `left:${Math.random() * 100}%;background:hsl(${Math.random() * 360},90%,60%);animation-delay:${Math.random() * .8}s`; host.appendChild(c); setTimeout(() => c.remove(), 4200); }
         }
 
-        const PVP_TEAM_PTS = 2; // le duel d'équipe compte double
+        const PVP_TEAM_PTS = 2; // l'écart du duel d'équipe compte double
         function pvpScores(data) {
             const A = pvpMe === 0 ? data.p1 : data.p2, B = pvpMe === 0 ? data.p2 : data.p1, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe];
             const has5 = x => Array.isArray(x.rounds) && x.rounds.length === 5;
@@ -2609,12 +2609,12 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const div = Math.max(A.total, B.total) > 200 ? 1 : 5;
             return { ra: pvpRounds(A, L.cards, A.total * div, 3), rb: pvpRounds(B, R.cards, B.total * div, 7), ta: Number(A.total), tb: Number(B.total) };
         }
-        // Points : 1 par duel d'athlète gagné, 2 pour le duel d'équipe
+        // Points : l'écart entre les deux notes pour chaque duel gagné (×2 pour le duel d'équipe)
         function pvpTally(sc) {
             let pa = 0, pb = 0, wa = 0;
-            sc.ra.forEach((x, i) => { if (x > sc.rb[i]) { pa++; wa++; } else if (sc.rb[i] > x) pb++; });
+            sc.ra.forEach((x, i) => { if (x > sc.rb[i]) { pa += x - sc.rb[i]; wa++; } else if (sc.rb[i] > x) pb += sc.rb[i] - x; });
             const teamRes = sc.ta > sc.tb ? 1 : sc.tb > sc.ta ? -1 : 0;
-            if (teamRes > 0) pa += PVP_TEAM_PTS; else if (teamRes < 0) pb += PVP_TEAM_PTS;
+            if (teamRes > 0) pa += (sc.ta - sc.tb) * PVP_TEAM_PTS; else if (teamRes < 0) pb += (sc.tb - sc.ta) * PVP_TEAM_PTS;
             return { pa, pb, wa, teamRes };
         }
         function pvpFillTeam(el, p, you) {
@@ -2633,7 +2633,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 lane.classList.add('on', 'in'); pvpSfx.whoosh(); await sleep(team ? 800 : 560);
                 const va = team ? sc.ta : ra[i], vb = team ? sc.tb : rb[i];
                 countUp(fa.querySelector('.sc'), va, 450); countUp(fb.querySelector('.sc'), vb, 450); await sleep(team ? 700 : 480);
-                const a = va > vb, b = vb > va, pts = team ? PVP_TEAM_PTS : 1;
+                const a = va > vb, b = vb > va, pts = Math.abs(va - vb) * (team ? PVP_TEAM_PTS : 1);
                 fa.classList.add(a ? 'win' : b ? 'lose' : 'x'); fb.classList.add(b ? 'win' : a ? 'lose' : 'x');
                 lane.classList.add('hit'); if (team) pvpSfx.big(); else pvpSfx.clash();
                 setTimeout(() => { if (a) pvpSfx.win(); else if (b) pvpSfx.miss(); }, 140);
@@ -2691,7 +2691,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             p.escrow = 0; userState.sportsPoints += won ? stake * 2 + bonus : draw ? stake : 0; saveUser(); updateUI();
             await pvpPlay(sc);
             const cls = won ? 'w' : draw ? 'd' : 'l', arena = $('pv-arena');
-            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels d'athlètes : ${wa}/5 · Duel d'équipe : ${tl.teamRes > 0 ? 'gagné (+2)' : tl.teamRes < 0 ? 'perdu' : 'égalité'}<br>Score final : <b>${tl.pa} - ${tl.pb}</b><br><b style="color:${net > 0 ? '#fbbf24' : net < 0 ? '#fb7185' : '#cbd5e1'}">${net > 0 ? '+' : ''}${net} SP</b></div><div class="pv-end-actions"><button id="pv-rematch" class="pv-go sm" onclick="pvpRematch()"></button><button class="pv-btn" onclick="pvpBack()">Retour à l'arène</button></div></div>`;
+            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels d'athlètes : ${wa}/5 · Duel d'équipe : ${tl.teamRes > 0 ? 'gagné (+' + (sc.ta - sc.tb) * PVP_TEAM_PTS + ')' : tl.teamRes < 0 ? 'perdu' : 'égalité'}<br>Score final : <b>${tl.pa} - ${tl.pb}</b><br><b style="color:${net > 0 ? '#fbbf24' : net < 0 ? '#fb7185' : '#cbd5e1'}">${net > 0 ? '+' : ''}${net} SP</b></div><div class="pv-end-actions"><button id="pv-rematch" class="pv-go sm" onclick="pvpRematch()"></button><button class="pv-btn" onclick="pvpBack()">Retour à l'arène</button></div></div>`;
             pvpRematchRender();
             if (won) { confetti(arena); playSparkleSound(); showToast(friendly ? 'Victoire amicale !' : `Victoire PvP ! +${net} SP`, 'success'); }
             else if (draw) pvpSfx.draw(); else pvpSfx.defeat();
