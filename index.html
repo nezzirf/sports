@@ -2359,7 +2359,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         const on = (ev, fn) => socket && socket.on(ev, fn);
         let currentRoomCode = null, pvpStake = 0, pvpBusy = false, pvpMe = 0, pvpPl = [], pvpQueueing = false, pvpQueueAck = false, pvpPlace = null;
         let pvpOppRematch = false, pvpRematchSent = false, pvpOppLeft = false, pvpAck = false, pvpRematchTimer = null;
-        const sleep = ms => new Promise(r => setTimeout(r, ms)), PVP_WIN = 250, $ = id => document.getElementById(id);
+        const sleep = ms => new Promise(r => setTimeout(r, ms)), $ = id => document.getElementById(id);
         const pv = () => userState.pvp = Object.assign({ w: 0, l: 0, d: 0, streak: 0, best: 0, played: 0, perfect: 0, under: 0, bigbet: 0, escrow: 0, claimed: {}, sp: 0, sw: 0, sstreak: 0, sbest: 0, bet500: 0 }, userState.pvp || {});
         const PVP_OBJ = [
             { id: 'win1', ic: 'fa-medal', t: 'Première victoire', d: 'Gagne 1 combat', r: 150, v: p => p.w, g: 1 },
@@ -2834,15 +2834,15 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         on('battle_result', async data => {
             if (pvpBusy) return; pvpBusy = true; pvpPlaceStop(); $('pvp-leave-btn').classList.add('hidden'); $('btn-start-battle').classList.add('hidden');
             const stake = pvpStake, p = pv(), won = data.winnerId === socket.id, draw = data.winnerId === null;
-            const friendly = stake === 0, bonus = friendly ? 0 : PVP_WIN; // combat amical : aucun SP gagné
+            const friendly = stake === 0; // combat amical : aucun SP en jeu
             const sc = pvpScores(data), tl = pvpTally(sc), wa = tl.wa;
             let net = -stake;
             p.played++;
-            if (won) { net = stake + bonus; p.w++; p.streak++; p.best = Math.max(p.best, p.streak); if (wa === 5) p.perfect++; if (pvpPl[1 - pvpMe].ovr > pvpPl[pvpMe].ovr) p.under++; if (stake >= 250) p.bigbet++; }
+            if (won) { net = stake; p.w++; p.streak++; p.best = Math.max(p.best, p.streak); if (wa === 5) p.perfect++; if (pvpPl[1 - pvpMe].ovr > pvpPl[pvpMe].ovr) p.under++; if (stake >= 250) p.bigbet++; }
             else if (draw) { net = 0; p.d++; p.streak = 0; } else { p.l++; p.streak = 0; }
             // les combats amicaux ne rapportent rien : ils ne comptent ni pour les objectifs du jour ni pour ceux avec mise
             if (!friendly) { p.sp++; dailyAdd('fights'); if (won) { p.sw++; p.sstreak++; p.sbest = Math.max(p.sbest, p.sstreak); dailyAdd('wins'); if (stake >= 500) p.bet500++; } else p.sstreak = 0; }
-            p.escrow = 0; userState.sportsPoints += won ? stake * 2 + bonus : draw ? stake : 0; saveUser(); updateUI();
+            p.escrow = 0; userState.sportsPoints += won ? stake * 2 : draw ? stake : 0; // le gagnant prend sa mise + celle du perdant saveUser(); updateUI();
             pvpHistoryAdd(sc, tl, won, draw, net, stake);
             await pvpPlay(sc);
             const cls = won ? 'w' : draw ? 'd' : 'l', arena = $('pv-arena');
