@@ -19,11 +19,12 @@ const socketRoom = new Map();  // id du socket -> code du salon
 const ALLOWED_STAKES = [0, 50, 100, 250, 500]; // mêmes mises que dans le jeu
 const MODES = ['classic', 'nation', 'sport'];   // classique / même nationalité / même sport
 const INVALID_TEAM = 'Équipe invalide : il faut 5 athlètes différents respectant le mode de combat.';
-const TEAM_DUEL_POINTS = 2;  // le duel d'équipe (note générale, bonus compris) compte double
+const TEAM_DUEL_FACTOR = 2;  // le duel d'équipe (note générale, bonus compris) compte double
 const MAX_CARD_SCORE = 110;  // note maximale d'une carte : 100 + 2 équipements à +5
 const MAX_TEAM_BONUS = 18;   // 4 (pays) + 4 (sport) + 10 (albums)
 
-// 5 duels d'athlètes (note de base, sans bonus d'équipe) + 1 duel d'équipe (2 points) = 7 points en jeu
+// 5 duels d'athlètes (note de base, sans bonus d'équipe) + 1 duel d'équipe (note générale).
+// Le gagnant d'un duel marque l'écart entre les deux notes (l'écart du duel d'équipe compte double).
 function resolveBattle(p1, p2) {
     const base = (p, i) => (p.cards[i] && Number.isFinite(p.cards[i].s) ? p.cards[i].s : Math.round(p.ovr - p.bonus));
     const side = p => ({ name: p.name, ovr: p.ovr, bonus: p.bonus, rounds: [], points: 0 });
@@ -33,14 +34,14 @@ function resolveBattle(p1, p2) {
         const a = base(p1, i), b = base(p2, i);
         s1.rounds.push(a);
         s2.rounds.push(b);
-        if (a > b) s1.points += 1;
-        else if (b > a) s2.points += 1;
+        if (a > b) s1.points += a - b;
+        else if (b > a) s2.points += b - a;
     }
 
     s1.team = p1.ovr;
     s2.team = p2.ovr;
-    if (s1.team > s2.team) s1.points += TEAM_DUEL_POINTS;
-    else if (s2.team > s1.team) s2.points += TEAM_DUEL_POINTS;
+    if (s1.team > s2.team) s1.points += (s1.team - s2.team) * TEAM_DUEL_FACTOR;
+    else if (s2.team > s1.team) s2.points += (s2.team - s1.team) * TEAM_DUEL_FACTOR;
 
     let winnerId = null;
     if (s1.points > s2.points) winnerId = p1.id;
