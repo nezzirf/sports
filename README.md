@@ -17,6 +17,14 @@ Jouer : https://nezzirf.github.io/sports/
 
 La collection est enregistrée dans le navigateur du joueur (`localStorage`).
 
+## Règles du PvP
+
+- **Combat rapide** : le serveur apparie deux joueurs qui ont le même mode et la même mise, avec des notes d'équipe proches. L'écart toléré grandit avec l'attente (4 points, puis +4 toutes les 4 s). Au bout de 90 s sans adversaire, la recherche s'arrête.
+- **Salon privé** : un code à partager avec un ami.
+- **Ordre des athlètes** : avant chaque combat, chaque joueur place ses 5 athlètes dans l'ordre des duels (40 s). L'ordre de l'adversaire reste secret jusqu'au résultat. Sans validation à temps, l'ordre actuel est envoyé.
+- **Points** : chaque duel gagné rapporte l'écart entre les deux notes (sans plafond). L'écart du duel d'équipe compte double. Le plus de points gagne.
+- **Historique** : les 25 derniers combats sont gardés dans le navigateur, avec le détail des duels et un replay.
+
 ## Développement
 
 ```bash
