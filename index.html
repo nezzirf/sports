@@ -1498,14 +1498,14 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             let html = '';
             equipmentDefinitions.forEach(eq => {
                 const isOwned = userState.ownedEquipments.includes(eq.id);
-                let equippedToName = null;
+                const equippedNames = [];
                 for (const [athId, eqList] of Object.entries(userState.athleteEquipments)) {
                     if (Array.isArray(eqList) && eqList.includes(eq.id)) {
                         const ath = allCardsData.find(a => a.id === athId);
-                        if (ath) equippedToName = ath.name;
-                        break;
+                        if (ath) equippedNames.push(ath.name);
                     }
                 }
+                const equippedToName = equippedNames.length > 1 ? `${equippedNames.length} athlètes` : equippedNames[0] || null;
                 const currentPrice = eq.price;
                 html += `
                     <div class="textured-panel p-4 rounded-2xl flex flex-col justify-between space-y-3 border border-cyan-500/20 shadow-lg">
@@ -1548,10 +1548,10 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const athlete = allCardsData.find(a => a.id === athleteId), equipment = equipmentDefinitions.find(e => e.id === eqId);
             if (!athlete || !equipment) return;
             if (athlete.sport !== equipment.sport) { showToast(`Équipement réservé au sport : ${equipment.sport}`, "warning"); return; }
+            if (!userState.ownedEquipments.includes(eqId)) return;
             if (!userState.athleteEquipments[athleteId]) userState.athleteEquipments[athleteId] = [];
-            for (const [athId, eqList] of Object.entries(userState.athleteEquipments)) {
-                if (Array.isArray(eqList) && eqList.includes(eqId)) userState.athleteEquipments[athId] = eqList.filter(id => id !== eqId);
-            }
+            // un même équipement peut équiper tous les athlètes de son sport en même temps
+            if (userState.athleteEquipments[athleteId].includes(eqId)) return;
             if (userState.athleteEquipments[athleteId].length >= 2) userState.athleteEquipments[athleteId].shift();
             userState.athleteEquipments[athleteId].push(eqId);
             saveUser(); playSparkleSound();
