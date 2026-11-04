@@ -759,7 +759,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             <section id="tab-collection" class="tab-content w-full space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-3 gap-4">
                     <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase">Base de données globale & Statistiques</h2>
-                    <button onclick="recycleAllDuplicates()" class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs font-sport uppercase shadow-lg border border-amber-300 flex items-center gap-2 transition-all">
+                    <button onclick="recycleAllDuplicates()" title="Recycle les doublons Commune, Peu commune et Rare. Les cartes Ultra Rare, Légendaire, Mythique et Vintage sont conservées." class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs font-sport uppercase shadow-lg border border-amber-300 flex items-center gap-2 transition-all">
                         <i class="fa-solid fa-coins text-sm"></i> Tout recycler (Doublons)
                     </button>
                 </div>
@@ -1801,14 +1801,15 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 const count = userState.collection[cardId];
                 if (count > 1) {
                     const athlete = allCardsData.find(a => a.id === cardId);
-                    if (athlete && athlete.rarityId !== R_VINTAGE) {
+                    // les cartes Ultra Rare, Légendaire, Mythique et Vintage sont conservées
+                    if (athlete && athlete.rarityId < R_ULT) {
                         const doublonsCount = count - 1;
                         totalGain += (spRecycleValues[athlete.rarityId] || 1) * doublonsCount;
                         recycledCount += doublonsCount; userState.collection[cardId] = 1;
                     }
                 }
             }
-            if (recycledCount === 0) { showToast("Aucun doublon à recycler.", "info"); return; }
+            if (recycledCount === 0) { showToast("Aucun doublon à recycler (les cartes Ultra Rare et au-dessus sont conservées).", "info"); return; }
             userState.sportsPoints += totalGain; noteRecycled(recycledCount); saveUser(); playSparkleSound();
             showToast(`${recycledCount} doublon(s) recyclé(s) pour +${totalGain} SP !`, "success");
         }
