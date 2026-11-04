@@ -1497,15 +1497,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (!container) return;
             let html = '';
             equipmentDefinitions.forEach(eq => {
-                const isOwned = userState.ownedEquipments.includes(eq.id);
-                let equippedToName = null;
-                for (const [athId, eqList] of Object.entries(userState.athleteEquipments)) {
-                    if (Array.isArray(eqList) && eqList.includes(eq.id)) {
-                        const ath = allCardsData.find(a => a.id === athId);
-                        if (ath) equippedToName = ath.name;
-                        break;
-                    }
-                }
+                const ownedN = eqOwnedCount(eq.id), isOwned = ownedN > 0, usedN = Math.min(eqUsedCount(eq.id), ownedN);
                 const currentPrice = eq.price;
                 html += `
                     <div class="textured-panel p-4 rounded-2xl flex flex-col justify-between space-y-3 border border-cyan-500/20 shadow-lg">
@@ -1519,8 +1511,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
                             ${isOwned ? `
                                 <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
-                                    ${equippedToName ? `Équipé (${equippedToName})` : 'Possédé'}
+                                    ${ownedN > 1 ? `×${ownedN} · ` : ''}${usedN ? `Équipé ${usedN}/${ownedN}` : 'Possédé'}
                                 </span>
+                                <button onclick="buyEquipment('${eq.id}', ${currentPrice})" title="Un exemplaire équipe un seul athlète" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs font-sport uppercase transition">
+                                    +1 (${currentPrice} SP)
+                                </button>
                             ` : `
                                 <span class="text-xs font-mono font-bold text-amber-400">${currentPrice} SP</span>
                                 <button onclick="buyEquipment('${eq.id}', ${currentPrice})" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs font-sport uppercase transition">
@@ -1534,13 +1529,18 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             container.innerHTML = html;
         }
 
+        // Un équipement s'achète autant de fois qu'on veut l'utiliser : chaque exemplaire équipe un seul athlète.
+        const eqOwnedCount = id => userState.ownedEquipments.filter(x => x === id).length;
+        const eqUsedCount = id => Object.values(userState.athleteEquipments).filter(l => Array.isArray(l) && l.includes(id)).length;
+        const eqUniqueOwned = () => new Set(userState.ownedEquipments).size;
+
         function buyEquipment(eqId, price) {
             if (userState.sportsPoints < price) { showToast(`Sports Points insuffisants ! Il vous faut ${price} SP.`, "error"); return; }
-            if (userState.ownedEquipments.includes(eqId)) { showToast("Vous possédez déjà cet équipement !", "warning"); return; }
             userState.sportsPoints -= price;
             userState.ownedEquipments.push(eqId);
             dailyAdd('spent', price); saveUser(); playSparkleSound();
-            showToast("Équipement acheté avec succès !", "success");
+            const n = eqOwnedCount(eqId);
+            showToast(n > 1 ? `Exemplaire n°${n} acheté : tu peux l'équiper à un autre athlète.` : "Équipement acheté avec succès !", "success");
             renderEquipmentShop();
         }
 
@@ -1548,10 +1548,10 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const athlete = allCardsData.find(a => a.id === athleteId), equipment = equipmentDefinitions.find(e => e.id === eqId);
             if (!athlete || !equipment) return;
             if (athlete.sport !== equipment.sport) { showToast(`Équipement réservé au sport : ${equipment.sport}`, "warning"); return; }
+            if (!eqOwnedCount(eqId)) return;
             if (!userState.athleteEquipments[athleteId]) userState.athleteEquipments[athleteId] = [];
-            for (const [athId, eqList] of Object.entries(userState.athleteEquipments)) {
-                if (Array.isArray(eqList) && eqList.includes(eqId)) userState.athleteEquipments[athId] = eqList.filter(id => id !== eqId);
-            }
+            if (userState.athleteEquipments[athleteId].includes(eqId)) return;
+            if (eqUsedCount(eqId) >= eqOwnedCount(eqId)) { showToast(`Tous tes exemplaires de « ${equipment.name} » sont utilisés : retire-le d'un autre athlète ou achète-en un autre.`, "warning"); return; }
             if (userState.athleteEquipments[athleteId].length >= 2) userState.athleteEquipments[athleteId].shift();
             userState.athleteEquipments[athleteId].push(eqId);
             saveUser(); playSparkleSound();
@@ -1738,7 +1738,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 if (availableForSport.length > 0) {
                     eqHtml += `<div class="text-[11px] text-slate-400 font-sport uppercase mt-2">Disponibles :</div><div class="space-y-1.5 max-h-40 overflow-y-auto pr-1">`;
                     availableForSport.forEach(eq => {
-                        if (!eqList.includes(eq.id)) {
+                        if (!eqList.includes(eq.id) && eqUsedCount(eq.id) >= eqOwnedCount(eq.id)) {
+                            eqHtml += `<div class="flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800 text-xs opacity-70"><span class="text-white font-bold"><span class="eq-mini">${eqSvg(eq.id)}</span> ${eq.name}</span><span class="text-[10px] text-slate-400">Tous utilisés · achète-en un autre</span></div>`;
+                        } else if (!eqList.includes(eq.id)) {
                             eqHtml += `<div class="flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800 text-xs"><span class="text-white font-bold"><span class="eq-mini">${eqSvg(eq.id)}</span> ${eq.name}</span><button onclick="equipItemToAthlete('${athlete.id}', '${eq.id}')" class="px-2.5 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-lg text-[10px] uppercase">Équiper</button></div>`;
                         }
                     });
@@ -2133,8 +2135,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             { id: 'myt3', name: 'Trinité mythique', desc: '3 cartes Mythiques différentes', sp: 6000, v: () => ownedRar(R_MYT), g: 3 },
             { id: 'mytall', name: 'Les dix immortels', desc: 'Les 10 cartes Mythiques', sp: 30000, v: () => ownedRar(R_MYT), g: 10 },
             { id: 'sport', name: 'Spécialiste', desc: 'Complète toutes les cartes d\'un sport (progression en %)', sp: 4000, v: () => Math.max(...sportsNames.map(sp => { const l = athletesData.filter(a => a.sport === sp); return Math.floor(l.filter(a => has(a.id)).length / l.length * 100); })), g: 100 },
-            { id: 'eq5', name: 'Arsenal', desc: 'Possède 5 équipements', sp: 1000, v: () => userState.ownedEquipments.length, g: 5 },
-            { id: 'eqall', name: 'Équipementier', desc: 'Possède tous les équipements', sp: 8000, v: () => userState.ownedEquipments.length, g: equipmentDefinitions.length },
+            { id: 'eq5', name: 'Arsenal', desc: 'Possède 5 équipements', sp: 1000, v: () => eqUniqueOwned(), g: 5 },
+            { id: 'eqall', name: 'Équipementier', desc: 'Possède tous les équipements', sp: 8000, v: () => eqUniqueOwned(), g: equipmentDefinitions.length },
             { id: 'vint5', name: 'Musée vivant', desc: '5 légendes Vintage', sp: 5000, v: ownedVintage, g: 5 },
             { id: 'vintall', name: 'Gardien de l\'histoire', desc: 'Toutes les légendes Vintage', sp: 20000, v: ownedVintage, g: vintageAthletes.length },
             { id: 'teamleg', name: 'Équipe de légende', desc: '5 Légendaires ou mieux dans ton équipe', sp: 2500, v: () => deckRar(R_LEG), g: 5 },
