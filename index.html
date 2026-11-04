@@ -595,6 +595,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             <button onclick="switchMainTab('tab-collection')" id="nav-tab-collection" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
                 <i class="fa-solid fa-book-open w-5 text-center"></i><span>Collection & Stats</span>
             </button>
+            <button onclick="switchMainTab('tab-dupes')" id="nav-tab-dupes" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
+                <i class="fa-solid fa-clone w-5 text-center text-amber-400"></i><span>Doublons</span><span id="dupes-count-badge" style="display:none;font:900 11px monospace;padding:1px 7px;border-radius:99px;background:#fbbf24;color:#0f172a"></span>
+            </button>
             <!-- Bouton PvP par Code -->
             <button onclick="switchMainTab('tab-pvp')" id="nav-tab-pvp" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
                 <i class="fa-solid fa-gamepad w-5 text-center text-rose-500"></i><span>Combat PvP</span>
@@ -820,6 +823,18 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 </div>
                 
                 <div id="cards-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 pb-12 mt-6 relative z-10"></div>
+            </section>
+
+            <!-- ONGLET DOUBLONS (toutes les cartes en double, sans filtres) -->
+            <section id="tab-dupes" class="tab-content w-full space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-3 gap-4">
+                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase"><i class="fa-solid fa-clone text-amber-400"></i> Cartes en double</h2>
+                    <button onclick="recycleAllDuplicates()" title="Recycle les doublons Commune, Peu commune et Rare. Les cartes Ultra Rare, Légendaire, Mythique et Vintage sont conservées." class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs font-sport uppercase shadow-lg border border-amber-300 flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-coins text-sm"></i> Tout recycler (Doublons)
+                    </button>
+                </div>
+                <div id="dupes-summary" class="pv-panel"></div>
+                <div id="dupes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 pb-12 relative z-10"></div>
             </section>
 
             <!-- ONGLET PVP EN LIGNE -->
@@ -1340,6 +1355,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         if (mainScrollContainer.scrollTop + mainScrollContainer.clientHeight >= mainScrollContainer.scrollHeight - 300) {
                             if (displayedCardLimit < filteredAthletesCache.length) { displayedCardLimit += 24; appendCardsCatalogueChunk(); }
                         }
+                    } else if (currentActiveTab && currentActiveTab.id === 'tab-dupes') {
+                        if (mainScrollContainer.scrollTop + mainScrollContainer.clientHeight >= mainScrollContainer.scrollHeight - 300 && dupesLimit < dupesList.length) { dupesLimit += 24; renderDupes(); }
                     }
                 });
             }
@@ -1364,6 +1381,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             }
             if (mainScrollContainer) mainScrollContainer.scrollTop = 0;
             if (tabId === 'tab-collection') { displayedCardLimit = 24; renderCardsCatalogue(); updateGlobalStats(); }
+            else if (tabId === 'tab-dupes') { renderDupes(true); }
             else if (tabId === 'tab-deck') { renderDeck(); renderDeckQuickAdd(); }
             else if (tabId === 'tab-vintage') { renderEquipmentShop(); renderVintageShop(); }
             else if (tabId === 'tab-goals') { renderGoals(); renderPvPObjectives(); }
@@ -1467,6 +1485,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const spDisplay = document.getElementById('sports-points-display');
             if (spDisplay) spDisplay.textContent = `${userState.sportsPoints} SP`;
             if (document.getElementById('tab-collection').classList.contains('active')) { renderCardsCatalogue(); updateGlobalStats(); }
+            updateDupesBadge();
+            if (document.getElementById('tab-dupes').classList.contains('active')) renderDupes();
             if (document.getElementById('tab-deck').classList.contains('active')) { renderDeck(); renderDeckQuickAdd(); }
             if (document.getElementById('tab-vintage').classList.contains('active')) { renderEquipmentShop(); renderVintageShop(); }
         }
@@ -1793,6 +1813,30 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             userState.collection[athleteId] = 1; userState.sportsPoints += totalGain;
             noteRecycled(doublonsCount); saveUser(); playSparkleSound();
             showToast(`+${totalGain} SP gagnés !`, "success");
+        }
+
+        // ===== ONGLET DOUBLONS : toutes les cartes possédées en plusieurs exemplaires, sans filtre =====
+        let dupesLimit = 24, dupesList = [];
+        function dupesSource() { return allCardsData.filter(a => (userState.collection[a.id] || 0) > 1); }
+        function updateDupesBadge() {
+            const b = document.getElementById('dupes-count-badge'); if (!b) return;
+            const n = Object.keys(userState.collection).filter(id => userState.collection[id] > 1).length;
+            b.textContent = n; b.style.display = n ? '' : 'none';
+        }
+        function renderDupes(reset) {
+            const box = document.getElementById('dupes-container'), sum = document.getElementById('dupes-summary'); if (!box || !sum) return;
+            if (reset) dupesLimit = 24;
+            const num = a => { const v = getAthleteCalculatedScore(a); return typeof v === 'number' ? v : 101; };
+            dupesList = dupesSource().sort((a, b) => b.rarityId - a.rarityId || num(b) - num(a) || a.name.localeCompare(b.name));
+            let extra = 0, safe = 0, gain = 0;
+            dupesList.forEach(a => { const d = userState.collection[a.id] - 1; extra += d; if (a.rarityId < R_ULT) gain += (spRecycleValues[a.rarityId] || 1) * d; else safe += d; });
+            sum.innerHTML = dupesList.length
+                ? `<div class="pv-row" style="flex-wrap:wrap;gap:16px"><div><div class="pv-t" style="font-size:20px">${dupesList.length}</div><div class="pv-s">cartes en double</div></div><div><div class="pv-t" style="font-size:20px">${extra}</div><div class="pv-s">exemplaires en trop</div></div><div><div class="pv-t" style="font-size:20px;color:#fbbf24">+${gain} SP</div><div class="pv-s">si tu recycles tout (hors Ultra Rare et +)</div></div>${safe ? `<div><div class="pv-t" style="font-size:20px;color:#22d3ee">${safe}</div><div class="pv-s">doublons protégés (Ultra Rare, Légendaire, Mythique, Vintage)</div></div>` : ''}</div>`
+                : '<div class="pv-s">Aucune carte en double pour l\'instant.</div>';
+            if (!dupesList.length) { box.innerHTML = '<div class="col-span-full py-16 text-center text-slate-500 text-sm">Tu n\'as aucun doublon.</div>'; return; }
+            box.innerHTML = dupesList.slice(0, dupesLimit).map(a => getCardHTML(a, null, true, false, false, false, false)).join('')
+                + (dupesLimit < dupesList.length ? '<div class="col-span-full py-6 text-center text-xs text-slate-500 animate-pulse">Défilez vers le bas...</div>' : '');
+            lazyLoadWikiImages();
         }
 
         function recycleAllDuplicates() {
