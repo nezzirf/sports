@@ -73,9 +73,9 @@ test('la note d\'équipe envoyée par le client est ignorée', async () => {
 test('une note de carte ou un bonus truqués sont plafonnés', async () => {
     const { start } = await match(team(9999, { bonus: 9999 }), team());
     const p = start.players[0];
-    assert.strictEqual(p.cards[0].s, 110);
+    assert.strictEqual(p.cards[0].s, 115);
     assert.strictEqual(p.bonus, 18);
-    assert.strictEqual(p.ovr, 128);
+    assert.strictEqual(p.ovr, 133);
 });
 
 test('les données inutiles ne sont pas renvoyées à l\'adversaire', async () => {

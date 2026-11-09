@@ -997,6 +997,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
     <div id="card-zoom-modal" role="dialog" aria-modal="true" aria-label="Détail de la carte" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4" onclick="closeZoomModal()">
         <div class="relative max-w-sm w-full flex flex-col items-center space-y-4 max-h-[85vh] overflow-y-auto pr-1" onclick="event.stopPropagation()">
             <div id="zoom-card-wrapper" class="w-72 sm:w-80"></div>
+            <div id="zoom-fusion-panel" class="hidden w-full bg-slate-900 border border-amber-500/30 p-4 rounded-2xl space-y-2"></div>
             <div id="zoom-equipment-panel" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl space-y-3"></div>
             <button id="zoom-fav-btn" onclick="toggleFavoriteZoom()" class="hidden px-6 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-xl font-bold text-sm border border-amber-500/40 transition"></button>
             <button onclick="closeZoomModal()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold font-sport text-sm border border-slate-600 transition">Fermer</button>
@@ -1184,6 +1185,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             for (const [k, v] of Object.entries(s.athleteEquipments && typeof s.athleteEquipments === 'object' ? s.athleteEquipments : {})) if (Array.isArray(v)) eq[mid(k)] = v.filter(x => typeof x === 'string');
             s.athleteEquipments = eq;
             s.ownedEquipments = Array.isArray(s.ownedEquipments) ? s.ownedEquipments.filter(x => typeof x === 'string') : [];
+            const lv = {};
+            for (const [k, v] of Object.entries(s.cardLevels && typeof s.cardLevels === 'object' ? s.cardLevels : {})) { const n = Math.floor(Number(v)); if (n > 0) lv[mid(k)] = Math.min(MAX_FUSION, n); }
+            s.cardLevels = lv;
             for (const k of ['packsCount', 'sportsPoints', 'lastPackTime']) { const n = Number(raw && raw[k]); s[k] = Number.isFinite(n) && n >= 0 ? Math.floor(n) : base[k]; }
             return s;
         }
@@ -1567,12 +1571,28 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             }
         }
 
+        // ===== FUSION : N exemplaires d'une même carte deviennent 1 carte de niveau +1 (+1 de note par niveau) =====
+        // Plus la carte est rare, moins il en faut. Les cartes Vintage n'ont pas de note : pas de fusion.
+        const FUSION_COST = { [R_MYT]: 2, [R_LEG]: 3, [R_ULT]: 4, [R_RAR]: 5, [R_PEU]: 6, [R_COM]: 7 }, MAX_FUSION = 5;
+        const cardLevel = id => Math.max(0, Math.min(MAX_FUSION, Math.floor(Number((userState.cardLevels || {})[id]) || 0)));
+        function fuseCard(id) {
+            const a = allCardsData.find(x => x.id === id); if (!a || a.rarityId === R_VINTAGE) return;
+            const cost = FUSION_COST[a.rarityId], level = cardLevel(id), count = userState.collection[id] || 0;
+            if (level >= MAX_FUSION) { showToast('Cette carte est déjà au niveau maximum.', 'info'); return; }
+            if (count < cost) { showToast(`Il faut ${cost} exemplaires de cette carte pour la fusionner (tu en as ${count}).`, 'warning'); return; }
+            userState.collection[id] = count - (cost - 1);
+            (userState.cardLevels = userState.cardLevels || {})[id] = level + 1;
+            saveUser(); playSparkleSound();
+            showToast(`${a.name} passe au niveau ${level + 1} : note ${getAthleteCalculatedScore(a)} !`, 'success');
+            if (!document.getElementById('card-zoom-modal').classList.contains('hidden')) openZoomCard(id);
+        }
+
         function getAthleteCalculatedScore(athlete) {
             if (athlete.rarityId === R_VINTAGE) return 'VINTAGE';
             const eqList = userState.athleteEquipments[athlete.id] || [];
             let bonus = 0;
             eqList.forEach(eqId => { const eq = equipmentDefinitions.find(e => e.id === eqId); if (eq) bonus += eq.bonus; });
-            return athlete.score + bonus;
+            return athlete.score + bonus + cardLevel(athlete.id);
         }
 
         let vintageShopRun = 0;
@@ -1722,6 +1742,14 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const photoUrl = await fetchWikiPhoto(athlete.wikiSlug), isOwned = (userState.collection[athlete.id] || 0) > 0;
             document.getElementById('zoom-card-wrapper').innerHTML = getCardHTML(athlete, photoUrl, isOwned, false, true, false, false);
 
+            const fusePanel = document.getElementById('zoom-fusion-panel');
+            if (isOwned && athlete.rarityId !== R_VINTAGE) {
+                const cost = FUSION_COST[athlete.rarityId], lvl = cardLevel(athlete.id), cnt = userState.collection[athlete.id] || 0, ok = cnt >= cost && lvl < MAX_FUSION;
+                fusePanel.innerHTML = `<div class="text-xs font-bold text-slate-300 flex items-center justify-between"><span><i class="fa-solid fa-star text-amber-400"></i> Fusion · niveau ${lvl}/${MAX_FUSION}</span><span class="text-amber-300">+${lvl} de note</span></div>`
+                    + (lvl >= MAX_FUSION ? '<p class="text-[11px] text-emerald-400">Niveau maximum atteint.</p>'
+                        : `<p class="text-[11px] text-slate-400">${cost} exemplaires de cette carte donnent +1 de note (un seul exemplaire est conservé).</p><div class="pv-bar"><i style="width:${Math.min(100, cnt / cost * 100)}%"></i></div><div class="flex items-center justify-between gap-2"><span class="text-[11px] text-slate-400">${Math.min(cnt, cost)} / ${cost} exemplaires</span><button onclick="fuseCard('${athlete.id}')" ${ok ? '' : 'disabled'} class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-slate-950 font-black rounded-xl text-xs font-sport uppercase transition">Fusionner (+1)</button></div>`);
+                fusePanel.classList.remove('hidden');
+            } else fusePanel.classList.add('hidden');
             const equipPanel = document.getElementById('zoom-equipment-panel');
             if (isOwned && athlete.rarityId !== R_VINTAGE) {
                 const eqList = userState.athleteEquipments[athlete.id] || [], availableForSport = equipmentDefinitions.filter(e => e.sport === athlete.sport && userState.ownedEquipments.includes(e.id));
@@ -1784,6 +1812,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                     <div class="absolute top-2.5 left-2.5 z-[25] bg-slate-950/95 border-2 themed-border w-9 h-9 flex items-center justify-center rounded-xl shadow-xl">
                         <i class="fa-solid ${sIcon} text-sm themed-text"></i>
                     </div>
+                    ${isOwned && !isVintage && cardLevel(athlete.id) > 0 ? `<div class="absolute top-14 left-2.5 z-[25] bg-amber-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-md shadow-lg border border-yellow-200" title="Niveau de fusion ${cardLevel(athlete.id)}/${MAX_FUSION} (+${cardLevel(athlete.id)} de note)">★${cardLevel(athlete.id)}</div>` : ''}
                     ${equipmentBadgesHTML}
                     <div class="absolute bottom-11 right-2.5 z-30 bg-slate-950/90 border border-slate-700/80 rounded-md px-1.5 py-0.5 shadow-lg flex items-center justify-center pointer-events-none" title="${athlete.country}">
                         <img src="${flagUrl}" alt="${athlete.country}" class="w-6 h-4 object-cover rounded-sm shadow" onerror="this.style.display='none'">
@@ -1835,8 +1864,15 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             sum.innerHTML = dupesList.length
                 ? `<div class="pv-row" style="flex-wrap:wrap;gap:16px"><div><div class="pv-t" style="font-size:20px">${dupesList.length}</div><div class="pv-s">cartes en double</div></div><div><div class="pv-t" style="font-size:20px">${extra}</div><div class="pv-s">exemplaires en trop</div></div><div><div class="pv-t" style="font-size:20px;color:#fbbf24">+${gain} SP</div><div class="pv-s">si tu recycles tout (hors Ultra Rare et +)</div></div>${safe ? `<div><div class="pv-t" style="font-size:20px;color:#22d3ee">${safe}</div><div class="pv-s">doublons protégés (Ultra Rare, Légendaire, Mythique, Vintage)</div></div>` : ''}</div>`
                 : '<div class="pv-s">Aucune carte en double pour l\'instant.</div>';
+            sum.innerHTML += '<div class="pv-hint">Fusion : 2 exemplaires pour une Mythique, 3 Légendaire, 4 Ultra Rare, 5 Rare, 6 Peu commune, 7 Commune. Chaque fusion donne +1 de note (niveau 5 maximum). « Tout recycler » supprime aussi les doublons dont tu aurais besoin pour fusionner.</div>';
             if (!dupesList.length) { box.innerHTML = '<div class="col-span-full py-16 text-center text-slate-500 text-sm">Tu n\'as aucun doublon.</div>'; return; }
-            box.innerHTML = dupesList.slice(0, dupesLimit).map(a => getCardHTML(a, null, true, false, false, false, false)).join('')
+            const fuseBtn = a => {
+                if (a.rarityId === R_VINTAGE) return '';
+                const cost = FUSION_COST[a.rarityId], lvl = cardLevel(a.id), cnt = userState.collection[a.id] || 0;
+                if (lvl >= MAX_FUSION) return '<div class="text-center text-[11px] text-emerald-400 font-bold">Niveau max</div>';
+                return `<button onclick="fuseCard('${a.id}')" ${cnt >= cost ? '' : 'disabled'} class="w-full px-2 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-slate-950 font-black rounded-xl text-[11px] font-sport uppercase transition">Fusionner ${cnt}/${cost} · niv. ${lvl}→${lvl + 1}</button>`;
+            };
+            box.innerHTML = dupesList.slice(0, dupesLimit).map(a => `<div class="flex flex-col gap-1.5">${getCardHTML(a, null, true, false, false, false, false)}${fuseBtn(a)}</div>`).join('')
                 + (dupesLimit < dupesList.length ? '<div class="col-span-full py-6 text-center text-xs text-slate-500 animate-pulse">Défilez vers le bas...</div>' : '');
             lazyLoadWikiImages();
         }
