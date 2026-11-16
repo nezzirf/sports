@@ -7,8 +7,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="logo1.png">
-    <link rel="icon" type="image/png" href="logo1.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" href="icon-192.png">
     <title>Sports TCG Elite - Jeu de Booster & Équipements</title>
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="tailwind.css">
@@ -545,6 +545,209 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 @media (hover:hover){#tab-boosters button[onclick^="startPackOpeningProcess(5"]:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(249,115,22,.55),inset 0 1px 0 rgba(255,255,255,.6)}#tab-boosters button[onclick="openTargetedPack()"]:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(6,182,212,.5)}}
 @media (prefers-reduced-motion:reduce){.booster-3d-wrapper::before,#tab-boosters button[onclick^="startPackOpeningProcess(5"]::after{animation:none}}
 </style>
+<style id="skin-v3">
+/* SKIN V3 — cartes : tout l'habillage (badges, textes, drapeau) suit la taille de la carte grâce aux unités « cq ».
+   Les valeurs en px servent de secours aux navigateurs qui ne connaissent pas ces unités. */
+.pokemon-card{container:card/inline-size;--pb:30px;--pbw:2px;--pi:8px;--pg:4px;--pscore:12px;--pname:10px;--prar:8px;--pflag:22px;--peq:26px;--psm:9px}
+@supports (width:1cqw){.pokemon-card{--pb:clamp(19px,18.5cqw,42px);--pbw:clamp(1px,1.1cqw,2px);--pi:clamp(4px,4.4cqw,12px);--pg:clamp(2px,2.2cqw,6px);--pscore:clamp(9.5px,7.8cqw,18px);--pname:clamp(8px,6.2cqw,16px);--prar:clamp(6.5px,4.3cqw,11px);--pflag:clamp(15px,13cqw,30px);--peq:clamp(16px,15cqw,36px);--psm:clamp(7px,5.3cqw,12px)}}
+/* fond d'attente : couleur de la rareté + icône du sport, visible tant que la photo n'est pas arrivée (ou s'il n'y en a pas) */
+.pokemon-card .card-image-container{background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--border-color,#64748b) 32%,#0b0f19),#0b0f19 78%)}
+.pc-ph{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:0;font-size:34px;color:color-mix(in srgb,var(--border-color,#64748b) 60%,transparent);opacity:.5;pointer-events:none}
+@supports (width:1cqw){.pc-ph{font-size:clamp(22px,34cqw,110px)}}
+.pokemon-card .wiki-card-img{position:relative;z-index:1;opacity:0;transition:opacity .45s ease}
+.pokemon-card .wiki-card-img.ld{opacity:1}
+.pc-shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.85),transparent 46%,rgba(0,0,0,.42))}
+/* colonnes du haut : à gauche l'identité (sport, niveau, favori), à droite la valeur (note, NEW, quantité) */
+.pc-col{position:absolute;top:var(--pi);z-index:25;display:flex;flex-direction:column;gap:var(--pg);pointer-events:none}
+.pc-l{left:var(--pi);align-items:flex-start}.pc-r{right:var(--pi);align-items:flex-end}
+.pc-b,.pokemon-card[class*="rarity-"] .pc-b{height:var(--pb);min-width:var(--pb);display:flex;align-items:center;justify-content:center;border-width:var(--pbw);border-style:solid;border-radius:calc(var(--pb)*.34)}
+.pc-b{background:rgba(2,6,23,.95);box-shadow:0 4px 10px rgba(0,0,0,.6)}
+.pc-sport{width:var(--pb)}.pc-sport i{font-size:calc(var(--pb)*.42)}
+.pc-score{padding:0 calc(var(--pb)*.24)}.pc-score span{font-weight:900;font-size:var(--pscore);letter-spacing:.04em;line-height:1}
+.pc-lvl,.pc-count{font-weight:900;line-height:1;background:#f59e0b;color:#0f172a;border:1px solid #fde68a;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.pc-lvl{font-size:var(--psm);padding:.28em .5em;border-radius:.5em}
+.pc-count{font-size:calc(var(--psm)*1.15);padding:.26em .5em;border-radius:.5em}
+.pc-fav{font-size:calc(var(--psm)*1.55);line-height:1;color:#fcd34d;filter:drop-shadow(0 1px 2px rgba(0,0,0,.95));padding-left:.12em}
+.pc-new{font-weight:900;font-size:var(--psm);line-height:1;padding:.32em .5em;border-radius:.4em;color:#fff;letter-spacing:.03em;background:linear-gradient(90deg,#dc2626,#f59e0b);box-shadow:0 2px 6px rgba(0,0,0,.5);animation:pcNew 1.6s ease-in-out infinite}
+@keyframes pcNew{50%{opacity:.62}}
+/* bas de carte : équipements à gauche, recyclage + drapeau à droite, puis le bandeau du nom */
+.pc-bottom{position:absolute;left:0;right:0;bottom:0;z-index:20;display:flex;flex-direction:column;pointer-events:none}
+.pc-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--pg);padding:0 var(--pi) var(--pg)}
+.pc-eqs{display:flex;gap:var(--pg)}
+.pc-eq{width:var(--peq);height:var(--peq);display:flex;align-items:center;justify-content:center;border-radius:calc(var(--peq)*.32);background:rgba(2,6,23,.95);border:var(--pbw) solid #22d3ee;box-shadow:0 3px 8px rgba(0,0,0,.6)}
+.pc-eq svg{width:70%;height:70%}
+.pc-right{display:flex;flex-direction:column;align-items:flex-end;gap:var(--pg);margin-left:auto}
+.pc-flag{display:flex;padding:calc(var(--pflag)*.1);border-radius:calc(var(--pflag)*.2);background:rgba(2,6,23,.9);border:1px solid rgba(71,85,105,.8);box-shadow:0 3px 8px rgba(0,0,0,.5)}
+.pc-flag img{width:var(--pflag);height:calc(var(--pflag)*.667);object-fit:cover;border-radius:2px;display:block}
+.pc-recycle{pointer-events:auto;display:inline-flex;align-items:center;gap:.4em;font:900 var(--psm)/1 Outfit,sans-serif;padding:.5em .7em;border-radius:.75em;background:rgba(2,6,23,.92);color:#cbd5e1;border:1px solid rgba(148,163,184,.55);box-shadow:0 3px 8px rgba(0,0,0,.6);cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+.pc-recycle b{color:#fcd34d;font-weight:900}
+@media (hover:hover){.pc-recycle:hover{background:#1e293b;border-color:#fbbf24}}
+.pokemon-card[class*="rarity-"] .pc-bottom .name-banner,.pc-bottom .name-banner{position:relative;bottom:auto;left:auto;right:auto;align-items:center;text-align:center;padding:calc(var(--pname)*.95) var(--pi) calc(var(--pname)*.72)}
+.pc-name{font-weight:900;font-size:var(--pname);line-height:1.12;text-transform:uppercase;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.pc-rar{font-weight:700;font-size:var(--prar);line-height:1;margin-top:.4em;color:#94a3b8;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+.pokemon-card[class*="rarity-"] .name-banner span.pc-rar::before{width:.62em;height:.62em;margin-right:.45em}
+/* ===== COLLECTION, DOUBLONS, BOUTIQUE ===== */
+.col-head-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.col-count{font:900 13px Rajdhani,sans-serif;letter-spacing:.08em;color:#fbbf24;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);padding:6px 12px;border-radius:10px;white-space:nowrap}
+.btn-recycle{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 14px;border-radius:12px;background:rgba(245,158,11,.1);border:1px solid rgba(251,191,36,.55);color:#fcd34d;font:900 12px Outfit,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;transition:background .15s}
+@media (hover:hover){.btn-recycle:hover{background:rgba(245,158,11,.22)}}
+.btn-fuse{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;border-radius:12px;border:1px solid rgba(233,213,255,.5);background:linear-gradient(135deg,#c084fc,#9333ea 60%,#7c3aed);color:#fff;font:900 11px Outfit,sans-serif;text-transform:uppercase;letter-spacing:.03em;cursor:pointer;box-shadow:0 4px 14px rgba(147,51,234,.35);transition:filter .15s,opacity .15s}
+.btn-fuse:disabled{opacity:.32;cursor:not-allowed;box-shadow:none;filter:grayscale(.35)}
+@media (hover:hover){.btn-fuse:not(:disabled):hover{filter:brightness(1.12)}}
+.fz-ic{color:#c084fc}.fz-lvl{color:#d8b4fe}
+.fz-bar>i{background:linear-gradient(90deg,#7c3aed,#c084fc)}
+.pc-lvl{background:linear-gradient(135deg,#c084fc,#9333ea);color:#fff;border-color:rgba(233,213,255,.7)}
+.col-stats{border-radius:22px;border:1px solid rgba(34,211,238,.2);background:linear-gradient(160deg,rgba(15,28,48,.7),rgba(4,8,18,.85))}
+.col-stats>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;font:900 13px Outfit,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#e2e8f0}
+.col-stats>summary::-webkit-details-marker{display:none}
+.col-chev{color:#64748b;transition:transform .2s}
+.col-stats[open] .col-chev{transform:rotate(180deg)}
+.col-stats-body{padding:0 12px 12px;display:flex;flex-direction:column;gap:12px}
+#vintage-shop-container .pokemon-card.opacity-30{opacity:1}
+#vintage-shop-container .pokemon-card.grayscale{filter:sepia(.5) contrast(1.1)}
+#vintage-shop-container .vin-card{margin:0 auto}
+@media (max-width:767px){
+  .col-filters-panel{padding:12px!important;border-radius:18px!important}
+  .col-filters{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;width:100%}
+  .col-filters>div:first-child{grid-column:1/-1;width:100%!important}
+  .col-filters select,.col-filters button{width:100%;min-width:0}
+  .col-filters select{padding-left:10px!important;padding-right:4px!important}
+  .col-head-r{width:100%;justify-content:space-between}
+}
+/* ===== RÉVÉLATIONS ULTRA RARE / LÉGENDAIRE + BRILLANCE TACTILE ===== */
+.mx-leg{--c1:#facc15;--c2:#fef08a;--c3:#ca8a04;--h1:rgba(255,226,90,.6);--h2:rgba(255,180,60,.5);--h3:rgba(255,250,200,.65);--h4:rgba(250,204,21,.5)}
+.mx-ult{--c1:#fb923c;--c2:#fed7aa;--c3:#c2410c;--h1:rgba(255,170,90,.55);--h2:rgba(255,120,60,.5);--h3:rgba(255,230,190,.6);--h4:rgba(251,146,60,.45)}
+.mx-bg.mx-ult .mx-rays{display:none}
+.mx-bg.mx-leg .mx-rays{animation-duration:34s}
+@keyframes holoDrift{from{background-position:0% 0%}to{background-position:100% 100%}}
+@keyframes cardFloat{0%,100%{transform:perspective(1000px) rotateX(3deg) rotateY(-7deg)}50%{transform:perspective(1000px) rotateX(-3deg) rotateY(7deg)}}
+@media (hover:none){
+  .pokemon-card.rarity-3 .holo-sheen,.pokemon-card.rarity-4 .holo-sheen,.pokemon-card.rarity-5 .holo-sheen{opacity:.35}
+  #zoom-card-wrapper .holo-sheen{opacity:.85;animation:holoDrift 4.5s ease-in-out infinite alternate}
+  #zoom-card-wrapper .pokemon-card{--gl:.55;animation:cardFloat 7s ease-in-out infinite}
+}
+@media (prefers-reduced-motion:reduce){#zoom-card-wrapper .holo-sheen,#zoom-card-wrapper .pokemon-card{animation:none}}
+/* ===== COMBAT PVP ===== */
+.pv-sec{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:14px;border:2px solid #22d3ee;background:rgba(6,182,212,.08);color:#a5f3fc;font:900 13px Rajdhani,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+.pv-sec.rose{border-color:#fb7185;background:rgba(244,63,94,.08);color:#fecdd3}
+@media (hover:hover){.pv-sec:hover{background:rgba(6,182,212,.2)}.pv-sec.rose:hover{background:rgba(244,63,94,.2)}}
+#pvp-arena-panel.in-match #pvp-status-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px}
+#pvp-arena-panel.in-match #pvp-status-header>*{margin:0!important}
+#pvp-arena-panel.in-match #pvp-status-header>span{display:none}
+#pvp-arena-panel.in-match #display-room-code{font-size:16px;letter-spacing:.2em}
+#pvp-arena-panel.in-match #pvp-waiting-msg{font-size:12px;animation:none}
+#pvp-arena-panel.in-match #pvp-leave-btn{padding:5px 10px;font-size:11px}
+.pv-arena{overflow:hidden;overflow:clip}
+.pv-board{position:sticky;top:0;z-index:7;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px 8px;margin:-18px -18px 12px;padding:12px 14px 10px;background:linear-gradient(180deg,rgba(5,8,16,.97),rgba(5,8,16,.9));border-bottom:1px solid #1e293b;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.pv-pl{min-width:0}.pv-pl.b{text-align:right}
+.pv-nm{font:900 15px Outfit,sans-serif;color:#fff;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv-pl.a .pv-nm{color:#67e8f9}.pv-pl.b .pv-nm{color:#fda4af}
+.pv-meta{font:700 11px Outfit,sans-serif;color:#94a3b8;margin-top:2px;white-space:nowrap}
+.pv-you{display:inline-block;padding:0 5px;border-radius:5px;background:rgba(34,211,238,.18);color:#67e8f9;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.pv-pl small{display:block;font-size:10px;margin-top:2px}
+.pv-mid{text-align:center}
+.pv-score{display:flex;align-items:center;justify-content:center;gap:6px;font:900 30px/1 Rajdhani,sans-serif}
+.pv-score b:first-child{color:#22d3ee;text-shadow:0 0 16px rgba(34,211,238,.45)}.pv-score b:last-child{color:#fb7185;text-shadow:0 0 16px rgba(244,63,94,.45)}
+.pv-score i{font-style:normal;color:#475569;font-size:22px}
+.pv-board .pv-pot{font-size:10px;letter-spacing:.14em;margin-top:3px}
+.pv-board .pv-tug{grid-column:1/-1;margin:2px 0 0;height:8px}
+.pv-lane{scroll-margin-top:118px;scroll-margin-bottom:90px;grid-template-columns:1fr 40px 1fr;gap:6px}
+.pv-f{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"th sc" "th tx";column-gap:8px;row-gap:1px;align-items:center;padding:7px;min-height:78px}
+.pv-f.b{grid-template-columns:1fr auto;grid-template-areas:"sc th" "tx th";text-align:right}
+.pv-th{grid-area:th;position:relative;width:46px;height:64px;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--rc,#64748b);border:2px solid var(--rc,#334155);background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--rc,#64748b) 30%,#0b0f19),#0b0f19 80%);box-shadow:0 0 10px color-mix(in srgb,var(--rc,#64748b) 35%,transparent);flex:none}
+.pv-th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%}
+.pv-th.team{color:#fbbf24;border-color:#f59e0b;font-size:20px}
+.pv-f .sc{grid-area:sc;font:900 26px/1 Rajdhani,sans-serif;color:#fff;align-self:end}
+.pv-f .tx{grid-area:tx;min-width:0;align-self:start}
+.pv-f .n{white-space:normal;overflow:hidden;text-overflow:clip;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;font-size:12px;line-height:1.15}
+.pv-f .m{font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-lane.team .pv-f .m{white-space:normal;line-height:1.2}
+.pv-f.win{transform:none}
+.pv-vs{display:flex;align-items:center;justify-content:center}
+.pv-gain{display:inline-block;font:900 15px/1 Rajdhani,sans-serif;padding:5px 6px;border-radius:9px;background:#1e293b;color:#cbd5e1;animation:pvGain .45s cubic-bezier(.2,.9,.3,1.4)}
+.pv-gain.a{background:rgba(34,211,238,.18);color:#67e8f9;border:1px solid rgba(34,211,238,.5)}
+.pv-gain.b{background:rgba(244,63,94,.18);color:#fda4af;border:1px solid rgba(244,63,94,.5)}
+@keyframes pvGain{from{transform:scale(.3);opacity:0}}
+.pv-count{position:fixed;z-index:60}
+.pv-end{margin:18px auto 4px;max-width:440px;padding:18px 16px;border-radius:22px;border:1px solid #334155;background:linear-gradient(160deg,rgba(15,23,42,.95),rgba(5,8,16,.95));box-shadow:0 18px 50px rgba(0,0,0,.55)}
+.pv-end.w{border-color:rgba(251,191,36,.7);box-shadow:0 0 40px rgba(245,158,11,.25),0 18px 50px rgba(0,0,0,.55)}
+.pv-end.l{border-color:rgba(244,63,94,.55)}
+.pv-end h4{font:900 34px/1.05 Rajdhani,sans-serif;letter-spacing:.04em}
+.pv-end-score{display:flex;justify-content:center;align-items:center;gap:10px;margin:8px 0 4px;font:900 46px/1 Rajdhani,sans-serif}
+.pv-end-score b:first-child{color:#22d3ee}.pv-end-score b:last-child{color:#fb7185}.pv-end-score i{font-style:normal;color:#475569;font-size:30px}
+.pv-end-sp{font:800 15px Outfit,sans-serif;color:#cbd5e1}.pv-end-sp b.up{color:#fbbf24}.pv-end-sp b.down{color:#fb7185}
+.pv-end-d{font-size:12px;color:#94a3b8;margin:6px 0 14px}
+.pv-place-h{flex-wrap:nowrap}
+.pv-place-h>span:first-child{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-timer{flex:none;white-space:nowrap;padding:3px 10px;border-radius:99px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4);font:900 16px/1.2 Rajdhani,sans-serif}
+.pv-timer.low{background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.5)}
+.pv-prow{grid-template-columns:20px 38px 1fr auto auto;gap:8px;padding:6px 8px}
+.pv-prow .pv-th{grid-area:auto;width:38px;height:52px;border-radius:7px;font-size:15px}
+.pv-prow .n{white-space:normal;text-overflow:clip;line-height:1.15;display:block;overflow:visible;overflow-wrap:anywhere}
+.pv-prow .sc{font:900 20px Rajdhani,sans-serif}
+.pv-mv{gap:5px}.pv-mv button{width:38px;height:38px;border-radius:10px;font-size:14px}
+.pv-status{margin-top:10px;text-align:center}.pv-status.ok{color:#6ee7b7}
+.pv-hi-b{display:flex;gap:6px;margin-left:auto}
+@media (max-width:767px){
+  #pvp-arena-panel.in-match{padding:10px!important}
+  .pv-arena{padding:12px}
+  .pv-board{margin:-12px -12px 10px;padding:10px 10px 8px}
+  .pv-nm{font-size:14px}.pv-score{font-size:28px}
+  .pv-lane{grid-template-columns:1fr 34px 1fr;gap:4px}
+  .pv-f{padding:6px;column-gap:6px}
+  .pv-th{width:40px;height:56px}
+  .pv-f .sc{font-size:24px}
+  .pv-gain{font-size:13px;padding:4px 4px}
+  .pv-hi .hl{display:none}
+  .pv-hi-b .pv-btn{padding:8px 11px}
+}
+/* ===== MON ÉQUIPE ===== */
+.dk-ovr{display:flex;align-items:baseline;gap:8px;padding:6px 14px;border-radius:14px;background:rgba(6,182,212,.1);border:1px solid rgba(34,211,238,.3);white-space:nowrap}
+.dk-ovr span{font:700 12px Outfit,sans-serif;color:#67e8f9;text-transform:uppercase;letter-spacing:.06em}
+.dk-ovr b{font:900 22px Outfit,sans-serif;color:#fbbf24;line-height:1}
+.dk-slot{display:flex;flex-direction:column;gap:6px;min-width:0}
+.dk-syn{display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:4px;min-height:21px}
+#active-deck-slots{align-items:start}
+#active-deck-slots .pc-recycle{display:none}
+@media (max-width:767px){.tab-content h2.text-2xl{font-size:20px;letter-spacing:.06em;line-height:1.2}}
+.dk-syn span{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:99px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.45);color:#6ee7b7;font:800 11px Outfit,sans-serif}
+.dk-syn img{width:15px;height:10px;object-fit:cover;border-radius:2px}
+.dk-out{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:6px 4px;border-radius:10px;border:1px solid rgba(244,63,94,.45);background:rgba(244,63,94,.08);color:#fda4af;font:800 12px Outfit,sans-serif;cursor:pointer}
+@media (hover:hover){.dk-out:hover{background:rgba(244,63,94,.2);color:#fff}}
+.dk-empty{aspect-ratio:4/6;width:100%;border-radius:18px;border:2px dashed #334155;background:rgba(2,6,23,.45);color:#64748b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:8px;cursor:pointer;transition:border-color .2s,color .2s}
+.dk-empty i{font-size:22px;color:#22d3ee;opacity:.75}
+.dk-empty span{font:900 12px Outfit,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8}
+.dk-empty small{font-size:10px;color:#64748b;line-height:1.3}
+@media (hover:hover){.dk-empty:hover{border-color:#22d3ee;color:#e2e8f0}}
+.dk-pick{position:relative}
+.dk-plus{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);z-index:40;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;background:#22d3ee;color:#082f49;font:900 11px Outfit,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.5);white-space:nowrap}
+#deck-quick-add-container{padding-bottom:14px}
+/* ===== MENU ===== */
+.nav-badge{font:900 11px monospace;padding:1px 7px;border-radius:99px;background:#fbbf24;color:#0f172a}
+#nav-more{display:none}
+.more-ov{position:fixed;inset:0;z-index:29;background:rgba(2,6,23,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding:0 10px}
+.more-ov.on{display:flex}
+.more-box{width:100%;max-width:520px;margin-bottom:calc(74px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#0d1529,#070b16);border:1px solid rgba(34,211,238,.25);border-radius:22px;padding:8px 12px 12px;box-shadow:0 -10px 50px rgba(0,0,0,.65);animation:moreUp .2s ease-out}
+@keyframes moreUp{from{transform:translateY(30px);opacity:0}}
+.more-grip{width:44px;height:5px;border-radius:99px;background:#334155;margin:4px auto 4px}
+.more-it{width:100%;display:grid;grid-template-columns:42px 1fr;column-gap:10px;align-items:center;text-align:left;padding:12px;border-radius:14px;background:rgba(15,23,42,.75);border:1px solid #1e293b;color:#fff;margin-top:8px;cursor:pointer}
+.more-it i{grid-row:1/3;font-size:20px;text-align:center}
+.more-it span{font:800 15px Outfit,sans-serif;display:flex;align-items:center;gap:8px}
+.more-it small{font-size:12px;color:#94a3b8}
+.more-it.on{border-color:#22d3ee;background:rgba(6,182,212,.12)}
+.bst-series{text-align:center;font:700 11px Outfit,sans-serif;letter-spacing:.32em;text-transform:uppercase;color:#94a3b8;margin:4px 0 6px}
+.bst-series b{color:#fbbf24;font-weight:900}
+@media (max-width:767px){
+  #nav-tab-vintage,#nav-tab-dupes,#nav-tab-settings{display:none!important}
+  #nav-more{display:flex!important}
+  .nav-x{display:none}
+  aside > div:last-child{display:none!important}
+  aside nav #nav-tab-boosters{order:1}aside nav #nav-tab-deck{order:2}aside nav #nav-tab-collection{order:3}aside nav #nav-tab-pvp{order:4}aside nav #nav-tab-goals{order:5}aside nav #nav-more{order:6}
+  aside nav .main-tab-btn{position:relative}
+  aside nav .nav-badge,aside nav #goals-dot{position:absolute;top:3px;left:calc(50% + 6px)}
+  aside nav .nav-badge{font-size:9px;padding:0 5px;line-height:15px}
+}
+</style>
 </head>
 <body class="flex flex-col md:flex-row h-screen selection:bg-cyan-500 selection:text-white">
     <div class="bg-scene" aria-hidden="true"><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div><div class="bg-dots"></div><div class="bg-spot"></div><canvas id="bg-canvas"></canvas></div>
@@ -557,7 +760,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         <div class="p-6 border-b border-slate-800/80 flex flex-col items-center md:items-start space-y-4">
             <div class="flex items-center space-x-3 w-full justify-center md:justify-start">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
-                    <img src="logo.png" alt="Sports TCG Elite Logo" class="w-full h-full object-cover">
+                    <img src="icon-192.png" alt="Sports TCG Elite Logo" class="w-full h-full object-cover">
                 </div>
                 <div>
                     <h1 class="text-xl font-black tracking-wider uppercase font-sport text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 leading-tight">SPORTS TCG</h1>
@@ -581,7 +784,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         <nav class="flex md:flex-col gap-2 p-4 overflow-x-auto md:overflow-visible flex-grow md:flex-grow-0">
             <button onclick="switchMainTab('tab-boosters')" id="nav-tab-boosters" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition-all shrink-0">
-                <i class="fa-solid fa-box-open w-5 text-center"></i><span>Ouvrir Boosters</span>
+                <i class="fa-solid fa-box-open w-5 text-center"></i><span><span class="nav-x">Ouvrir </span>Boosters</span>
             </button>
             <button onclick="switchMainTab('tab-vintage')" id="nav-tab-vintage" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
                 <i class="fa-solid fa-store w-5 text-center text-amber-400"></i><span>Boutique</span>
@@ -590,20 +793,23 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 <i class="fa-solid fa-trophy w-5 text-center text-yellow-400"></i><span>Objectifs</span><span id="goals-dot" style="display:none;width:9px;height:9px;border-radius:99px;background:#fbbf24;box-shadow:0 0 8px #fbbf24"></span>
             </button>
             <button onclick="switchMainTab('tab-deck')" id="nav-tab-deck" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
-                <i class="fa-solid fa-users w-5 text-center"></i><span>Mon Équipe</span>
+                <i class="fa-solid fa-users w-5 text-center"></i><span><span class="nav-x">Mon </span>Équipe</span>
             </button>
             <button onclick="switchMainTab('tab-collection')" id="nav-tab-collection" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
-                <i class="fa-solid fa-book-open w-5 text-center"></i><span>Collection & Stats</span>
+                <i class="fa-solid fa-book-open w-5 text-center"></i><span>Collection<span class="nav-x"> & Stats</span></span>
             </button>
             <button onclick="switchMainTab('tab-dupes')" id="nav-tab-dupes" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
-                <i class="fa-solid fa-clone w-5 text-center text-amber-400"></i><span>Doublons</span><span id="dupes-count-badge" style="display:none;font:900 11px monospace;padding:1px 7px;border-radius:99px;background:#fbbf24;color:#0f172a"></span>
+                <i class="fa-solid fa-clone w-5 text-center text-amber-400"></i><span>Doublons</span><span id="dupes-count-badge" class="nav-badge" style="display:none"></span>
             </button>
             <!-- Bouton PvP par Code -->
             <button onclick="switchMainTab('tab-pvp')" id="nav-tab-pvp" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
-                <i class="fa-solid fa-gamepad w-5 text-center text-rose-500"></i><span>Combat PvP</span>
+                <i class="fa-solid fa-gamepad w-5 text-center text-rose-500"></i><span><span class="nav-x">Combat </span>PvP</span>
             </button>
             <button onclick="switchMainTab('tab-settings')" id="nav-tab-settings" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
                 <i class="fa-solid fa-gear w-5 text-center text-slate-300"></i><span>Paramètres</span>
+            </button>
+            <button onclick="toggleMoreMenu()" id="nav-more" aria-haspopup="dialog" class="main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all shrink-0 border border-transparent">
+                <i class="fa-solid fa-ellipsis w-5 text-center"></i><span>Plus</span><span id="more-badge" class="nav-badge" style="display:none"></span>
             </button>
         </nav>
 
@@ -612,6 +818,17 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             <button onclick="openSaveModal()" class="w-full px-3 py-2 bg-slate-900 border border-cyan-500/40 hover:bg-slate-800 text-cyan-300 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"><i class="fa-solid fa-shield-halved text-cyan-400"></i> Sauvegarde &amp; restauration</button>
         </div>
     </aside>
+
+    <!-- MENU « PLUS » (téléphone) -->
+    <div id="more-sheet" class="more-ov" onclick="toggleMoreMenu(false)" aria-hidden="true">
+        <div class="more-box" role="dialog" aria-modal="true" aria-label="Plus" onclick="event.stopPropagation()">
+            <div class="more-grip"></div>
+            <button class="more-it" data-tab="tab-vintage" onclick="moreGo('tab-vintage')"><i class="fa-solid fa-store" style="color:#fbbf24"></i><span>Boutique</span><small>Équipements et légendes Vintage</small></button>
+            <button class="more-it" data-tab="tab-dupes" onclick="moreGo('tab-dupes')"><i class="fa-solid fa-clone" style="color:#fbbf24"></i><span>Doublons <b id="more-dupes-badge" class="nav-badge" style="display:none"></b></span><small>Recycler ou fusionner tes cartes en double</small></button>
+            <button class="more-it" data-tab="tab-settings" onclick="moreGo('tab-settings')"><i class="fa-solid fa-gear" style="color:#cbd5e1"></i><span>Paramètres</span><small>Son et pseudo</small></button>
+            <button class="more-it" onclick="toggleMoreMenu(false); openSaveModal()"><i class="fa-solid fa-shield-halved" style="color:#22d3ee"></i><span>Sauvegarde &amp; restauration</span><small>Code de sauvegarde ou fichier</small></button>
+        </div>
+    </div>
 
     <!-- ZONE PRINCIPALE -->
     <main class="flex-1 h-full overflow-y-auto relative z-10 p-4 md:p-8" id="main-scroll-container">
@@ -649,6 +866,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         </div>
                     </div>
                 </div>
+                <p class="bst-series">Série <b>Hall of Legends</b></p>
                 <div class="max-w-xl mx-auto w-full space-y-3 mt-2 pb-6">
                     <button onclick="startPackOpeningProcess(5)" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black font-sport uppercase text-sm shadow-lg"><i class="fa-solid fa-layer-group"></i> Ouvrir 5 boosters d'un coup</button>
                     <div class="textured-panel p-4 rounded-2xl space-y-2">
@@ -677,7 +895,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                             <h2 class="text-2xl font-black font-sport text-cyan-400 tracking-widest uppercase flex items-center gap-2">
                                 <i class="fa-solid fa-shirt"></i> Boutique d'Équipements (+5 OVR)
                             </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Achetez des équipements uniques par sport (3 000 SP). Un athlète peut porter jusqu'à 2 équipements de son sport.</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Un exemplaire équipe un athlète (3 000 SP) : rachète-en un pour équiper un autre athlète. Un athlète porte jusqu'à 2 équipements de son sport.</p>
                         </div>
                     </div>
                     <div id="equipment-shop-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
@@ -700,10 +918,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             <!-- ONGLET MON ÉQUIPE -->
             <section id="tab-deck" class="tab-content w-full space-y-6">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase">Gestion de l'équipe</h2>
-                    <div class="bg-cyan-500/10 border border-cyan-500/30 px-4 py-1.5 rounded-xl text-cyan-400 font-sport font-bold text-sm">
-                        Moyenne Équipe : <span id="deck-average-ovr" class="text-amber-400 font-black text-base">0</span> OVR
-                    </div>
+                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase"><i class="fa-solid fa-users text-cyan-400"></i> Mon équipe</h2>
+                    <div class="dk-ovr" title="Moyenne des 5 athlètes + bonus d'équipe"><span>Note d'équipe</span><b id="deck-average-ovr">0</b></div>
                 </div>
                 
                 <div id="deck-bonus-info" class="flex flex-wrap items-center gap-2 text-xs bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2"></div>
@@ -716,7 +932,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 </div>
 
                 <!-- SECTION SÉLECTION DE CARTES AVEC BARRE DE FILTRES -->
-                <div class="textured-panel p-6 rounded-3xl space-y-4">
+                <div id="deck-add-panel" class="textured-panel p-6 rounded-3xl space-y-4">
                     <h4 class="text-sm font-bold font-sport uppercase text-amber-300 flex items-center gap-2">
                         <i class="fa-solid fa-plus-circle"></i> Ajouter un athlète possédé
                     </h4>
@@ -724,17 +940,17 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                     <!-- BARRE DE FILTRES DÉDIÉE À L'ÉQUIPE -->
                     <div class="bg-slate-950/80 p-4 rounded-2xl space-y-3 border border-slate-800">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800/50 pb-3">
-                            <div class="flex flex-wrap items-center gap-3 w-full">
+                            <div class="col-filters flex flex-wrap items-center gap-3 w-full">
                                 <div class="relative w-full sm:w-48">
                                     <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-xs"></i>
                                     <input id="deck-search-input" oninput="renderDeckQuickAdd()" type="text" placeholder="Rechercher un titulaire..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white outline-none focus:border-cyan-500 transition-colors">
                                 </div>
                                 <select id="deck-country-select-filter" onchange="renderDeckQuickAdd()" class="bg-slate-900 border border-slate-700 text-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
-                                    <option value="all">Toutes nationalités</option>
+                                    <option value="all">Tous les pays</option>
                                 </select>
                                 <select id="deck-sort-order-select" onchange="renderDeckQuickAdd()" class="bg-slate-900 border border-slate-700 text-cyan-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
-                                    <option value="desc">Note : Plus haut au plus bas</option>
-                                    <option value="asc">Note : Plus bas au plus haut</option>
+                                    <option value="desc">Meilleure note</option>
+                                    <option value="asc">Note la plus basse</option>
                                     <option value="name">Nom : A à Z</option>
                                 </select>
                                 <button onclick="toggleDeckFavFilter()" id="btn-toggle-deck-fav" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition">★ Favoris</button>
@@ -760,13 +976,14 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
             <!-- ONGLET COLLECTION & STATS -->
             <section id="tab-collection" class="tab-content w-full space-y-6">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-3 gap-4">
-                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase">Base de données globale & Statistiques</h2>
-                    <button onclick="recycleAllDuplicates()" title="Recycle les doublons Commune, Peu commune et Rare. Les cartes Ultra Rare, Légendaire, Mythique et Vintage sont conservées." class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs font-sport uppercase shadow-lg border border-amber-300 flex items-center gap-2 transition-all">
-                        <i class="fa-solid fa-coins text-sm"></i> Tout recycler (Doublons)
-                    </button>
+                <div class="col-head flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-3 gap-3">
+                    <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase"><i class="fa-solid fa-book-open text-cyan-400"></i> Collection</h2>
+                    <div class="col-head-r"><span id="collection-counter-text" class="col-count">0 / <span class="total-cards-label">0</span> DÉBLOQUÉS</span><button onclick="recycleAllDuplicates()" title="Recycle les doublons Commune, Peu commune et Rare. Les cartes Ultra Rare, Légendaire, Mythique et Vintage sont conservées." class="btn-recycle"><i class="fa-solid fa-recycle"></i> Tout recycler</button></div>
                 </div>
 
+                <details id="col-stats" class="col-stats">
+                    <summary><span><i class="fa-solid fa-chart-simple text-cyan-400"></i> Statistiques &amp; progression par sport</span><i class="fa-solid fa-chevron-down col-chev"></i></summary>
+                    <div class="col-stats-body">
                 <div class="textured-panel p-5 rounded-3xl grid grid-cols-2 sm:grid-cols-4 gap-4 shadow-xl border border-cyan-500/20">
                     <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl flex flex-col justify-center items-center text-center">
                         <span class="text-xs text-slate-400 font-sport uppercase tracking-wider mb-1"><i class="fa-solid fa-box-open text-amber-400 mr-1"></i> Boosters Ouverts</span>
@@ -787,21 +1004,21 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 </div>
                 
                 <div id="sport-progress" class="pv-panel"></div>
-                <div class="textured-panel p-5 rounded-3xl space-y-4 md:sticky md:top-0 z-30 shadow-2xl backdrop-blur-md bg-[#03050a]/95">
+                    </div>
+                </details>
+                <div class="col-filters-panel textured-panel p-5 rounded-3xl space-y-4 md:sticky md:top-0 z-30 shadow-2xl backdrop-blur-md bg-[#03050a]/95">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/50 pb-4">
-                        <span id="collection-counter-text" class="text-sm text-amber-400 font-black font-sport tracking-wider bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">0 / <span class="total-cards-label">0</span> DÉBLOQUÉS</span>
-                        
-                        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div class="col-filters flex flex-wrap items-center gap-3 w-full">
                             <div class="relative w-full sm:w-48">
                                 <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-xs"></i>
                                 <input id="search-input" oninput="filterCards()" type="text" placeholder="Rechercher..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white outline-none focus:border-cyan-500 transition-colors">
                             </div>
                             <select id="country-select-filter" onchange="filterCards()" class="bg-slate-950 border border-slate-700 text-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
-                                <option value="all">Toutes nationalités</option>
+                                <option value="all">Tous les pays</option>
                             </select>
                             <select id="sort-order-select" onchange="filterCards()" class="bg-slate-950 border border-slate-700 text-cyan-300 rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-cyan-500 cursor-pointer">
-                                <option value="desc">Note : Plus haut au plus bas</option>
-                                <option value="asc">Note : Plus bas au plus haut</option>
+                                <option value="desc">Meilleure note</option>
+                                <option value="asc">Note la plus basse</option>
                                 <option value="name">Nom : A à Z</option>
                             </select>
                             <button onclick="toggleOwnedFilter()" id="btn-toggle-owned" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl text-xs font-bold transition whitespace-nowrap">Possédés</button>
@@ -829,9 +1046,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             <section id="tab-dupes" class="tab-content w-full space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-3 gap-4">
                     <h2 class="text-2xl font-black font-sport text-white tracking-widest uppercase"><i class="fa-solid fa-clone text-amber-400"></i> Cartes en double</h2>
-                    <button onclick="recycleAllDuplicates()" title="Recycle les doublons Commune, Peu commune et Rare. Les cartes Ultra Rare, Légendaire, Mythique et Vintage sont conservées." class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs font-sport uppercase shadow-lg border border-amber-300 flex items-center gap-2 transition-all">
-                        <i class="fa-solid fa-coins text-sm"></i> Tout recycler (Doublons)
-                    </button>
+                    <button onclick="recycleAllDuplicates()" title="Recycle les doublons Commune, Peu commune et Rare. Les cartes Ultra Rare, Légendaire, Mythique et Vintage sont conservées." class="btn-recycle"><i class="fa-solid fa-recycle"></i> Tout recycler</button>
                 </div>
                 <div id="dupes-summary" class="pv-panel"></div>
                 <div id="dupes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 pb-12 relative z-10"></div>
@@ -856,6 +1071,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         <div class="st-row"><input id="nick-input" class="st-input" maxlength="16" placeholder="Ex : Champion92" autocomplete="off" onkeydown="if(event.key==='Enter')saveNickname()"><button class="pv-btn" onclick="saveNickname()">Enregistrer</button></div>
                         <div id="nick-msg" class="st-msg"></div>
                         <div class="pv-s">Pseudo utilisé en PvP : <b id="nick-current" style="color:#fbbf24"></b></div>
+                    </div>
+                    <div class="st-card">
+                        <h3><i class="fa-solid fa-shield-halved" style="color:#22d3ee"></i> Sauvegarde</h3>
+                        <p>Ta collection est enregistrée dans ce navigateur. Copie ton code de sauvegarde ou télécharge un fichier pour ne jamais la perdre.</p>
+                        <button class="pv-btn" style="align-self:flex-start" onclick="openSaveModal()"><i class="fa-solid fa-shield-halved"></i> Sauvegarde &amp; restauration</button>
                     </div>
                 </div>
             </section>
@@ -889,9 +1109,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                             <h3 class="text-lg font-bold font-sport uppercase text-white mb-2"><i class="fa-solid fa-plus-circle text-rose-400"></i> Créer un salon</h3>
                             <p class="text-xs text-slate-400">Générez un code unique et communiquez-le à votre ami pour jouer. La mise et le mode choisis plus haut s'appliquent.</p>
                         </div>
-                        <button onclick="createPvPRoom()" class="w-full py-3 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-black font-sport uppercase text-sm rounded-xl shadow-lg transition-transform hover:scale-105">
-                            Générer un salon
-                        </button>
+                        <button onclick="createPvPRoom()" class="pv-sec rose w-full"><i class="fa-solid fa-plus"></i> Générer un salon</button>
                     </div>
 
                     <!-- Rejoindre Salon -->
@@ -901,9 +1119,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                             <p class="text-xs text-slate-400">Saisissez le code transmis par votre ami.</p>
                             <input type="text" id="pvp-room-code-input" placeholder="Ex: AZ89X2" class="w-full mt-3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-center font-mono text-base font-bold text-cyan-300 tracking-widest uppercase outline-none focus:border-cyan-500">
                         </div>
-                        <button onclick="joinPvPRoom()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black font-sport uppercase text-sm rounded-xl shadow-lg transition-transform hover:scale-105">
-                            Rejoindre le salon
-                        </button>
+                        <button onclick="joinPvPRoom()" class="pv-sec w-full"><i class="fa-solid fa-door-open"></i> Rejoindre le salon</button>
                     </div>
                 </div>
 
@@ -997,7 +1213,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
     <div id="card-zoom-modal" role="dialog" aria-modal="true" aria-label="Détail de la carte" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4" onclick="closeZoomModal()">
         <div class="relative max-w-sm w-full flex flex-col items-center space-y-4 max-h-[85vh] overflow-y-auto pr-1" onclick="event.stopPropagation()">
             <div id="zoom-card-wrapper" class="w-72 sm:w-80"></div>
-            <div id="zoom-fusion-panel" class="hidden w-full bg-slate-900 border border-amber-500/30 p-4 rounded-2xl space-y-2"></div>
+            <div id="zoom-fusion-panel" class="hidden w-full bg-slate-900 border border-violet-500/40 p-4 rounded-2xl space-y-2"></div>
             <div id="zoom-equipment-panel" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-2xl space-y-3"></div>
             <button id="zoom-fav-btn" onclick="toggleFavoriteZoom()" class="hidden px-6 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-xl font-bold text-sm border border-amber-500/40 transition"></button>
             <button onclick="closeZoomModal()" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold font-sport text-sm border border-slate-600 transition">Fermer</button>
@@ -1053,7 +1269,12 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         let wikiSaveT;
         function saveWikiCache() { clearTimeout(wikiSaveT); wikiSaveT = setTimeout(() => { try { localStorage.setItem('sports_tcg_img_cache_v7', JSON.stringify(wikiImageCache)); } catch(e) {} }, 500); }
 
-        const fallbackImage = 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80';
+        // Pas de photo disponible : un pixel transparent, qui laisse voir le fond d'attente de la carte (couleur de rareté + icône du sport).
+        const fallbackImage = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+        // Les anciennes entrées « photo de stade » du cache sont effacées : la carte retentera une fois de trouver sa vraie photo.
+        for (const k in wikiImageCache) if (typeof wikiImageCache[k] === 'string' && wikiImageCache[k].includes('images.unsplash.com')) delete wikiImageCache[k];
+        // Photo plus nette pour les grandes cartes (fiche, révélation) : Wikimedia sert aussi la taille standard 500 px.
+        const bigPhoto = u => typeof u === 'string' && u.includes('/330px-') ? u.replace('/330px-', '/500px-') : '';
         const wikiInflight = new Map(), wikiWaiters = []; let wikiActive = 0;
         async function wikiSlot() { if (wikiActive >= 6) await new Promise(r => wikiWaiters.push(r)); wikiActive++; }
         function wikiFree() { wikiActive--; const w = wikiWaiters.shift(); if (w) w(); }
@@ -1371,7 +1592,18 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             snapshot(false); updateUI();
         }
 
+        // Sur téléphone, Boutique, Doublons et Paramètres sont rangés dans le menu « Plus ».
+        const MORE_TABS = ['tab-vintage', 'tab-dupes', 'tab-settings'];
+        function toggleMoreMenu(force) {
+            const o = document.getElementById('more-sheet'); if (!o) return;
+            const on = force === undefined ? !o.classList.contains('on') : !!force;
+            o.classList.toggle('on', on); o.setAttribute('aria-hidden', on ? 'false' : 'true');
+            if (on) { const cur = document.querySelector('.tab-content.active'); o.querySelectorAll('.more-it[data-tab]').forEach(b => b.classList.toggle('on', !!cur && b.dataset.tab === cur.id)); }
+        }
+        function moreGo(tab) { toggleMoreMenu(false); switchMainTab(tab); }
+
         function switchMainTab(tabId) {
+            toggleMoreMenu(false);
             const mainScrollContainer = document.getElementById('main-scroll-container');
             document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.main-tab-btn').forEach(b => {
@@ -1383,6 +1615,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (activeBtn) {
                 activeBtn.className = "main-tab-btn w-full px-4 py-3 rounded-xl font-bold font-sport text-sm uppercase tracking-wider flex items-center justify-center md:justify-start gap-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition-all shrink-0";
             }
+            const moreBtn = document.getElementById('nav-more');
+            if (moreBtn && activeBtn && MORE_TABS.includes(tabId)) moreBtn.className = activeBtn.className;
             if (mainScrollContainer) mainScrollContainer.scrollTop = 0;
             if (tabId === 'tab-collection') { displayedCardLimit = 24; renderCardsCatalogue(); updateGlobalStats(); }
             else if (tabId === 'tab-dupes') { renderDupes(true); }
@@ -1605,7 +1839,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 const photoUrl = await fetchWikiPhoto(vintageCard.wikiSlug);
                 return `
                     <div class="textured-panel p-4 rounded-2xl flex flex-col items-center space-y-4 shadow-xl relative border border-amber-500/20">
-                        <div class="w-48 flex justify-center">${getCardHTML(vintageCard, photoUrl, isOwned, false, true, false, false)}</div>
+                        <div class="vin-card" style="width:100%;max-width:12rem">${getCardHTML(vintageCard, photoUrl, isOwned, false, false, false, false)}</div>
                         <div class="w-full text-center space-y-2">
                             <div class="text-xs font-sport text-amber-400 font-bold uppercase">${vintageCard.name}</div>
                             <div class="text-[11px] text-slate-400 font-mono">Coût : ${vintageCard.price} SP</div>
@@ -1745,9 +1979,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const fusePanel = document.getElementById('zoom-fusion-panel');
             if (isOwned && athlete.rarityId !== R_VINTAGE) {
                 const cost = FUSION_COST[athlete.rarityId], lvl = cardLevel(athlete.id), cnt = userState.collection[athlete.id] || 0, ok = cnt >= cost && lvl < MAX_FUSION;
-                fusePanel.innerHTML = `<div class="text-xs font-bold text-slate-300 flex items-center justify-between"><span><i class="fa-solid fa-star text-amber-400"></i> Fusion · niveau ${lvl}/${MAX_FUSION}</span><span class="text-amber-300">+${lvl} de note</span></div>`
+                fusePanel.innerHTML = `<div class="text-xs font-bold text-slate-300 flex items-center justify-between"><span><i class="fa-solid fa-wand-magic-sparkles fz-ic"></i> Fusion · niveau ${lvl}/${MAX_FUSION}</span><span class="fz-lvl">+${lvl} de note</span></div>`
                     + (lvl >= MAX_FUSION ? '<p class="text-[11px] text-emerald-400">Niveau maximum atteint.</p>'
-                        : `<p class="text-[11px] text-slate-400">${cost} exemplaires de cette carte donnent +1 de note (un seul exemplaire est conservé).</p><div class="pv-bar"><i style="width:${Math.min(100, cnt / cost * 100)}%"></i></div><div class="flex items-center justify-between gap-2"><span class="text-[11px] text-slate-400">${Math.min(cnt, cost)} / ${cost} exemplaires</span><button onclick="fuseCard('${athlete.id}')" ${ok ? '' : 'disabled'} class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-slate-950 font-black rounded-xl text-xs font-sport uppercase transition">Fusionner (+1)</button></div>`);
+                        : `<p class="text-[11px] text-slate-400">${cost} exemplaires de cette carte donnent +1 de note (un seul exemplaire est conservé).</p><div class="pv-bar fz-bar"><i style="width:${Math.min(100, cnt / cost * 100)}%"></i></div><div class="flex items-center justify-between gap-2"><span class="text-[11px] text-slate-400">${Math.min(cnt, cost)} / ${cost} exemplaires</span><button onclick="fuseCard('${athlete.id}')" ${ok ? '' : 'disabled'} class="btn-fuse"><i class="fa-solid fa-wand-magic-sparkles"></i> Fusionner (+1)</button></div>`);
                 fusePanel.classList.remove('hidden');
             } else fusePanel.classList.add('hidden');
             const equipPanel = document.getElementById('zoom-equipment-panel');
@@ -1789,47 +2023,45 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const count = userState.collection[athlete.id] || 0, doublonsCount = Math.max(0, count - 1), spEarn = spRecycleValues[athlete.rarityId] || 1;
             const finalScore = getAthleteCalculatedScore(athlete), eqList = userState.athleteEquipments[athlete.id] || [];
             const countryCode = (athlete.country || 'fr').toLowerCase(), flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
+            const level = isOwned && !isVintage ? cardLevel(athlete.id) : 0, fav = !!(userState.favorites && userState.favorites[athlete.id]);
+            const big = isLarge ? bigPhoto(imgSrc) : '';
+            const canRecycle = count > 1 && !isSummary && isOwned && !isOpeningMode && !isVintage;
 
-            let clickAction = isOpeningMode ? `onclick="event.stopPropagation(); revealNextCardInPack()"` : (!isSummary && isOwned ? `onclick="openZoomCard('${athlete.id}')"` : '');
-            let equipmentBadgesHTML = '';
-            if (eqList.length > 0 && isOwned) {
-                equipmentBadgesHTML = `<div class="absolute top-2.5 left-14 z-[25] flex items-center gap-1">`;
-                eqList.forEach(eqId => {
-                    const eq = equipmentDefinitions.find(e => e.id === eqId);
-                    if (eq) equipmentBadgesHTML += `<div class="eq-badge bg-slate-950/95 border-2 border-cyan-400 w-9 h-9 flex items-center justify-center rounded-xl shadow-xl" title="${eq.name} (+${eq.bonus} OVR)">${eqSvg(eq.id)}</div>`;
-                });
-                equipmentBadgesHTML += `</div>`;
-            }
+            const clickAction = isOpeningMode ? `onclick="event.stopPropagation(); revealNextCardInPack()"` : (!isSummary && isOwned ? `onclick="openZoomCard('${athlete.id}')"` : '');
+            const eqHTML = isOwned ? eqList.map(eqId => { const eq = equipmentDefinitions.find(e => e.id === eqId); return eq ? `<div class="pc-eq" title="${eq.name} (+${eq.bonus} OVR)">${eqSvg(eq.id)}</div>` : ''; }).join('') : '';
 
+            // Habillage en deux colonnes (identité à gauche, valeur à droite) : plus rien ne se recouvre, quelle que soit la taille de la carte.
             return `
-                <div class="pokemon-card ${rClass} ${sizeClass} ${!isOwned ? 'opacity-30 grayscale' : ''}" ${clickAction} ${clickAction ? 'role="button" tabindex="0" aria-label="' + athlete.name + '"' : ''}>${(userState.favorites && userState.favorites[athlete.id]) ? '<span class="absolute z-[30] top-[30%] right-1.5 text-amber-300 text-base drop-shadow">★</span>' : ''}
+                <div class="pokemon-card ${rClass} ${sizeClass} ${!isOwned ? 'opacity-30 grayscale' : ''}" ${clickAction} ${clickAction ? 'role="button" tabindex="0" aria-label="' + athlete.name + '"' : ''}>
                     <div class="card-image-container">
-                        <img alt="${athlete.name}" src="${imgSrc}" data-slug="${athlete.wikiSlug}" class="wiki-card-img" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40"></div>
+                        <i class="fa-solid ${sIcon} pc-ph" aria-hidden="true"></i>
+                        <img alt="${athlete.name}" src="${big || imgSrc}" ${big ? `data-small="${imgSrc}"` : ''} data-slug="${athlete.wikiSlug}" class="wiki-card-img" referrerpolicy="no-referrer" onload="if(this.naturalWidth>1)this.classList.add('ld')" onerror="if(this.dataset.small&&!this.dataset.f){this.dataset.f=1;this.src=this.dataset.small}else{this.onerror=null;this.src='${fallbackImage}'}">
+                        <div class="pc-shade"></div>
                     </div>
                     <div class="card-inner-border"></div>
                     ${isHolo ? '<div class="holo-sheen"></div>' : ''}
-                    <div class="absolute top-2.5 left-2.5 z-[25] bg-slate-950/95 border-2 themed-border w-9 h-9 flex items-center justify-center rounded-xl shadow-xl">
-                        <i class="fa-solid ${sIcon} text-sm themed-text"></i>
+                    <div class="pc-col pc-l">
+                        <div class="pc-b pc-sport themed-border"><i class="fa-solid ${sIcon} themed-text"></i></div>
+                        ${level > 0 ? `<div class="pc-lvl" title="Niveau de fusion ${level}/${MAX_FUSION} (+${level} de note)">★${level}</div>` : ''}
+                        ${fav ? '<div class="pc-fav" title="Favori">★</div>' : ''}
                     </div>
-                    ${isOwned && !isVintage && cardLevel(athlete.id) > 0 ? `<div class="absolute top-14 left-2.5 z-[25] bg-amber-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-md shadow-lg border border-yellow-200" title="Niveau de fusion ${cardLevel(athlete.id)}/${MAX_FUSION} (+${cardLevel(athlete.id)} de note)">★${cardLevel(athlete.id)}</div>` : ''}
-                    ${equipmentBadgesHTML}
-                    <div class="absolute bottom-11 right-2.5 z-30 bg-slate-950/90 border border-slate-700/80 rounded-md px-1.5 py-0.5 shadow-lg flex items-center justify-center pointer-events-none" title="${athlete.country}">
-                        <img src="${flagUrl}" alt="${athlete.country}" class="w-6 h-4 object-cover rounded-sm shadow" onerror="this.style.display='none'">
+                    <div class="pc-col pc-r">
+                        <div class="pc-b pc-score themed-border"><span class="themed-text">${isVintage ? '<i class="fa-solid fa-star"></i>' : finalScore}</span></div>
+                        ${isNew ? '<div class="pc-new">NEW</div>' : ''}
+                        ${count > 1 && !isOpeningMode ? `<div class="pc-count" title="${count} exemplaires">×${count}</div>` : ''}
                     </div>
-                    ${count > 1 && !isSummary && isOwned && !isOpeningMode && !isVintage ? `
-                        <div class="absolute bottom-14 right-12 z-30 flex flex-col items-end gap-1">
-                            <div class="bg-amber-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded-lg shadow-lg border border-yellow-200">x${count}</div>
-                            <button onclick="event.stopPropagation(); recycleDuplicate('${athlete.id}')" class="bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-black text-[10px] px-2.5 py-1 rounded-lg shadow-md border border-amber-300 flex items-center gap-1"><i class="fa-solid fa-coins"></i> (+${spEarn * doublonsCount} SP)</button>
+                    <div class="pc-bottom">
+                        <div class="pc-foot">
+                            <div class="pc-eqs">${eqHTML}</div>
+                            <div class="pc-right">
+                                ${canRecycle ? `<button onclick="event.stopPropagation(); recycleDuplicate('${athlete.id}')" class="pc-recycle" title="Recycler les ${doublonsCount} doublon(s) de cette carte"><i class="fa-solid fa-recycle"></i><b>+${spEarn * doublonsCount} SP</b></button>` : ''}
+                                <div class="pc-flag" title="${athlete.country}"><img src="${flagUrl}" alt="${athlete.country}" onerror="this.parentNode.style.display='none'"></div>
+                            </div>
                         </div>
-                    ` : count > 1 && !isOpeningMode ? `<div class="absolute bottom-14 right-12 z-30 bg-amber-500 text-slate-950 font-black text-xs px-2 py-0.5 rounded-lg shadow-lg">x${count}</div>` : ''}
-                    ${isNew ? `<div class="absolute top-2 left-12 z-30 bg-gradient-to-r from-red-600/70 to-amber-500/70 text-white font-black text-[9px] px-1.5 py-0.5 rounded uppercase tracking-tighter animate-pulse">NEW</div>` : ''}
-                    <div class="absolute top-2.5 right-2.5 z-20 bg-slate-950/95 border-2 themed-border px-3 py-1 rounded-xl shadow-xl">
-                        <span class="text-xs font-black themed-text tracking-wider">${isVintage ? '<i class="fa-solid fa-star text-amber-400"></i>' : finalScore}</span>
-                    </div>
-                    <div class="name-banner flex justify-between items-center">
-                        <h5 class="text-[9px] sm:text-[10px] md:text-[11px] font-black themed-text uppercase tracking-tight leading-tight pr-2 line-clamp-2">${athlete.name}</h5>
-                        <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter shrink-0">${athlete.rarity}</span>
+                        <div class="name-banner">
+                            <h5 class="pc-name themed-text">${athlete.name}</h5>
+                            <span class="pc-rar">${athlete.rarity}</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1852,7 +2084,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function updateDupesBadge() {
             const b = document.getElementById('dupes-count-badge'); if (!b) return;
             const n = Object.keys(userState.collection).filter(id => userState.collection[id] > 1).length;
-            b.textContent = n; b.style.display = n ? '' : 'none';
+            ['dupes-count-badge', 'more-badge', 'more-dupes-badge'].forEach(id => { const e = document.getElementById(id); if (e) { e.textContent = n; e.style.display = n ? '' : 'none'; } });
         }
         function renderDupes(reset) {
             const box = document.getElementById('dupes-container'), sum = document.getElementById('dupes-summary'); if (!box || !sum) return;
@@ -1870,7 +2102,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 if (a.rarityId === R_VINTAGE) return '';
                 const cost = FUSION_COST[a.rarityId], lvl = cardLevel(a.id), cnt = userState.collection[a.id] || 0;
                 if (lvl >= MAX_FUSION) return '<div class="text-center text-[11px] text-emerald-400 font-bold">Niveau max</div>';
-                return `<button onclick="fuseCard('${a.id}')" ${cnt >= cost ? '' : 'disabled'} class="w-full px-2 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-slate-950 font-black rounded-xl text-[11px] font-sport uppercase transition">Fusionner ${cnt}/${cost} · niv. ${lvl}→${lvl + 1}</button>`;
+                return `<button onclick="fuseCard('${a.id}')" ${cnt >= cost ? '' : 'disabled'} class="btn-fuse w-full" title="${cost} exemplaires donnent +1 de note (niveau ${lvl} → ${lvl + 1})"><i class="fa-solid fa-wand-magic-sparkles"></i> Fusionner ${cnt}/${cost}</button>`;
             };
             box.innerHTML = dupesList.slice(0, dupesLimit).map(a => `<div class="flex flex-col gap-1.5">${getCardHTML(a, null, true, false, false, false, false)}${fuseBtn(a)}</div>`).join('')
                 + (dupesLimit < dupesList.length ? '<div class="col-span-full py-6 text-center text-xs text-slate-500 animate-pulse">Défilez vers le bas...</div>' : '');
@@ -1998,7 +2230,10 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (!container) return;
             const run = ++deckRun; // un rendu plus récent annule celui-ci, qui attend encore des photos
             let totalOvr = 0, activeCount = 0, htmlContent = '';
-            const _tbd = getTeamBonus().details, _syn = a => _tbd.filter(d => (d.kind === 'country' && d.v === a.country) || (d.kind === 'sport' && d.v === a.sport)).map(d => `<span>${d.label} ×${d.n}</span>`).join('');
+            const _tbd = getTeamBonus().details;
+            const _syn = a => _tbd.filter(d => (d.kind === 'country' && d.v === a.country) || (d.kind === 'sport' && d.v === a.sport)).map(d => d.kind === 'country'
+                ? `<span title="${esc(d.label)} ×${d.n} : +1"><img src="https://flagcdn.com/w40/${esc(String(d.v).toLowerCase())}.png" alt="" onerror="this.style.display='none'">×${d.n}</span>`
+                : `<span title="${esc(d.label)} ×${d.n} : +1"><i class="fa-solid ${sportIcons[d.v] || 'fa-trophy'}"></i>×${d.n}</span>`).join('');
             for (let i = 0; i < 5; i++) {
                 const id = userState.deck[i];
                 if (id) {
@@ -2008,10 +2243,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         totalOvr += (typeof calculatedScore === 'number' ? calculatedScore : 95);
                         activeCount++;
                         const photoUrl = await fetchWikiPhoto(athlete.wikiSlug);
-                        htmlContent += `<div class="relative flex flex-col items-center group"><div class="pv-syn">${_syn(athlete)}</div><div class="w-full">${getCardHTML(athlete, photoUrl, true, false, false, false, false)}</div><button onclick="event.stopPropagation(); removeFromDeck(${i})" class="absolute top-2 right-2 z-30 w-7 h-7 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-lg"><i class="fa-solid fa-xmark text-xs"></i></button></div>`;
+                        const syn = _syn(athlete);
+                        htmlContent += `<div class="dk-slot"><div class="w-full">${getCardHTML(athlete, photoUrl, true, false, false, false, false)}</div><div class="dk-syn">${syn}</div><button onclick="event.stopPropagation(); removeFromDeck(${i})" class="dk-out" aria-label="Retirer ${esc(athlete.name)} de l'équipe"><i class="fa-solid fa-xmark"></i> Retirer</button></div>`;
                     }
                 } else {
-                    htmlContent += `<div class="pokemon-card w-full border-2 border-dashed border-slate-700/60 bg-slate-950/40 flex flex-col items-center justify-center text-slate-500"><i class="fa-solid fa-plus mb-2 opacity-50 text-xl"></i><span class="text-[10px] uppercase font-bold">Slot Vide</span></div>`;
+                    htmlContent += `<div class="dk-slot"><button class="dk-empty" onclick="document.getElementById('deck-add-panel').scrollIntoView({ behavior: 'smooth', block: 'start' })"><i class="fa-solid fa-plus"></i><span>Place ${i + 1}</span><small>Choisis un athlète plus bas</small></button></div>`;
                 }
             }
             if (run !== deckRun) return;
@@ -2059,7 +2295,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             });
 
             // Photos chargées à l'affichage : ne pas interroger Wikipédia pour toute la collection d'un coup
-            container.innerHTML = owned.map(athlete => `<div onclick="addToDeck('${athlete.id}')" class="w-full cursor-pointer transition-transform hover:scale-105">${getCardHTML(athlete, null, true, false, false, false, false)}</div>`).join('');
+            container.innerHTML = owned.map(athlete => `<div onclick="addToDeck('${athlete.id}')" role="button" tabindex="0" aria-label="Ajouter ${esc(athlete.name)} à l'équipe" class="dk-pick w-full cursor-pointer transition-transform hover:scale-105">${getCardHTML(athlete, null, true, true, false, false, false)}<span class="dk-plus"><i class="fa-solid fa-plus"></i> Ajouter</span></div>`).join('');
             lazyLoadWikiImages();
         }
 
@@ -2289,19 +2525,21 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (rid < R_ULT) return;
             playSparkleSound();
             const m = document.getElementById('pack-opening-modal'), f = document.createElement('div');
-            f.className = 'fx-flash'; f.style.setProperty('--fx', { 3: '#a855f7', 4: '#facc15', 5: '#f43f5e' }[rid] || '#fff'); m.appendChild(f); setTimeout(() => f.remove(), 900);
+            f.className = 'fx-flash'; f.style.setProperty('--fx', { 3: '#fb923c', 4: '#facc15', 5: '#f472b6' }[rid] || '#fff'); m.appendChild(f); setTimeout(() => f.remove(), 900);
             if (rid >= R_LEG) { m.classList.add('fx-shake'); setTimeout(() => m.classList.remove('fx-shake'), 600); playLegendSound(); }
         }
 
         /* ===== RÉVÉLATION CINÉMATIQUE : cartes Mythiques & Vintage ===== */
         const MX = (() => {
             const THEMES = {
-                myt: { cls: 'mx-myt', cap: 'MYTHIQUE', parts: ['255,255,255', '249,168,212', '251,191,36', '125,211,252'] },
-                vin: { cls: 'mx-vin', cap: 'VINTAGE', parts: ['255,255,255', '253,230,138', '245,158,11', '217,119,6'] }
+                myt: { cls: 'mx-myt', cap: 'MYTHIQUE', parts: ['255,255,255', '249,168,212', '251,191,36', '125,211,252'], d: 2600, spin: true, big: true, n: 90 },
+                vin: { cls: 'mx-vin', cap: 'VINTAGE', parts: ['255,255,255', '253,230,138', '245,158,11', '217,119,6'], d: 2600, spin: true, big: true, n: 90 },
+                leg: { cls: 'mx-leg', cap: 'LÉGENDAIRE', parts: ['255,255,255', '254,240,138', '250,204,21', '202,138,4'], d: 1500, spin: false, big: true, n: 60 },
+                ult: { cls: 'mx-ult', cap: 'ULTRA RARE', parts: ['255,255,255', '254,215,170', '251,146,60', '234,88,12'], d: 950, spin: false, big: false, n: 34 }
             };
-            const RM = matchMedia('(prefers-reduced-motion: reduce)').matches, D = RM ? 700 : 2600;
+            const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
             const BACK = '<svg width="92" height="92" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 5l2.1 4.3 4.7.7-3.4 3.3.8 4.7L12 15.8l-4.2 2.2.8-4.7L5.2 10l4.7-.7z"/></svg>';
-            const el = id => document.getElementById(id), kind = c => c.rarityId === R_VINTAGE ? 'vin' : c.rarityId === R_MYT ? 'myt' : null;
+            const el = id => document.getElementById(id), kind = c => c.rarityId === R_VINTAGE ? 'vin' : c.rarityId === R_MYT ? 'myt' : c.rarityId === R_LEG ? 'leg' : c.rarityId === R_ULT ? 'ult' : null;
             let S = null, raf = 0;
 
             function burst(n) { const s = S; for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, v = 2 + Math.random() * 7; s.P.push({ x: s.ox, y: s.oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, l: 1, d: .012 + Math.random() * .014, r: 1 + Math.random() * 2.6, c: s.th.parts[i % 4], g: .06 }); } }
@@ -2317,14 +2555,16 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             function ring() { el('mx-bg').querySelector('.mx-ring').animate([{ opacity: .9, scale: .3 }, { opacity: 0, scale: 5 }], { duration: 900, easing: 'ease-out' }); }
             function boom() {
                 const s = S; if (!s || s.burst) return; s.burst = true;
-                burst(90); playSparkleSound(); ring();
+                burst(s.th.n); playSparkleSound(); ring();
                 el('mx-top').querySelector('.mx-flash').animate([{ opacity: 0 }, { opacity: .95, offset: .15 }, { opacity: 0 }], { duration: 700 });
             }
             function land() {
                 const s = S; if (!s || s.live) return; s.live = true;
                 el('mx-bg').classList.add('live'); el('mx-top').classList.add('live'); el('mx-cap').textContent = s.th.cap;
                 if (RM) return;
-                burst(40); ring(); playLegendSound();
+                burst(Math.round(s.th.n * .45)); ring();
+                if (!s.th.big) return;
+                playLegendSound();
                 const m = el('pack-opening-modal'); m.classList.add('fx-shake'); setTimeout(() => m.classList.remove('fx-shake'), 600);
             }
             function frame(now) {
@@ -2343,8 +2583,19 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 draw(); raf = requestAnimationFrame(frame);
             }
             function play() {
-                const s = S, I = s.intro, T = s.timers;
+                const s = S, I = s.intro, T = s.timers, D = RM ? 700 : s.th.d;
                 if (RM) { s.anims.push(I.animate([{ opacity: 0 }, { opacity: 1 }], { duration: D, fill: 'both' })); T.push(setTimeout(land, D)); return; }
+                if (!s.th.spin) {
+                    // Légendaire / Ultra Rare : la carte surgit et grossit, sans retournement (plus court que la Mythique)
+                    s.anims.push(I.animate([
+                        { opacity: 0, transform: 'translateY(40px) scale(.55)', easing: 'cubic-bezier(.2,.8,.2,1)' },
+                        { opacity: 1, transform: 'translateY(0) scale(1.12)', offset: .62, easing: 'ease-in-out' },
+                        { transform: 'translateY(0) scale(1)' }
+                    ], { duration: D, fill: 'both' }));
+                    s.anims.push(el('mx-bg').querySelector('.mx-halo').animate([{ opacity: 0, scale: .4 }, { opacity: 1, scale: 1, offset: .5 }, { opacity: .5, scale: 1.08 }], { duration: D, fill: 'forwards' }));
+                    T.push(setTimeout(boom, D * .45), setTimeout(land, D * .8));
+                    return;
+                }
                 s.anims.push(I.animate([
                     { opacity: 0, transform: 'translateY(60px) scale(.3) rotateY(900deg)', easing: 'ease-out' },
                     { opacity: 1, transform: 'translateY(0) scale(.6) rotateY(900deg)', offset: .2, easing: 'linear' },
@@ -2366,7 +2617,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 container.textContent = ''; container.appendChild(wrap); container.classList.add('mx-on');
                 const bg = el('mx-bg'), top = el('mx-top'), cv = el('mx-cv'), r = wrap.getBoundingClientRect(), tr = top.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
                 const W = top.clientWidth, H = top.clientHeight, ox = r.left - tr.left + r.width / 2, oy = r.top - tr.top + r.height / 2;
-                [bg, top].forEach(n => { n.classList.remove('mx-myt', 'mx-vin', 'live'); n.classList.add(th.cls, 'on'); n.style.setProperty('--mx-x', ox + 'px'); n.style.setProperty('--mx-y', oy + 'px'); n.style.setProperty('--mx-w', r.width + 'px'); });
+                [bg, top].forEach(n => { n.classList.remove('mx-myt', 'mx-vin', 'mx-leg', 'mx-ult', 'live'); n.classList.add(th.cls, 'on'); n.style.setProperty('--mx-x', ox + 'px'); n.style.setProperty('--mx-y', oy + 'px'); n.style.setProperty('--mx-w', r.width + 'px'); });
                 cv.width = W * d; cv.height = H * d; const g = cv.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0);
                 S = { th, g, W, H, ox, oy, intro: wrap.querySelector('.mx-intro'), tilt: wrap.querySelector('.mx-tilt'), live: false, burst: false, amp: 0, rx: 0, ry: 0, px: null, py: null, P: [], timers: [], anims: [], fr: 0, t0: performance.now() };
                 el('mx-cap').textContent = '';
@@ -2376,7 +2627,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 const s = S; if (!s) return; S = null;
                 s.timers.forEach(clearTimeout); s.anims.forEach(a => { try { a.cancel(); } catch (e) {} });
                 cancelAnimationFrame(raf);
-                ['mx-bg', 'mx-top'].forEach(id => el(id).classList.remove('on', 'live'));
+                ['mx-bg', 'mx-top'].forEach(id => el(id).classList.remove('on', 'live', 'mx-myt', 'mx-vin', 'mx-leg', 'mx-ult'));
                 s.g.clearRect(0, 0, s.W, s.H);
                 el('pack-single-card-container').classList.remove('mx-on');
             }
@@ -2573,9 +2824,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const cards = tbCards(), byId = {}; cards.forEach(x => { byId[x.a.id] = x; });
             if (tb.group != null && tb.listFor !== tb.group) {
                 tb.listFor = tb.group;
-                $('tb-list').innerHTML = cards.map(x => `<div class="tb-c" data-id="${esc(x.a.id)}" onclick="tbToggle(this.dataset.id)"><div class="tb-av"><i class="fa-solid fa-user"></i><img data-slug="${esc(x.a.wikiSlug)}" alt="" referrerpolicy="no-referrer" style="display:none"></div><div style="min-width:0"><div class="n">${esc(x.a.name)}</div><div class="m">${esc(tb.mode === 'nation' ? x.a.sport : teamCountryName(x.a.country))} · ${esc(x.a.rarity)}</div></div><div class="sc">${x.s}</div></div>`).join('');
+                $('tb-list').innerHTML = cards.map(x => `<div class="tb-c" data-id="${esc(x.a.id)}" onclick="tbToggle(this.dataset.id)"><div class="tb-av"><i class="fa-solid fa-user"></i><img data-slug="${esc(x.a.wikiSlug)}" alt="" referrerpolicy="no-referrer" style="opacity:0;transition:opacity .3s"></div><div style="min-width:0"><div class="n">${esc(x.a.name)}</div><div class="m">${esc(tb.mode === 'nation' ? x.a.sport : teamCountryName(x.a.country))} · ${esc(x.a.rarity)}</div></div><div class="sc">${x.s}</div></div>`).join('');
                 if (tb.obs) tb.obs.disconnect();
-                const load = async img => { try { const u = await fetchWikiPhoto(img.dataset.slug); if (u) { img.onload = () => { img.style.display = 'block'; }; img.onerror = () => img.remove(); img.src = u; } } catch (e) { } };
+                const load = async img => { try { const u = await fetchWikiPhoto(img.dataset.slug); if (u) { img.onload = () => { if (img.naturalWidth > 1) img.style.opacity = 1; }; img.onerror = () => img.remove(); img.src = u; } } catch (e) { } };
                 const imgs = [...document.querySelectorAll('#tb-list img[data-slug]')];
                 if ('IntersectionObserver' in window) { tb.obs = new IntersectionObserver((es, o) => es.forEach(e => { if (e.isIntersecting) { o.unobserve(e.target); load(e.target); } }), { root: $('tb-scroll'), rootMargin: '150px' }); imgs.forEach(i => tb.obs.observe(i)); }
                 else imgs.slice(0, 30).forEach(load);
@@ -2588,7 +2839,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             $('tb-ok').disabled = n !== 5;
         }
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { if (tb) tbClose(); closeZoomModal(); closeSaveModal(); }
+            if (e.key === 'Escape') { if (tb) tbClose(); closeZoomModal(); closeSaveModal(); toggleMoreMenu(false); }
             // Les cartes et le booster sont des <div role="button"> : Entrée et Espace doivent les activer
             else if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role="button"]')) { e.preventDefault(); e.target.click(); }
         });
@@ -2632,7 +2883,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function pvpRefund() { const p = pv(); if (p.escrow > 0) { userState.sportsPoints += p.escrow; p.escrow = 0; saveUser(); updateUI(); } }
         function pvpReset() {
             pvpRefund(); pvpPlaceStop(); pvpQueueing = pvpQueueAck = false; currentRoomCode = null; pvpBusy = false; pvpMyTeam = null; pvpRoomMode = 'classic'; pvpOppRematch = pvpRematchSent = pvpOppLeft = false; clearTimeout(pvpRematchTimer);
-            $('pvp-lobby-panel').classList.remove('hidden');
+            $('pvp-lobby-panel').classList.remove('hidden'); $('pvp-arena-panel').classList.remove('in-match');
             ['pvp-arena-panel', 'pvp-stage', 'pvp-result-box', 'btn-start-battle'].forEach(i => $(i).classList.add('hidden')); $('pvp-stage').innerHTML = '';
             renderPvPObjectives(); renderStakeChips(); renderModeChips(); renderPvpHistory();
         }
@@ -2698,7 +2949,19 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         // ===== PLACEMENT DES ATHLÈTES (ORDRE DES DUELS, SECRET JUSQU'AU COMBAT) =====
         function pvpStageHTML(L, R, pot, modeTag, placing) {
             const lanes = `<div id="pv-lanes"${placing ? ' style="display:none"' : ''}>${[0, 1, 2, 3, 4].map(i => `<div class="pv-lane" id="pv-l${i}"><div class="pv-f a"></div><div class="pv-vs">VS</div><div class="pv-f b"></div></div>`).join('')}<div class="pv-team-h"><i class="fa-solid fa-bolt"></i> DUEL D'ÉQUIPE · ÉCART ×2</div><div class="pv-lane team" id="pv-l5"><div class="pv-f a"></div><div class="pv-vs">×2</div><div class="pv-f b"></div></div></div>`;
-            return `<div class="pv-arena" id="pv-arena"><div class="pv-top"><div class="pv-side">${sideInfo(L, true)}</div><div class="pv-pot">${pot}${modeTag}</div><div class="pv-side" style="text-align:right">${sideInfo(R, false)}</div></div><div class="pv-tug"><i id="pv-tug"></i></div>${placing ? '<div class="pv-place" id="pv-place"></div>' : ''}${lanes}<div id="pv-end"></div></div>`;
+            const side = (p, you) => `<div class="pv-pl ${you ? 'a' : 'b'}"><div class="pv-nm">${esc(p.name)}</div><div class="pv-meta">${you ? '<span class="pv-you">toi</span> ' : ''}${p.ovr} OVR${p.bonus ? ' · +' + p.bonus : ''}</div>${grpTag(p)}</div>`;
+            return `<div class="pv-arena" id="pv-arena"><div class="pv-board">${side(L, true)}<div class="pv-mid"><div class="pv-score"><b id="pv-ta">0</b><i>–</i><b id="pv-tb">0</b></div><div class="pv-pot">${pot}${modeTag}</div></div>${side(R, false)}<div class="pv-tug"><i id="pv-tug"></i></div></div>${placing ? '<div class="pv-place" id="pv-place"></div>' : ''}${lanes}<div id="pv-end"></div></div>`;
+        }
+        // Couleur de rareté d'une carte reçue du serveur (nom, page Wikipédia) : même code couleur que les cartes du jeu.
+        const PV_RC = ['#94a3b8', '#4ade80', '#38bdf8', '#fb923c', '#facc15', '#f472b6', '#f59e0b'];
+        function pvRarityColor(c) { const a = c && (allCardsData.find(x => x.wikiSlug === c.sl) || allCardsData.find(x => x.name === c.n)); return PV_RC[a ? a.rarityId : 0] || PV_RC[0]; }
+        function pvThumb(c, img) {
+            const ico = `<i class="fa-solid ${(c && sportIcons[c.sp]) || 'fa-user'}"></i>`;
+            const ok = img && img !== fallbackImage;
+            return `<div class="pv-th" style="--rc:${pvRarityColor(c)}">${ico}${ok ? `<img alt="" src="${esc(img)}" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}</div>`;
+        }
+        function pvpEndHTML(cls, title, pa, pb, spLine, detail, actions) {
+            return `<div class="pv-end ${cls}"><h4>${title}</h4><div class="pv-end-score"><b>${pa}</b><i>–</i><b>${pb}</b></div>${spLine ? `<div class="pv-end-sp">${spLine}</div>` : ''}${detail ? `<div class="pv-end-d">${detail}</div>` : ''}${actions ? `<div class="pv-end-actions">${actions}</div>` : ''}</div>`;
         }
         function pvpPlaceStart(data) {
             if (pvpPlace) clearInterval(pvpPlace.timer);
@@ -2707,7 +2970,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 if (!pvpPlace) return;
                 pvpPlace.left--;
                 if (pvpPlace.left <= 0) { clearInterval(pvpPlace.timer); pvpPlaceReady(); }
-                pvpPlaceRender();
+                pvpPlaceTick();
             }, 1000);
             pvpPlaceRender();
         }
@@ -2730,17 +2993,22 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (!socket || !socket.connected) { showToast('Connexion perdue : retourne à l\'arène.', 'error'); return; }
             pvpPlace.ready = true; socket.emit('ready', { order: pvpPlace.order.slice() }); pvpPlaceRender();
         }
+        function pvpPlaceTick() {
+            const t = $('pv-timer'); if (!t || !pvpPlace) return;
+            t.textContent = Math.max(0, pvpPlace.left) + ' s'; t.classList.toggle('low', pvpPlace.left <= 10);
+        }
         function pvpPlaceRender() {
             const el = $('pv-place'); if (!el || !pvpPlace) return;
             const P = pvpPlace, cards = pvpPl[pvpMe].cards || [], opp = (pvpPl[1 - pvpMe].cards || []).slice().sort((a, b) => b.s - a.s);
+            const photo = c => c && c.sl ? wikiImageCache[c.sl] : '';
             const rows = P.order.map((ci, i) => { const c = cards[ci] || {};
-                return `<div class="pv-prow"><b>${i + 1}</b><div class="n">${esc(c.n || '?')}<small>${esc(c.sp || '')}</small></div><div class="sc">${c.s != null ? c.s : '?'}</div><div class="pv-mv"><button ${P.ready || i === 0 ? 'disabled' : ''} onclick="pvpPlaceMove(${i},-1)" aria-label="Monter"><i class="fa-solid fa-chevron-up"></i></button><button ${P.ready || i === 4 ? 'disabled' : ''} onclick="pvpPlaceMove(${i},1)" aria-label="Descendre"><i class="fa-solid fa-chevron-down"></i></button></div></div>`; }).join('');
+                return `<div class="pv-prow"><b>${i + 1}</b>${pvThumb(c, photo(c))}<div class="n">${esc(c.n || '?')}<small>${esc(c.sp || '')}</small></div><div class="sc">${c.s != null ? c.s : '?'}</div><div class="pv-mv"><button ${P.ready || i === 0 ? 'disabled' : ''} onclick="pvpPlaceMove(${i},-1)" aria-label="Monter"><i class="fa-solid fa-chevron-up"></i></button><button ${P.ready || i === 4 ? 'disabled' : ''} onclick="pvpPlaceMove(${i},1)" aria-label="Descendre"><i class="fa-solid fa-chevron-down"></i></button></div></div>`; }).join('');
             const status = P.ready ? (P.oppReady ? 'Les deux joueurs sont prêts…' : "Ordre verrouillé. En attente de l'adversaire…") : (P.oppReady ? "L'adversaire est prêt, c'est à toi !" : "L'adversaire choisit encore son ordre…");
-            el.innerHTML = `<div class="pv-place-h"><span><i class="fa-solid fa-arrow-down-1-9"></i> Ordre de tes athlètes</span><span class="pv-timer ${P.left <= 10 ? 'low' : ''}">${Math.max(0, P.left)} s</span></div>
-                <div class="pv-s" style="margin:4px 0 2px">Le duel n°1 oppose ton athlète n°1 au n°1 de l'adversaire, et ainsi de suite. Son ordre est secret : le gagnant de chaque duel marque l'écart des notes.</div>${rows}
-                <div class="pv-s" style="margin-top:10px">Athlètes adverses (ordre inconnu)</div><div class="pv-opp">${opp.map(c => `<span>${esc(c.n)}<b>${c.s}</b></span>`).join('')}</div>
-                <div class="pv-end-actions" style="margin-top:12px"><button class="pv-btn off" ${P.ready ? 'disabled' : ''} onclick="pvpPlaceSort()">Trier par note</button><button class="pv-btn" ${P.ready ? 'disabled' : ''} onclick="pvpPlaceReady()"><i class="fa-solid fa-check"></i> Prêt</button></div>
-                <div class="pv-s" style="margin-top:8px;text-align:center">${status}</div>`;
+            el.innerHTML = `<div class="pv-place-h"><span><i class="fa-solid fa-arrow-down-1-9"></i> Ordre des duels</span><span id="pv-timer" class="pv-timer ${P.left <= 10 ? 'low' : ''}">${Math.max(0, P.left)} s</span></div>
+                <div class="pv-s" style="margin:6px 0 4px">Le duel n°1 oppose ton athlète n°1 au n°1 de l'adversaire. Son ordre est secret : chaque duel gagné rapporte l'écart des notes.</div>${rows}
+                <div class="pv-s" style="margin-top:12px">Athlètes adverses (ordre inconnu)</div><div class="pv-opp">${opp.map(c => `<span>${esc(c.n)}<b>${c.s}</b></span>`).join('')}</div>
+                <div class="pv-end-actions" style="margin-top:14px"><button class="pv-btn off" ${P.ready ? 'disabled' : ''} onclick="pvpPlaceSort()"><i class="fa-solid fa-arrow-down-wide-short"></i> Trier par note</button><button class="pv-go sm" ${P.ready ? 'disabled' : ''} onclick="pvpPlaceReady()"><i class="fa-solid fa-check"></i> Prêt</button></div>
+                <div class="pv-s pv-status ${P.oppReady ? 'ok' : ''}">${status}</div>`;
         }
 
         // ===== HISTORIQUE DES COMBATS =====
@@ -2774,7 +3042,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         return `<tr><td class="${d > 0 ? 'w' : d < 0 ? 'l' : ''}">${esc(h.my[i].n)} <small>(${a})</small></td><td class="r ${d > 0 ? 'w' : d < 0 ? 'l' : ''}">${d > 0 ? '+' + d : d < 0 ? '−' + (-d) : '='}</td><td class="${d < 0 ? 'w' : d > 0 ? 'l' : ''}" style="text-align:right">${esc(h.their[i].n)} <small>(${b})</small></td></tr>`; }).join('')
                         + `<tr><td class="${h.ta > h.tb ? 'w' : h.ta < h.tb ? 'l' : ''}"><i class="fa-solid fa-bolt"></i> Équipe <small>(${h.ta})</small></td><td class="r">×2 : ${h.ta === h.tb ? '=' : (h.ta > h.tb ? '+' : '−') + Math.abs(h.ta - h.tb) * PVP_TEAM_PTS}</td><td style="text-align:right" class="${h.tb > h.ta ? 'w' : h.tb < h.ta ? 'l' : ''}">Équipe <small>(${h.tb})</small></td></tr></table></div>`;
                 }
-                return `<div class="pv-hi"><div class="pv-hi-top"><span class="pv-badge ${h.res}">${lbl}</span><div style="flex:1;min-width:120px"><div class="pv-t">vs ${esc(h.opp)} · <span style="font-family:monospace">${h.pa} - ${h.pb}</span></div><div class="pv-s">${when} · ${h.me.ovr} OVR contre ${h.op.ovr} OVR · ${sp}</div></div><button class="pv-btn off" onclick="pvpHistoryToggle(${h.t})">${open ? 'Masquer' : 'Détail'}</button><button class="pv-btn" onclick="pvpReplay(${h.t})"><i class="fa-solid fa-play"></i> Revoir</button></div>${det}</div>`;
+                return `<div class="pv-hi"><div class="pv-hi-top"><span class="pv-badge ${h.res}">${lbl}</span><div style="flex:1;min-width:120px"><div class="pv-t">vs ${esc(h.opp)} · <span style="font-family:monospace">${h.pa} - ${h.pb}</span></div><div class="pv-s">${when} · ${h.me.ovr} OVR contre ${h.op.ovr} OVR · ${sp}</div></div><div class="pv-hi-b"><button class="pv-btn off" onclick="pvpHistoryToggle(${h.t})" aria-label="${open ? 'Masquer le détail' : 'Voir le détail'}"><i class="fa-solid ${open ? 'fa-chevron-up' : 'fa-list'}"></i><span class="hl"> ${open ? 'Masquer' : 'Détail'}</span></button><button class="pv-btn" onclick="pvpReplay(${h.t})" aria-label="Revoir le combat"><i class="fa-solid fa-play"></i><span class="hl"> Revoir</span></button></div></div>${det}</div>`;
             }).join('') + '</div>';
         }
         function pvpReplayClose() { pvpReplaying = false; const ov = $('pv-replay'); if (ov) { ov.classList.remove('on'); ov.innerHTML = ''; } }
@@ -2790,7 +3058,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             try {
                 await pvpPlay({ ra: h.ra, rb: h.rb, ta: h.ta, tb: h.tb, oa: IDENT5, ob: IDENT5 }, L, R);
                 if (!pvpReplaying) return;
-                $('pv-end').innerHTML = `<div class="pv-end ${h.res}"><h4>${h.res === 'w' ? 'VICTOIRE' : h.res === 'd' ? 'ÉGALITÉ' : 'DÉFAITE'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Score final : <b>${h.pa} - ${h.pb}</b></div></div>`;
+                $('pv-end').innerHTML = pvpEndHTML(h.res, h.res === 'w' ? 'VICTOIRE ! 🏆' : h.res === 'd' ? 'ÉGALITÉ 🤝' : 'DÉFAITE', h.pa, h.pb,
+                    h.stake ? `<b class="${h.net > 0 ? 'up' : h.net < 0 ? 'down' : ''}">${h.net > 0 ? '+' : ''}${h.net} SP</b>` : 'Combat amical', 'Replay', '<button class="pv-btn off" onclick="pvpReplayClose()"><i class="fa-solid fa-xmark"></i> Fermer</button>');
+                try { $('pv-end').scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { }
             } catch (e) { /* replay fermé en cours de route */ }
         }
 
@@ -2819,11 +3089,9 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function pvpBack() { try { if (socket && socket.connected) { if (pvpQueueing) socket.emit('cancel_queue'); else if (currentRoomCode) socket.emit('leave_room'); } } catch (e) { } pvpReset(); }
 
         const grpTag = p => (!p.group || pvpRoomMode === 'classic') ? '' : `<small style="color:#22d3ee">${esc(pvpRoomMode === 'nation' ? teamCountryName(p.group) : p.group)}</small>`;
-        const sideInfo = (p, you) => `${esc(p.name)}${you ? ' (toi)' : ''}<small>${p.ovr} OVR${p.bonus ? ' · bonus +' + p.bonus : ''} · <span id="pv-t${you ? 'a' : 'b'}">0</span> pts</small>${grpTag(p)}`;
         async function pvpFill(el, c, i) {
             const img = c && c.sl ? await fetchWikiPhoto(c.sl).catch(() => fallbackImage) : '';
-            const ico = `<i class="fa-solid ${(c && sportIcons[c.sp]) || 'fa-user'}"></i>`;
-            el.innerHTML = `<div class="pv-av">${ico}${img ? `<img alt="" src="${esc(img)}" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}</div><div class="tx"><div class="n">${esc(c ? c.n : 'Athlète ' + (i + 1))}</div><div class="m">${c ? `<i class="fa-solid ${sportIcons[c.sp] || 'fa-trophy'}"></i> ${esc(c.sp)}` : ''}</div></div><div class="sc">?</div>`;
+            el.innerHTML = `${pvThumb(c, img)}<div class="sc">?</div><div class="tx"><div class="n">${esc(c ? c.n : 'Athlète ' + (i + 1))}</div><div class="m">${c ? `<i class="fa-solid ${sportIcons[c.sp] || 'fa-trophy'}"></i> ${esc(c.sp)}` : ''}</div></div>`;
         }
         function pvpRounds(side, cards, S, seed) {
             if (Array.isArray(side.rounds) && side.rounds.length === 5) return side.rounds.map(Number);
@@ -2855,10 +3123,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         }
         function pvpFillTeam(el, p, you) {
             const bonus = Number(p.bonus) || 0, avg = Math.round((Number(p.ovr) || 0) - bonus);
-            el.innerHTML = `<div class="pv-av"><i class="fa-solid fa-users"></i></div><div class="tx"><div class="n">${esc(p.name)}${you ? ' (toi)' : ''}</div><div class="m">Moyenne ${avg} + bonus ${bonus}</div></div><div class="sc">?</div>`;
+            el.innerHTML = `<div class="pv-th team"><i class="fa-solid fa-users"></i></div><div class="sc">?</div><div class="tx"><div class="n">Équipe${you ? '' : ' adverse'}</div><div class="m">Moyenne ${avg} + bonus ${bonus}</div></div>`;
         }
         async function pvpPlay(sc, L = pvpPl[pvpMe], R = pvpPl[1 - pvpMe]) {
             const arena = $('pv-arena'), { ra, rb } = sc, oa = ord5(sc.oa), ob = ord5(sc.ob);
+            try { arena.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { }
             for (const t of ['3', '2', '1', 'COMBAT !']) { if (t === 'COMBAT !') pvpSfx.go(); else pvpSfx.count(+t); const c = document.createElement('div'); c.className = 'pv-count'; c.textContent = t; arena.appendChild(c); await sleep(800); c.remove(); }
             let pa = 0, pb = 0;
             for (let i = 0; i < 6; i++) {
@@ -2871,6 +3140,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 countUp(fa.querySelector('.sc'), va, 450); countUp(fb.querySelector('.sc'), vb, 450); await sleep(team ? 700 : 480);
                 const a = va > vb, b = vb > va, pts = Math.abs(va - vb) * (team ? PVP_TEAM_PTS : 1);
                 fa.classList.add(a ? 'win' : b ? 'lose' : 'x'); fb.classList.add(b ? 'win' : a ? 'lose' : 'x');
+                lane.children[1].innerHTML = `<span class="pv-gain ${a ? 'a' : b ? 'b' : ''}">${pts ? '+' + pts : '='}</span>`;
                 lane.classList.add('hit'); if (team) pvpSfx.big(); else pvpSfx.clash();
                 setTimeout(() => { if (a) pvpSfx.win(); else if (b) pvpSfx.miss(); }, 140);
                 arena.classList.add('pv-shake'); setTimeout(() => arena.classList.remove('pv-shake'), 420);
@@ -2902,7 +3172,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             [...(L.cards || []), ...(R.cards || [])].forEach(c => c && c.sl && fetchWikiPhoto(c.sl));
             if (stake > userState.sportsPoints) { showToast(`Mise de ${stake} SP : tu n'as pas assez de SP.`, 'error'); socket.emit('decline_match', currentRoomCode); pvpReset(); return; }
             pvpStake = stake; const p = pv(); p.escrow = stake; userState.sportsPoints -= stake; saveUser(); updateUI();
-            pvpEnterArena(); $('pvp-waiting-msg').textContent = stake ? `Mise bloquée : ${stake} SP chacun` : 'Adversaire connecté ! Combat amical.';
+            pvpEnterArena(); $('pvp-arena-panel').classList.add('in-match'); $('pvp-waiting-msg').textContent = stake ? `Mise bloquée : ${stake} SP chacun` : 'Adversaire connecté ! Combat amical.';
             const st = $('pvp-stage'); st.classList.remove('hidden');
             st.innerHTML = pvpStageHTML(L, R, stake ? '<i class="fa-solid fa-coins"></i> POT ' + stake * 2 + ' SP' : 'COMBAT AMICAL', modeTag, !!data.placement);
             if (data.placement) pvpPlaceStart(data); else if (pvpMe === 0) $('btn-start-battle').classList.remove('hidden');
@@ -2925,11 +3195,16 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             else if (draw) { net = 0; p.d++; p.streak = 0; } else { p.l++; p.streak = 0; }
             // les combats amicaux ne rapportent rien : ils ne comptent ni pour les objectifs du jour ni pour ceux avec mise
             if (!friendly) { p.sp++; dailyAdd('fights'); if (won) { p.sw++; p.sstreak++; p.sbest = Math.max(p.sbest, p.sstreak); dailyAdd('wins'); if (stake >= 500) p.bet500++; } else p.sstreak = 0; }
-            p.escrow = 0; userState.sportsPoints += won ? stake * 2 : draw ? stake : 0; // le gagnant prend sa mise + celle du perdant saveUser(); updateUI();
+            p.escrow = 0; userState.sportsPoints += won ? stake * 2 : draw ? stake : 0; saveUser(); updateUI(); // le gagnant prend sa mise + celle du perdant
             pvpHistoryAdd(sc, tl, won, draw, net, stake);
             await pvpPlay(sc);
             const cls = won ? 'w' : draw ? 'd' : 'l', arena = $('pv-arena');
-            $('pv-end').innerHTML = `<div class="pv-end ${cls}"><h4>${won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE 💀'}</h4><div class="pv-s" style="margin:6px 0 12px;font-size:13px">Duels d'athlètes : ${wa}/5 · Duel d'équipe : ${tl.teamRes > 0 ? 'gagné (+' + (sc.ta - sc.tb) * PVP_TEAM_PTS + ')' : tl.teamRes < 0 ? 'perdu' : 'égalité'}<br>Score final : <b>${tl.pa} - ${tl.pb}</b><br><b style="color:${net > 0 ? '#fbbf24' : net < 0 ? '#fb7185' : '#cbd5e1'}">${net > 0 ? '+' : ''}${net} SP</b></div><div class="pv-end-actions"><button id="pv-rematch" class="pv-go sm" onclick="pvpRematch()"></button><button class="pv-btn" onclick="pvpBack()">Retour à l'arène</button></div></div>`;
+            const teamTxt = tl.teamRes > 0 ? 'gagné (+' + (sc.ta - sc.tb) * PVP_TEAM_PTS + ')' : tl.teamRes < 0 ? 'perdu' : 'égalité';
+            $('pv-end').innerHTML = pvpEndHTML(cls, won ? 'VICTOIRE ! 🏆' : draw ? 'ÉGALITÉ 🤝' : 'DÉFAITE', tl.pa, tl.pb,
+                friendly ? 'Combat amical' : `<b class="${net > 0 ? 'up' : net < 0 ? 'down' : ''}">${net > 0 ? '+' : ''}${net} SP</b>`,
+                `Duels gagnés : ${wa}/5 · Duel d'équipe : ${teamTxt}`,
+                `<button id="pv-rematch" class="pv-go sm" onclick="pvpRematch()"></button><button class="pv-btn off" onclick="pvpBack()"><i class="fa-solid fa-arrow-left"></i> Retour à l'arène</button>`);
+            try { $('pv-end').scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { }
             pvpRematchRender();
             if (won) { confetti(arena); playSparkleSound(); showToast(friendly ? 'Victoire amicale !' : `Victoire PvP ! +${net} SP`, 'success'); }
             else if (draw) pvpSfx.draw(); else pvpSfx.defeat();
@@ -2947,6 +3222,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         renderSportProgress(); renderPvPObjectives(); renderStakeChips(); renderModeChips(); renderPvpHistory();
         fillTargetValues();
+        (() => { const d = document.getElementById('col-stats'); if (!d) return; try { if (localStorage.getItem('stc_ui_stats_open') === '1') d.open = true; } catch (e) { } d.addEventListener('toggle', () => { try { localStorage.setItem('stc_ui_stats_open', d.open ? '1' : '0'); } catch (e) { } }); })();
         initUser();
         pvpRefund(); // onglet fermé pendant un salon : la mise bloquée revient au joueur
         renderStakeChips();
