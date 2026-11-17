@@ -1077,6 +1077,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         <p>Ta collection est enregistrée dans ce navigateur. Copie ton code de sauvegarde ou télécharge un fichier pour ne jamais la perdre.</p>
                         <button class="pv-btn" style="align-self:flex-start" onclick="openSaveModal()"><i class="fa-solid fa-shield-halved"></i> Sauvegarde &amp; restauration</button>
                     </div>
+                    <div class="st-card">
+                        <h3><i class="fa-solid fa-camera" style="color:#a78bfa"></i> Crédits photos</h3>
+                        <p>Les photos des athlètes viennent de Wikipédia et Wikimedia Commons, sous licences libres. Leurs auteurs sont cités ici.</p>
+                        <a class="pv-btn off" style="align-self:flex-start;text-decoration:none" href="credits.html"><i class="fa-solid fa-camera"></i> Voir les crédits</a>
+                    </div>
                 </div>
             </section>
 
@@ -1282,7 +1287,19 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         // Photo déjà connue (fichier préparé ou cache du navigateur), sans rien demander à Wikipédia.
         // On reprend d'abord l'adresse déjà en cache : la photo est alors déjà téléchargée sur l'appareil.
-        const knownPhoto = slug => { const c = wikiImageCache[slug]; return (c && c !== fallbackImage) ? c : ((typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) || c); };
+        // Ordre : photo hébergée avec le jeu (instantanée), puis adresse déjà en cache, puis photo d'origine sur Wikimedia.
+        const knownPhoto = slug => {
+            if (typeof PHOTO_LOCAL !== 'undefined' && PHOTO_LOCAL[slug]) return PHOTO_LOCAL[slug];
+            const c = wikiImageCache[slug]; return (c && c !== fallbackImage) ? c : ((typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) || c);
+        };
+        const remotePhoto = slug => (typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) || wikiImageCache[slug] || '';
+        // Grande carte : la photo locale s'affiche tout de suite, puis la version 500 px la remplace une fois chargée.
+        function cardImgLoad(img) {
+            if (img.naturalWidth > 1) img.classList.add('ld');
+            const b = img.dataset.big; if (!b) return; img.dataset.big = '';
+            const pre = new Image(); pre.referrerPolicy = 'no-referrer'; pre.onload = () => { if (img.isConnected) img.src = b; }; pre.src = b;
+        }
+        function cardImgError(img) { const a = img.dataset.alt; if (a) { img.dataset.alt = ''; img.src = a; } else { img.onerror = null; img.src = fallbackImage; } }
         function fetchWikiPhoto(slug) {
             // Adresses préparées à l'avance (photos-data.js) : aucune demande à Wikipédia, la photo arrive tout de suite.
             const known = knownPhoto(slug); if (known && known !== fallbackImage) return Promise.resolve(known);
@@ -2030,7 +2047,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const finalScore = getAthleteCalculatedScore(athlete), eqList = userState.athleteEquipments[athlete.id] || [];
             const countryCode = (athlete.country || 'fr').toLowerCase(), flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
             const level = isOwned && !isVintage ? cardLevel(athlete.id) : 0, fav = !!(userState.favorites && userState.favorites[athlete.id]);
-            const big = isLarge ? bigPhoto(imgSrc) : '';
+            const remote = remotePhoto(athlete.wikiSlug), big = isLarge ? bigPhoto(remote) : '', alt = remote && remote !== imgSrc ? remote : '';
             const canRecycle = count > 1 && !isSummary && isOwned && !isOpeningMode && !isVintage;
 
             const clickAction = isOpeningMode ? `onclick="event.stopPropagation(); revealNextCardInPack()"` : (!isSummary && isOwned ? `onclick="openZoomCard('${athlete.id}')"` : '');
@@ -2041,7 +2058,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 <div class="pokemon-card ${rClass} ${sizeClass} ${!isOwned ? 'opacity-30 grayscale' : ''}" ${clickAction} ${clickAction ? 'role="button" tabindex="0" aria-label="' + athlete.name + '"' : ''}>
                     <div class="card-image-container">
                         <i class="fa-solid ${sIcon} pc-ph" aria-hidden="true"></i>
-                        <img alt="${athlete.name}" src="${big || imgSrc}" ${big ? `data-small="${imgSrc}"` : ''} data-slug="${athlete.wikiSlug}" class="wiki-card-img" ${isLarge || isOpeningMode ? '' : 'loading="lazy" decoding="async"'} referrerpolicy="no-referrer" onload="if(this.naturalWidth>1)this.classList.add('ld')" onerror="if(this.dataset.small&&!this.dataset.f){this.dataset.f=1;this.src=this.dataset.small}else{this.onerror=null;this.src='${fallbackImage}'}">
+                        <img alt="${athlete.name}" src="${imgSrc}" ${big && big !== imgSrc ? `data-big="${big}"` : ''} ${alt ? `data-alt="${alt}"` : ''} data-slug="${athlete.wikiSlug}" class="wiki-card-img" ${isLarge || isOpeningMode ? '' : 'loading="lazy" decoding="async"'} referrerpolicy="no-referrer" onload="cardImgLoad(this)" onerror="cardImgError(this)">
                         <div class="pc-shade"></div>
                     </div>
                     <div class="card-inner-border"></div>
@@ -3006,7 +3023,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function pvpPlaceRender() {
             const el = $('pv-place'); if (!el || !pvpPlace) return;
             const P = pvpPlace, cards = pvpPl[pvpMe].cards || [], opp = (pvpPl[1 - pvpMe].cards || []).slice().sort((a, b) => b.s - a.s);
-            const photo = c => c && c.sl ? wikiImageCache[c.sl] : '';
+            const photo = c => c && c.sl ? knownPhoto(c.sl) : '';
             const rows = P.order.map((ci, i) => { const c = cards[ci] || {};
                 return `<div class="pv-prow"><b>${i + 1}</b>${pvThumb(c, photo(c))}<div class="n">${esc(c.n || '?')}<small>${esc(c.sp || '')}</small></div><div class="sc">${c.s != null ? c.s : '?'}</div><div class="pv-mv"><button ${P.ready || i === 0 ? 'disabled' : ''} onclick="pvpPlaceMove(${i},-1)" aria-label="Monter"><i class="fa-solid fa-chevron-up"></i></button><button ${P.ready || i === 4 ? 'disabled' : ''} onclick="pvpPlaceMove(${i},1)" aria-label="Descendre"><i class="fa-solid fa-chevron-down"></i></button></div></div>`; }).join('');
             const status = P.ready ? (P.oppReady ? 'Les deux joueurs sont prêts…' : "Ordre verrouillé. En attente de l'adversaire…") : (P.oppReady ? "L'adversaire est prêt, c'est à toi !" : "L'adversaire choisit encore son ordre…");
@@ -3232,7 +3249,16 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         initUser();
         pvpRefund(); // onglet fermé pendant un salon : la mise bloquée revient au joueur
         renderStakeChips();
-        if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+        if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+            // Une fois le jeu affiché, le service worker télécharge en arrière-plan les photos de tes cartes, puis toutes les autres :
+            // ensuite tout s'affiche instantanément, même hors ligne. Rien en mode « économie de données ».
+            navigator.serviceWorker.ready.then(reg => setTimeout(() => {
+                if (!reg.active || typeof PHOTO_LOCAL === 'undefined' || (navigator.connection && navigator.connection.saveData)) return;
+                const mine = allCardsData.filter(a => (userState.collection[a.id] || 0) > 0).map(a => PHOTO_LOCAL[a.wikiSlug]);
+                reg.active.postMessage({ type: 'precache-photos', urls: [...new Set([...mine, ...Object.values(PHOTO_LOCAL)].filter(Boolean))] });
+            }, 5000)).catch(() => {});
+        }
     </script>
 </body>
 </html>
