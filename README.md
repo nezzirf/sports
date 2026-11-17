@@ -10,6 +10,7 @@ Jouer : https://nezzirf.github.io/sports/
 | --- | --- |
 | `index.html` | Le jeu (interface, logique, styles) |
 | `athletes-data.js` | Athlètes, équipements, valeurs de recyclage |
+| `photos-data.js` | Adresse de la photo de chaque carte (généré par `scripts/build-photos.js`) |
 | `tailwind.css` | CSS généré, ne pas modifier à la main |
 | `sw.js`, `manifest.webmanifest` | Application installable et mode hors ligne |
 | `server.js` | Serveur PvP (Express + Socket.IO) |
@@ -36,6 +37,8 @@ npm run build:css
 ```
 
 Relance `npm run build:css` dès que tu utilises une nouvelle classe Tailwind dans `index.html`.
+
+Relance `npm run build:photos` après avoir ajouté ou corrigé des athlètes : il régénère `photos-data.js` (l'adresse de la photo Wikipédia de chaque carte). Une carte absente de ce fichier est cherchée sur Wikipédia pendant le jeu, comme avant.
 
 Dans `athletes-data.js`, ajoute les nouveaux athlètes à la fin de `rawData` : ne réordonne jamais les 749 premiers, les anciennes sauvegardes en dépendent.
 

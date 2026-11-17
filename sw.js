@@ -1,6 +1,6 @@
 /* Service worker : jeu utilisable hors ligne. Change VERSION pour forcer une mise à jour du cache. */
-const VERSION = 'stc-v4', EXT = 'stc-ext-v3', MAX_EXT = 700;
-const SHELL = ['./', 'index.html', 'athletes-data.js', 'tailwind.css', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'logo.png', 'logo1.png', 'booster.png'];
+const VERSION = 'stc-v5', EXT = 'stc-ext-v3', MAX_EXT = 700;
+const SHELL = ['./', 'index.html', 'athletes-data.js', 'photos-data.js', 'tailwind.css', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'logo.png', 'logo1.png', 'booster.png'];
 self.addEventListener('install', e => e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(SHELL.map(u => c.add(new Request(u, { cache: 'reload' }))))).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION && k !== EXT).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', e => {

@@ -554,7 +554,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 .pokemon-card .card-image-container{background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--border-color,#64748b) 32%,#0b0f19),#0b0f19 78%)}
 .pc-ph{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);z-index:0;font-size:34px;color:color-mix(in srgb,var(--border-color,#64748b) 60%,transparent);opacity:.5;pointer-events:none}
 @supports (width:1cqw){.pc-ph{font-size:clamp(22px,34cqw,110px)}}
-.pokemon-card .wiki-card-img{position:relative;z-index:1;opacity:0;transition:opacity .45s ease}
+.pokemon-card .wiki-card-img{position:relative;z-index:1;opacity:0;transition:opacity .2s ease}
 .pokemon-card .wiki-card-img.ld{opacity:1}
 .pc-shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(to top,rgba(0,0,0,.85),transparent 46%,rgba(0,0,0,.42))}
 /* colonnes du haut : à gauche l'identité (sport, niveau, favori), à droite la valeur (note, NEW, quantité) */
@@ -1221,6 +1221,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
     </div>
 
     <script src="athletes-data.js"></script>
+    <script src="photos-data.js"></script>
     <script>
         if (typeof rawData === 'undefined') { document.body.innerHTML = '<p style="color:#fff;padding:2rem;font-family:sans-serif">Fichier <b>athletes-data.js</b> introuvable.</p>'; throw new Error('athletes-data.js manquant'); }
         
@@ -1279,7 +1280,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         async function wikiSlot() { if (wikiActive >= 6) await new Promise(r => wikiWaiters.push(r)); wikiActive++; }
         function wikiFree() { wikiActive--; const w = wikiWaiters.shift(); if (w) w(); }
 
+        // Photo déjà connue (fichier préparé ou cache du navigateur), sans rien demander à Wikipédia.
+        const knownPhoto = slug => (typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) || wikiImageCache[slug];
         function fetchWikiPhoto(slug) {
+            // Adresses préparées à l'avance (photos-data.js) : aucune demande à Wikipédia, la photo arrive tout de suite.
+            if (typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) return Promise.resolve(PHOTO_URLS[slug]);
             if (wikiImageCache[slug] !== undefined) return Promise.resolve(wikiImageCache[slug]);
             if (wikiInflight.has(slug)) return wikiInflight.get(slug);
             const p = (async () => {
@@ -2019,7 +2024,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const isVintage = athlete.rarityId === R_VINTAGE;
             const rClass = isVintage ? 'rarity-vintage' : `rarity-${athlete.rarityId}`;
             const sIcon = sportIcons[athlete.sport] || 'fa-trophy', sizeClass = isLarge ? "w-64 sm:w-72 md:w-80" : "w-full";
-            const isHolo = athlete.rarityId >= R_ULT && !isVintage, imgSrc = imageUrl || wikiImageCache[athlete.wikiSlug] || fallbackImage;
+            const isHolo = athlete.rarityId >= R_ULT && !isVintage, imgSrc = imageUrl || knownPhoto(athlete.wikiSlug) || fallbackImage;
             const count = userState.collection[athlete.id] || 0, doublonsCount = Math.max(0, count - 1), spEarn = spRecycleValues[athlete.rarityId] || 1;
             const finalScore = getAthleteCalculatedScore(athlete), eqList = userState.athleteEquipments[athlete.id] || [];
             const countryCode = (athlete.country || 'fr').toLowerCase(), flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
@@ -2185,7 +2190,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                     entries.forEach(async entry => {
                         if (entry.isIntersecting) {
                             const img = entry.target, slug = img.getAttribute('data-slug');
-                            if (slug && !wikiImageCache[slug]) img.src = await fetchWikiPhoto(slug);
+                            if (slug && !knownPhoto(slug)) img.src = await fetchWikiPhoto(slug);
                             observer.unobserve(img);
                         }
                     });
