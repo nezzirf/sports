@@ -1281,10 +1281,11 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function wikiFree() { wikiActive--; const w = wikiWaiters.shift(); if (w) w(); }
 
         // Photo déjà connue (fichier préparé ou cache du navigateur), sans rien demander à Wikipédia.
-        const knownPhoto = slug => (typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) || wikiImageCache[slug];
+        // On reprend d'abord l'adresse déjà en cache : la photo est alors déjà téléchargée sur l'appareil.
+        const knownPhoto = slug => { const c = wikiImageCache[slug]; return (c && c !== fallbackImage) ? c : ((typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) || c); };
         function fetchWikiPhoto(slug) {
             // Adresses préparées à l'avance (photos-data.js) : aucune demande à Wikipédia, la photo arrive tout de suite.
-            if (typeof PHOTO_URLS !== 'undefined' && PHOTO_URLS[slug]) return Promise.resolve(PHOTO_URLS[slug]);
+            const known = knownPhoto(slug); if (known && known !== fallbackImage) return Promise.resolve(known);
             if (wikiImageCache[slug] !== undefined) return Promise.resolve(wikiImageCache[slug]);
             if (wikiInflight.has(slug)) return wikiInflight.get(slug);
             const p = (async () => {
@@ -2040,7 +2041,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 <div class="pokemon-card ${rClass} ${sizeClass} ${!isOwned ? 'opacity-30 grayscale' : ''}" ${clickAction} ${clickAction ? 'role="button" tabindex="0" aria-label="' + athlete.name + '"' : ''}>
                     <div class="card-image-container">
                         <i class="fa-solid ${sIcon} pc-ph" aria-hidden="true"></i>
-                        <img alt="${athlete.name}" src="${big || imgSrc}" ${big ? `data-small="${imgSrc}"` : ''} data-slug="${athlete.wikiSlug}" class="wiki-card-img" referrerpolicy="no-referrer" onload="if(this.naturalWidth>1)this.classList.add('ld')" onerror="if(this.dataset.small&&!this.dataset.f){this.dataset.f=1;this.src=this.dataset.small}else{this.onerror=null;this.src='${fallbackImage}'}">
+                        <img alt="${athlete.name}" src="${big || imgSrc}" ${big ? `data-small="${imgSrc}"` : ''} data-slug="${athlete.wikiSlug}" class="wiki-card-img" ${isLarge || isOpeningMode ? '' : 'loading="lazy" decoding="async"'} referrerpolicy="no-referrer" onload="if(this.naturalWidth>1)this.classList.add('ld')" onerror="if(this.dataset.small&&!this.dataset.f){this.dataset.f=1;this.src=this.dataset.small}else{this.onerror=null;this.src='${fallbackImage}'}">
                         <div class="pc-shade"></div>
                     </div>
                     <div class="card-inner-border"></div>
