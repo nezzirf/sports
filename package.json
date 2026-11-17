@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --test",
+    "build:photos": "node scripts/build-photos.js",
     "build:css": "tailwindcss -c tailwind.config.js -i tailwind-input.css -o tailwind.css --minify"
   },
   "dependencies": {
