@@ -1,7 +1,7 @@
 /* Service worker : jeu utilisable hors ligne. Change VERSION pour forcer une mise à jour du cache. */
-const VERSION = 'stc-v3', EXT = 'stc-ext-v3', MAX_EXT = 700;
+const VERSION = 'stc-v4', EXT = 'stc-ext-v3', MAX_EXT = 700;
 const SHELL = ['./', 'index.html', 'athletes-data.js', 'tailwind.css', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'logo.png', 'logo1.png', 'booster.png'];
-self.addEventListener('install', e => e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(SHELL.map(u => c.add(u)))).then(() => self.skipWaiting())));
+self.addEventListener('install', e => e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(SHELL.map(u => c.add(new Request(u, { cache: 'reload' }))))).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION && k !== EXT).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', e => {
   const r = e.request; if (r.method !== 'GET') return;
@@ -9,8 +9,12 @@ self.addEventListener('fetch', e => {
   // Serveur PvP : temps réel, jamais de cache (sinon les requêtes Socket.IO remplissent le cache des photos).
   if (url.pathname.startsWith('/socket.io/')) return;
   if (url.origin === location.origin) {
-    // Fichiers du jeu : réseau d'abord (les mises à jour GitHub arrivent tout de suite), cache en secours hors ligne.
-    e.respondWith(fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(VERSION).then(c => c.put(r, cp)); } return res; })
+    // Fichiers du jeu : réseau d'abord, cache en secours hors ligne. On revalide toujours auprès de GitHub (réponse 304
+    // rapide si rien n'a changé) : sinon le navigateur pouvait garder l'ancienne page jusqu'à 10 minutes et la mélanger
+    // avec le nouveau fichier de styles (cartes avec tous les badges empilés en haut à gauche).
+    let fresh = r;
+    try { fresh = new Request(r, { cache: 'no-cache' }); } catch (err) { /* navigateur ancien : requête telle quelle */ }
+    e.respondWith(fetch(fresh).then(res => { if (res.ok) { const cp = res.clone(); caches.open(VERSION).then(c => c.put(r, cp)); } return res; })
       .catch(() => caches.match(r).then(m => m || caches.match('index.html'))));
     return;
   }
