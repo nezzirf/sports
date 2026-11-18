@@ -1,7 +1,8 @@
 /* DONNÉES DU JEU (athlètes, équipements, valeurs de recyclage). Fichier à garder à côté de index.html.
-   Règles : ne jamais réordonner/insérer avant la fin des 749 premiers athlètes ; ajoute les nouveaux À LA FIN de rawData. */
+   Règles : ne jamais réordonner/insérer avant la fin des 749 premiers athlètes ; ajoute les nouveaux À LA FIN de rawData.
+   Un athlète qui prend sa retraite n'est pas supprimé de rawData : on ajoute son nom dans retiredAthletes (en bas). */
 const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA=7, S_COMB=8, S_HAND=9;
-        const R_COM=0, R_PEU=1, R_RAR=2, R_ULT=3, R_LEG=4, R_MYT=5, R_VINTAGE=6;
+        const R_COM=0, R_PEU=1, R_RAR=2, R_ULT=3, R_LEG=4, R_MYT=5, R_VINTAGE=6, R_RETIRED=7;
 
         const spRecycleValues = {
             [R_COM]: 3,
@@ -275,5 +276,37 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             ["Grace Zaadi",S_HAND,0,93,"Grace_Zaadi", "FR"], ["Estelle Nze Minko",S_HAND,0,96,"Estelle_Nze_Minko", "FR"], ["Pauletta Foppa",S_HAND,0,94,"Pauletta_Foppa", "FR"], 
             ["Laura Glauser",S_HAND,0,93,"Laura_Glauser", "FR"], ["Hadja Cissé",S_HAND,0,83,null,"FR"], ["Coralie Lassource",S_HAND,0,88,null,"FR"], 
             ["Chloé Valentini",S_HAND,0,92,"Chloé_Valentini", "FR"], ["Orlane Kanor",S_HAND,0,92,"Orlane_Kanor", "FR"], ["Méline Nocandy",S_HAND,0,87,null,"FR"], 
-            ["Tamara Horacek",S_HAND,0,87,null,"FR"], ["Alicia Toublanc",S_HAND,0,88,null,"FR"], ["Déborah Lassource",S_HAND,0,85,null,"FR"]
+            ["Tamara Horacek",S_HAND,0,87,null,"FR"], ["Alicia Toublanc",S_HAND,0,88,null,"FR"], ["Déborah Lassource",S_HAND,0,85,null,"FR"],
+
+            // ===== Ajouts novembre 2026 : remplaçants des retraités + athlètes demandés =====
+            ["Ewa Pajor",S_FOOT,0,93,"Ewa_Pajor","PL"], ["Khadija Shaw",S_FOOT,0,92,"Khadija_Shaw","JM"],
+            ["Paige Bueckers",S_BASK,0,92,"Paige_Bueckers","US"], ["Aliyah Boston",S_BASK,0,91,"Aliyah_Boston","US"], ["Nneka Ogwumike",S_BASK,0,90,"Nneka_Ogwumike","US"],
+            ["Amanda Anisimova",S_TENN,0,93,"Amanda_Anisimova","US"], ["Karolína Muchová",S_TENN,0,89,"Karolína_Muchová","CZ"], ["Ekaterina Alexandrova",S_TENN,0,88,"Ekaterina_Alexandrova","RU"],
+            ["Clara Tauson",S_TENN,0,88,"Clara_Tauson","DK"], ["Emma Navarro",S_TENN,0,88,"Emma_Navarro","US"], ["Victoria Mboko",S_TENN,0,87,"Victoria_Mboko","CA"], ["Linda Nosková",S_TENN,0,87,"Linda_Nosková","CZ"],
+            ["Isack Hadjar",S_F1,0,87,"Isack_Hadjar","FR"], ["Arvid Lindblad",S_F1,0,83,"Arvid_Lindblad","GB-ENG"],
+            ["Pauline Ferrand-Prévot",S_CYCL,0,97,"Pauline_Ferrand-Prévot","FR"], ["Anna van der Breggen",S_CYCL,0,93,"Anna_van_der_Breggen","NL"],
+            ["Kim Le Court",S_CYCL,0,89,"Kim_Le_Court-Pienaar","MU"], ["Florian Lipowitz",S_CYCL,0,91,"Florian_Lipowitz","DE"],
+            ["Louis Bielle-Biarrey",S_RUGB,0,93,"Louis_Bielle-Biarrey","FR"], ["Sophie de Goede",S_RUGB,0,92,"Sophie_de_Goede","CA"], ["Pauline Bourdon Sansus",S_RUGB,0,92,"Pauline_Bourdon_Sansus","FR"],
+            ["Sadia Kabeya",S_RUGB,0,90,"Sadia_Kabeya","GB-ENG"], ["Ilona Maher",S_RUGB,0,89,"Ilona_Maher","US"],
+            ["Melissa Jefferson-Wooden",S_ATHL,0,96,"Melissa_Jefferson-Wooden","US"], ["Oblique Seville",S_ATHL,0,95,"Oblique_Seville","JM"],
+            ["Gretchen Walsh",S_NATA,0,96,"Gretchen_Walsh","US"], ["Siobhan Haughey",S_NATA,0,92,"Siobhan_Haughey","HK"], ["Claire Curzan",S_NATA,0,91,"Claire_Curzan","US"], ["Marrit Steenbergen",S_NATA,0,90,"Marrit_Steenbergen","NL"],
+            ["Uta Abe",S_COMB,0,94,"Uta_Abe","JP"], ["Khamzat Chimaev",S_COMB,0,94,"Khamzat_Chimaev","AE"], ["Canelo Álvarez",S_COMB,0,93,"Canelo_Álvarez","MX"],
+            ["Katrin Klujber",S_HAND,0,90,"Katrin_Klujber","HU"]
+        ];
+
+        // Athlètes retraités : ils deviennent des cartes « Retraité », sans note, pour la collection uniquement.
+        // On ne peut plus les obtenir : seuls les joueurs qui avaient la carte avant la retraite la gardent.
+        // Leurs lignes restent dans rawData (les anciennes sauvegardes dépendent des positions).
+        const retiredAthletes = [
+            'Megan Rapinoe', 'Alex Morgan',                                                      // football (2023, 2024)
+            'Sue Bird', 'Candace Parker', 'Diana Taurasi',                                       // basket (2022, 2024, 2025)
+            'Serena Williams', 'Maria Sharapova', 'Simona Halep', 'Angelique Kerber',            // tennis (2022, 2020, 2025, 2024)
+            'Garbiñe Muguruza', 'Petra Kvitová', 'Caroline Garcia',                              // tennis (2024, 2025, 2025)
+            'Michèle Mouton', 'Danica Patrick',                                                  // sport auto (1986, 2018)
+            'Annemiek van Vleuten', 'Grace Brown', 'Caleb Ewan',                                 // cyclisme (2023, 2024, 2025)
+            'Sarah Hunter', 'Jessy Trémoulière', 'Portia Woodman', 'Emily Scarratt',             // rugby (2023, 2023, 2024, 2025)
+            'Shelly-Ann Fraser-Pryce',                                                           // athlétisme (2025)
+            'Federica Pellegrini', 'Katinka Hosszú', 'Emma McKeon',                              // natation (2021, 2024, 2024)
+            'Amanda Nunes', 'Jon Jones', 'Terence Crawford',                                     // sports de combat (2023, 2025, 2025)
+            'Cristina Neagu'                                                                     // handball (2025)
         ];
