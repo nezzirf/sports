@@ -53,8 +53,8 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
         // RÈGLES : ne jamais renommer un athlète sans mettre son ANCIEN nom en 7e colonne (id stable).
         // Les 749 premières lignes sont gelées (migration des anciennes sauvegardes) : ajoute les nouveaux athlètes À LA FIN.
         const rawData = [
-            ["Lionel Messi",S_FOOT,0,99,null,"AR"], ["Cristiano Ronaldo",S_FOOT,0,97,null,"PT"], ["Kylian Mbappé",S_FOOT,0,97,null,"FR"], ["Erling Haaland",S_FOOT,0,96,null,"NO"], 
-            ["Vinícius Júnior",S_FOOT,0,96,null,"BR"], ["Jude Bellingham",S_FOOT,0,96,null,"GB-ENG"], ["Rodri",S_FOOT,0,96,null,"ES"], ["Kevin De Bruyne",S_FOOT,0,95,null,"BE"], 
+            ["Lionel Messi",S_FOOT,0,99,null,"AR"], ["Cristiano Ronaldo",S_FOOT,0,93,null,"PT"], ["Kylian Mbappé",S_FOOT,0,97,null,"FR"], ["Erling Haaland",S_FOOT,0,96,null,"NO"], 
+            ["Vinícius Júnior",S_FOOT,0,96,null,"BR"], ["Jude Bellingham",S_FOOT,0,96,null,"GB-ENG"], ["Rodri",S_FOOT,0,96,null,"ES"], ["Kevin De Bruyne",S_FOOT,0,91,null,"BE"], 
             ["Harry Kane",S_FOOT,0,95,null,"GB-ENG"], ["Mohamed Salah",S_FOOT,0,94,null,"EG"], ["Phil Foden",S_FOOT,0,94,null,"GB-ENG"], ["Bukayo Saka",S_FOOT,0,93,null,"GB-ENG"], 
             ["Lamine Yamal",S_FOOT,0,94,null,"ES"], ["Florian Wirtz",S_FOOT,0,93,null,"DE"], ["Jamal Musiala",S_FOOT,0,93,null,"DE"], ["Rafael Leão",S_FOOT,0,92,null,"PT"], 
             ["Khvicha Kvaratskhelia",S_FOOT,0,91,null,"GE"], ["Victor Osimhen",S_FOOT,0,91,null,"NG"], ["Lautaro Martínez",S_FOOT,0,91,null,"AR"], ["Antoine Griezmann",S_FOOT,0,91,null,"FR"], 
@@ -146,7 +146,7 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             ["Taylor Knibb",S_CYCL,0,86,"Taylor_Knibb", "US"], ["Niamh Fisher-Black",S_CYCL,0,87,"Niamh_Fisher-Black", "NZ"], ["Blanka Vas",S_CYCL,0,87,"Blanka_Vas", "HU"], 
 
             ["LeBron James",S_BASK,0,99,null,"US"], ["Stephen Curry",S_BASK,0,98,null,"US"], ["Giannis Antetokounmpo",S_BASK,0,98,null,"GR"], 
-            ["Nikola Jokić",S_BASK,0,98,null,"RS"], ["Luka Dončić",S_BASK,0,98,null,"SI"], ["Victor Wembanyama",S_BASK,0,97,null,"FR"], ["Kevin Durant",S_BASK,0,97,null,"US"], ["Joel Embiid",S_BASK,0,92,null,"US"], ["Jayson Tatum",S_BASK,0,93,null,"US"], 
+            ["Nikola Jokić",S_BASK,0,98,null,"RS"], ["Luka Dončić",S_BASK,0,98,null,"SI"], ["Victor Wembanyama",S_BASK,0,97,null,"FR"], ["Kevin Durant",S_BASK,0,94,null,"US"], ["Joel Embiid",S_BASK,0,92,null,"US"], ["Jayson Tatum",S_BASK,0,93,null,"US"], 
             ["Shai Gilgeous-Alexander",S_BASK,0,98,null,"CA"], ["Anthony Edwards",S_BASK,0,95, "Anthony_Edwards_(basket-ball)", "US"], ["Devin Booker",S_BASK,0,94,null,"US"], 
             ["Ja Morant",S_BASK,0,93,null,"US"], ["Donovan Mitchell",S_BASK,0,93,null,"US"], ["Tyrese Haliburton",S_BASK,0,90,null,"US"], ["Jalen Brunson",S_BASK,0,94,null,"US"], 
             ["Tyrese Maxey",S_BASK,0,92,null,"US"], ["Paolo Banchero",S_BASK,0,92,null,"US"], ["Chet Holmgren",S_BASK,0,91,null,"US"], ["Damian Lillard",S_BASK,0,92,null,"US"], 
@@ -182,7 +182,7 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             ["Emma Meesseman",S_BASK,0,95,"Emma_Meesseman", "BE"], ["Julie Allemand",S_BASK,0,87,"Julie_Allemand", "BE"], ["Astou Ndour",S_BASK,0,86,"Astou_Ndour", "ES"], 
 
             ["Armand Duplantis",S_ATHL,0,99,null,"SE"], ["Noah Lyles",S_ATHL,0,98,null,"US"], ["Jakob Ingebrigtsen",S_ATHL,0,96,null,"NO"], ["Karsten Warholm",S_ATHL,0,96,null,"NO"], 
-            ["Ryan Crouser",S_ATHL,0,95,null,"US"], ["Gianmarco Tamberi",S_ATHL,0,94,null,"IT"], ["Mutaz Essa Barshim",S_ATHL,0,94,null,"QA"], ["Eliud Kipchoge",S_ATHL,0,97,null,"KE"], 
+            ["Ryan Crouser",S_ATHL,0,95,null,"US"], ["Gianmarco Tamberi",S_ATHL,0,94,null,"IT"], ["Mutaz Essa Barshim",S_ATHL,0,94,null,"QA"], ["Eliud Kipchoge",S_ATHL,0,93,null,"KE"], 
             ["Marcell Jacobs",S_ATHL,0,89,null,"IT"], ["Letsile Tebogo",S_ATHL,0,94,null,"BW"], ["Fred Kerley",S_ATHL,0,89,null,"US"], ["Christian Coleman",S_ATHL,0,87,null,"US"], 
             ["Andre De Grasse",S_ATHL,0,89,null,"CA"], ["Kenny Bednarek",S_ATHL,0,89,null,"US"], ["Erriyon Knighton",S_ATHL,0,87,null,"US"], ["Grant Holloway",S_ATHL,0,95,null,"US"], 
             ["Rai Benjamin",S_ATHL,0,95,null,"US"], ["Alison dos Santos",S_ATHL,0,93,null,"BR"], ["Emmanuel Wanyonyi",S_ATHL,0,93,null,"KE"], ["Marco Arop",S_ATHL,0,92,null,"CA"], 
@@ -194,7 +194,7 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             ["Faith Kipyegon",S_ATHL,0,99,"Faith_Kipyegon", "KE"], ["Beatrice Chebet",S_ATHL,0,96,"Beatrice_Chebet", "KE"], ["Sifan Hassan",S_ATHL,0,97,"Sifan_Hassan", "NL"], 
             ["Yulimar Rojas",S_ATHL,0,98,"Yulimar_Rojas", "VE"], ["Tigist Assefa",S_ATHL,0,95,"Tigist_Assefa", "ET"], ["Valarie Allman",S_ATHL,0,94,"Valarie_Allman", "US"], 
             ["Tara Davis-Woodhall",S_ATHL,0,93,"Tara_Davis-Woodhall", "US"], ["Nafissatou Thiam",S_ATHL,0,97,"Nafissatou_Thiam", "BE"], ["Anita Włodarczyk",S_ATHL,0,96,"Anita_Włodarczyk", "PL"], 
-            ["Shelly-Ann Fraser-Pryce",S_ATHL,0,97,"Shelly-Ann_Fraser-Pryce", "JM"], ["Elaine Thompson-Herah",S_ATHL,0,98,"Elaine_Thompson-Herah", "JM"], ["Marileidy Paulino",S_ATHL,0,95,"Marileidy_Paulino", "DO"], 
+            ["Shelly-Ann Fraser-Pryce",S_ATHL,0,97,"Shelly-Ann_Fraser-Pryce", "JM"], ["Elaine Thompson-Herah",S_ATHL,0,92,"Elaine_Thompson-Herah", "JM"], ["Marileidy Paulino",S_ATHL,0,95,"Marileidy_Paulino", "DO"], 
             ["Gabby Thomas",S_ATHL,0,94,"Gabby_Thomas", "US"], ["Kirani James",S_ATHL,0,93,"Kirani_James", "GD"], ["Nia Ali",S_ATHL,0,87,null,"US"], 
             ["Danielle Williams",S_ATHL,0,89,null,"JM"], ["Gianna Woodruff",S_ATHL,0,81,null,"PA"], ["Mariya Lasitskene",S_ATHL,0,94,"Mariya_Lasitskene", "RU"], 
             ["Katarina Johnson-Thompson",S_ATHL,0,93,"Katarina_Johnson-Thompson", "GB-ENG"], ["Anouk Vetter",S_ATHL,0,87,null,"NL"], ["Sandra Elkasević",S_ATHL,0,94,"Sandra_Perković", "HR"], 
@@ -203,7 +203,7 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             ["Cyréna Samba-Mayela",S_ATHL,0,89,null,"FR"], ["Alice Finot",S_ATHL,0,87,null,"FR"], ["Rose Loga",S_ATHL,0,79,null,"FR"], 
             ["Melina Robert-Michon",S_ATHL,0,87,null,"FR"], ["Rénelle Lamote",S_ATHL,0,87,null,"FR"], ["Louise Maraval",S_ATHL,0,85,null,"FR"], 
 
-            ["Novak Djokovic",S_TENN,0,99,null,"RS"], ["Carlos Alcaraz",S_TENN,0,98,null,"ES"], ["Jannik Sinner",S_TENN,0,98,null,"IT"], ["Daniil Medvedev",S_TENN,0,94,null,"RU"], 
+            ["Novak Djokovic",S_TENN,0,99,null,"RS"], ["Carlos Alcaraz",S_TENN,0,98,null,"ES"], ["Jannik Sinner",S_TENN,0,98,null,"IT"], ["Daniil Medvedev",S_TENN,0,90,null,"RU"], 
             ["Alexander Zverev",S_TENN,0,93,null,"DE"], ["Stefanos Tsitsipas",S_TENN,0,91,null,"GR"], ["Andrey Rublev",S_TENN,0,91,null,"RU"], ["Casper Ruud",S_TENN,0,91,null,"NO"], 
             ["Holger Rune",S_TENN,0,90,null,"DK"], ["Taylor Fritz",S_TENN,0,91,null,"US"], ["Ben Shelton",S_TENN,0,86,null,"US"], ["Frances Tiafoe",S_TENN,0,86,null,"US"], 
             ["Alex de Minaur",S_TENN,0,90,null,"AU"], ["Ugo Humbert",S_TENN,0,86,null,"FR"], ["Grigor Dimitrov",S_TENN,0,90,null,"BG"], ["Hubert Hurkacz",S_TENN,0,90,null,"PL"], 
@@ -211,7 +211,7 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             ["Aryna Sabalenka",S_TENN,0,97,null,"BY"], ["Coco Gauff",S_TENN,0,93,null,"US"], ["Elena Rybakina",S_TENN,0,93,null,"KZ"], ["Jessica Pegula",S_TENN,0,92,null,"US"], 
             ["Zheng Qinwen",S_TENN,0,92,null,"CN"], ["Markéta Vondroušová",S_TENN,0,91,null,"CZ"], ["Maria Sakkari",S_TENN,0,90,null,"GR"], ["Ons Jabeur",S_TENN,0,90,null,"TN"], 
             ["Jasmine Paolini",S_TENN,0,91,null,"IT"], ["Mirra Andreeva",S_TENN,0,91,null,"RU"],
-            ["Serena Williams",S_TENN,0,99,"Serena_Williams", "US"], ["Venus Williams",S_TENN,0,96,"Venus_Williams", "US"], ["Naomi Osaka",S_TENN,0,95,"Naomi_Osaka", "JP"], 
+            ["Serena Williams",S_TENN,0,99,"Serena_Williams", "US"], ["Venus Williams",S_TENN,0,85,"Venus_Williams", "US"], ["Naomi Osaka",S_TENN,0,95,"Naomi_Osaka", "JP"], 
             ["Barbora Krejčíková",S_TENN,0,93,"Barbora_Krejčíková", "CZ"], ["Emma Raducanu",S_TENN,0,88,null,"GB-ENG"], ["Caroline Garcia",S_TENN,0,92,"Caroline_Garcia", "FR"], 
             ["Danielle Collins",S_TENN,0,88,null,"US"], ["Madison Keys",S_TENN,0,91,null,"US"], ["Victoria Azarenka",S_TENN,0,92,"Victoria_Azarenka", "BY"], 
             ["Petra Kvitová",S_TENN,0,93,"Petra_Kvitová", "CZ"], ["Simona Halep",S_TENN,0,94,"Simona_Halep", "RO"], ["Angelique Kerber",S_TENN,0,93,"Angelique_Kerber", "DE"], 
@@ -221,7 +221,7 @@ const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA
             ["Alizé Cornet",S_TENN,0,85,null,"FR"], ["Kristina Mladenovic",S_TENN,0,81,null,"FR"], ["Fiona Ferro",S_TENN,0,77,null,"FR"], 
             ["Leylah Fernandez",S_TENN,0,87,null,"CA"], ["Belinda Bencic",S_TENN,0,91,"Belinda_Bencic", "CH"], ["Maria Sharapova",S_TENN,0,95,"Maria_Sharapova", "RU"], 
 
-            ["Max Verstappen",S_F1,0,99,null,"NL"], ["Lewis Hamilton",S_F1,0,98,null,"GB-ENG"], ["Lando Norris",S_F1,0,97,null,"GB-ENG"], ["Charles Leclerc",S_F1,0,94,null,"MC"], ["Oscar Piastri",S_F1,0,93,null,"AU"], 
+            ["Max Verstappen",S_F1,0,99,null,"NL"], ["Lewis Hamilton",S_F1,0,93,null,"GB-ENG"], ["Lando Norris",S_F1,0,97,null,"GB-ENG"], ["Charles Leclerc",S_F1,0,94,null,"MC"], ["Oscar Piastri",S_F1,0,93,null,"AU"], 
             ["Carlos Sainz Jr.",S_F1,0,92,null,"ES"], ["George Russell",S_F1,0,91,"George_Russell_(pilote_automobile)","GB-ENG"], ["Fernando Alonso",S_F1,0,92,null,"ES"], 
             ["Sergio Pérez",S_F1,0,90,null,"MX"], ["Lance Stroll",S_F1,0,83,null,"CA"], ["Yuki Tsunoda",S_F1,0,86,null,"JP"], ["Liam Lawson",S_F1,0,85,null,"NZ"], 
             ["Alexander Albon",S_F1,0,90,null,"TH"], ["Franco Colapinto",S_F1,0,86,null,"AR"], ["Esteban Ocon",S_F1,0,85,null,"FR"], ["Pierre Gasly",S_F1,0,86,null,"FR"], 
