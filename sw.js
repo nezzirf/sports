@@ -1,5 +1,5 @@
 /* Service worker : jeu utilisable hors ligne. Change VERSION pour forcer une mise à jour du cache. */
-const VERSION = 'stc-v6', EXT = 'stc-ext-v3', MAX_EXT = 700, PHOTOS = 'stc-photos';
+const VERSION = 'stc-v7', EXT = 'stc-ext-v3', MAX_EXT = 700, PHOTOS = 'stc-photos';
 const SHELL = ['./', 'index.html', 'athletes-data.js', 'photos-data.js', 'tailwind.css', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'logo.png', 'logo1.png', 'booster.png'];
 self.addEventListener('install', e => e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(SHELL.map(u => c.add(new Request(u, { cache: 'reload' }))))).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION && k !== EXT && k !== PHOTOS).map(k => caches.delete(k)))).then(() => self.clients.claim())));
@@ -20,7 +20,7 @@ self.addEventListener('fetch', e => {
     let fresh = r;
     try { fresh = new Request(r, { cache: 'no-cache' }); } catch (err) { /* navigateur ancien : requête telle quelle */ }
     e.respondWith(fetch(fresh).then(res => { if (res.ok) { const cp = res.clone(); caches.open(VERSION).then(c => c.put(r, cp)); } return res; })
-      .catch(() => caches.match(r).then(m => m || caches.match('index.html'))));
+      .catch(() => caches.match(r, { ignoreSearch: true }).then(m => m || caches.match('index.html'))));
     return;
   }
   // CDN, polices, photos Wikipédia : cache d'abord, mise à jour en arrière-plan.
