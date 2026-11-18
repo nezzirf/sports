@@ -1233,18 +1233,19 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
     <script>
         if (typeof rawData === 'undefined') { document.body.innerHTML = '<p style="color:#fff;padding:2rem;font-family:sans-serif">Fichier <b>athletes-data.js</b> introuvable.</p>'; throw new Error('athletes-data.js manquant'); }
         
-        const sportsNames = ['Football', 'Basketball', 'Cyclisme', 'Tennis', 'F1', 'Rugby', 'Athlétisme', 'Natation', 'Sports de combat', 'Handball'];
+        const sportsNames = ['Football', 'Basketball', 'Cyclisme', 'Tennis', 'Sport automobile', 'Rugby', 'Athlétisme', 'Natation', 'Sports de combat', 'Handball'];
         const raritiesNames = ['Commune', 'Peu commune', 'Rare', 'Ultra rare', 'Légendaire', 'Mythique', 'Vintage'];
 
         const sportIcons = {
             'Football': 'fa-futbol', 'Basketball': 'fa-basketball', 'Cyclisme': 'fa-bicycle',
-            'Tennis': 'fa-table-tennis-paddle-ball', 'F1': 'fa-flag-checkered', 'Rugby': 'fa-football',
+            'Tennis': 'fa-table-tennis-paddle-ball', 'Sport automobile': 'fa-flag-checkered', 'Rugby': 'fa-football',
             'Athlétisme': 'fa-person-running', 'Natation': 'fa-person-swimming', 'Sports de combat': 'fa-hand-fist', 'Handball': 'fa-volleyball'
         };
 
         // Athlètes retraités (liste dans athletes-data.js) : leurs lignes restent pour les anciennes sauvegardes, mais ils sortent du jeu.
         const RETIRED = new Set(typeof retiredAthletes !== 'undefined' ? retiredAthletes : []);
-        const activeRaw = rawData.filter(d => !RETIRED.has(d[0]));
+        const REMOVED = new Set(typeof removedAthletes !== 'undefined' ? removedAthletes : []); // retirés complètement (décès)
+        const activeRaw = rawData.filter(d => !RETIRED.has(d[0]) && !REMOVED.has(d[0]));
         const maxScorePerSport = {};
         sportsNames.forEach((sport, idx) => {
             const sportAthletes = activeRaw.filter(d => d[1] === idx);
@@ -1451,6 +1452,10 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 if (s.collection[id] && !seen.has(id)) { seen.add(id); fresh.push(allCardsData.find(a => a.id === id).name); }
             }
             s.retiredSeen = [...seen];
+            // Athlètes retirés complètement : la carte disparaît (et sa place dans l'équipe, ses équipements, son niveau).
+            for (const d of rawData) if (REMOVED.has(d[0])) { const id = pid(d[6] || d[0]); delete s.collection[id]; delete s.athleteEquipments[id]; delete s.cardLevels[id]; if (s.favorites && typeof s.favorites === 'object') delete s.favorites[id]; }
+            // « F1 » s'appelle désormais « Sport automobile » : les albums déjà réclamés gardent leur récompense.
+            if (s.claimed && typeof s.claimed === 'object') for (const k of Object.keys(s.claimed)) if (k.startsWith('sport_F1_')) { s.claimed[k.replace('sport_F1_', 'sport_Sport automobile_')] = s.claimed[k]; delete s.claimed[k]; }
             if (fresh.length) s.retiredNotice = fresh;
             return s;
         }

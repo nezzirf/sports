@@ -14,10 +14,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function loadCards() {
     const src = fs.readFileSync(path.join(ROOT, 'athletes-data.js'), 'utf8').replace(/\bconst\b/g, 'var');
-    const ctx = {}; vm.createContext(ctx); vm.runInContext(src + ';this.raw = rawData; this.vin = vintageAthletes;', ctx);
+    const ctx = {}; vm.createContext(ctx); vm.runInContext(src + ';this.raw = rawData; this.vin = vintageAthletes; this.rem = typeof removedAthletes !== "undefined" ? removedAthletes : [];', ctx);
     const cards = new Map();
     // retraités compris : leurs cartes « Retraité » restent dans les collections
-    ctx.raw.forEach(d => { const s = d[4] || d[0].replace(/ /g, '_'); if (!cards.has(s)) cards.set(s, d[0]); });
+    const removed = new Set(ctx.rem); // retirés complètement : pas de photo
+    ctx.raw.filter(d => !removed.has(d[0])).forEach(d => { const s = d[4] || d[0].replace(/ /g, '_'); if (!cards.has(s)) cards.set(s, d[0]); });
     ctx.vin.forEach(v => { if (!cards.has(v.wikiSlug)) cards.set(v.wikiSlug, v.name); });
     return cards; // page Wikipédia -> nom de l'athlète
 }
