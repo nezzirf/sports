@@ -42,6 +42,8 @@ Relance `npm run build:photos` après avoir ajouté ou corrigé des athlètes : 
 
 Dans `athletes-data.js`, ajoute les nouveaux athlètes à la fin de `rawData` : ne réordonne jamais les 749 premiers, les anciennes sauvegardes en dépendent.
 
+Pour retirer un athlète qui prend sa retraite, ne supprime pas sa ligne : ajoute son nom dans `retiredAthletes` (en bas du fichier). Sa carte devient « Retraité » : sans note, impossible à obtenir, elle reste dans la collection de ceux qui l'avaient (pas d'équipe, d'équipement ni de fusion).
+
 ## Déploiement
 
 - Le site est publié par GitHub Pages depuis `main`.

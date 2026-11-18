@@ -596,6 +596,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 @media (hover:hover){.btn-fuse:not(:disabled):hover{filter:brightness(1.12)}}
 .fz-ic{color:#c084fc}.fz-lvl{color:#d8b4fe}
 .fz-bar>i{background:linear-gradient(90deg,#7c3aed,#c084fc)}
+.rarity-retired{--border-color:#cbd5e1;--rarity-color:#e2e8f0;--glow:20px}
+.pokemon-card.rarity-retired .card-image-container img{filter:grayscale(.45) contrast(1.05)}
 .pc-lvl{background:linear-gradient(135deg,#c084fc,#9333ea);color:#fff;border-color:rgba(233,213,255,.7)}
 .col-stats{border-radius:22px;border:1px solid rgba(34,211,238,.2);background:linear-gradient(160deg,rgba(15,28,48,.7),rgba(4,8,18,.85))}
 .col-stats>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;font:900 13px Outfit,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#e2e8f0}
@@ -1036,6 +1038,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         <button onclick="switchRarityFilter('Peu commune')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-emerald-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Peu communes</button>
                         <button onclick="switchRarityFilter('Commune')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold whitespace-nowrap transition">Communes</button>
                         <button onclick="switchRarityFilter('Vintage')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-amber-500 rounded-lg text-xs font-bold whitespace-nowrap transition">Vintage</button>
+                        <button onclick="switchRarityFilter('Retraité')" class="rarity-pill px-3 py-1 bg-slate-900 border border-slate-700 text-slate-200 rounded-lg text-xs font-bold whitespace-nowrap transition">Retraités</button>
                     </div>
                 </div>
                 
@@ -1230,25 +1233,29 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
     <script>
         if (typeof rawData === 'undefined') { document.body.innerHTML = '<p style="color:#fff;padding:2rem;font-family:sans-serif">Fichier <b>athletes-data.js</b> introuvable.</p>'; throw new Error('athletes-data.js manquant'); }
         
-        const sportsNames = ['Football', 'Basketball', 'Cyclisme', 'Tennis', 'F1', 'Rugby', 'Athlétisme', 'Natation', 'Sports de combat', 'Handball'];
+        const sportsNames = ['Football', 'Basketball', 'Cyclisme', 'Tennis', 'Sport automobile', 'Rugby', 'Athlétisme', 'Natation', 'Sports de combat', 'Handball'];
         const raritiesNames = ['Commune', 'Peu commune', 'Rare', 'Ultra rare', 'Légendaire', 'Mythique', 'Vintage'];
 
         const sportIcons = {
             'Football': 'fa-futbol', 'Basketball': 'fa-basketball', 'Cyclisme': 'fa-bicycle',
-            'Tennis': 'fa-table-tennis-paddle-ball', 'F1': 'fa-flag-checkered', 'Rugby': 'fa-football',
+            'Tennis': 'fa-table-tennis-paddle-ball', 'Sport automobile': 'fa-flag-checkered', 'Rugby': 'fa-football',
             'Athlétisme': 'fa-person-running', 'Natation': 'fa-person-swimming', 'Sports de combat': 'fa-hand-fist', 'Handball': 'fa-volleyball'
         };
 
+        // Athlètes retraités (liste dans athletes-data.js) : leurs lignes restent pour les anciennes sauvegardes, mais ils sortent du jeu.
+        const RETIRED = new Set(typeof retiredAthletes !== 'undefined' ? retiredAthletes : []);
+        const REMOVED = new Set(typeof removedAthletes !== 'undefined' ? removedAthletes : []); // retirés complètement (décès)
+        const activeRaw = rawData.filter(d => !RETIRED.has(d[0]) && !REMOVED.has(d[0]));
         const maxScorePerSport = {};
         sportsNames.forEach((sport, idx) => {
-            const sportAthletes = rawData.filter(d => d[1] === idx);
+            const sportAthletes = activeRaw.filter(d => d[1] === idx);
             if (sportAthletes.length > 0) maxScorePerSport[sport] = Math.max(...sportAthletes.map(d => d[3]));
         });
 
         const mythicAssigned = {};
         const pid = n => 'p_' + n.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
         
-        const athletesData = rawData.map((d, i) => {
+        const athletesData = activeRaw.map((d, i) => {
             const name = d[0];
             const sport = sportsNames[d[1]];
             const score = d[3];
@@ -1267,8 +1274,13 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             return { id: pid(d[6] || name), name: name, sport: sport, rarity: raritiesNames[rarityId], rarityId: rarityId, score: score, wikiSlug: wikiSlug, country: country };
         });
 
-        const allCardsData = [...athletesData, ...vintageAthletes];
+        // Cartes « Retraité » : sans note, impossibles à obtenir, gardées par ceux qui les avaient (collection uniquement).
+        const retiredCards = rawData.filter(d => RETIRED.has(d[0])).map(d => ({ id: pid(d[6] || d[0]), name: d[0], sport: sportsNames[d[1]], rarity: 'Retraité', rarityId: R_RETIRED, score: 'RETRAITÉ', wikiSlug: d[4] || d[0].replace(/ /g, '_'), country: d[5] || 'FR', retired: true }));
+        const RETIRED_IDS = new Set(retiredCards.map(c => c.id));
+        const noScore = a => a.rarityId === R_VINTAGE || a.rarityId === R_RETIRED; // cartes sans note (pas de fusion ni d'équipement)
+        const allCardsData = [...athletesData, ...vintageAthletes, ...retiredCards];
         const LEGACY_MAP = {}; rawData.slice(0, 749).forEach((d, i) => { LEGACY_MAP['a_' + i] = pid(d[6] || d[0]); });
+
 
         let wikiImageCache = {};
         try { wikiImageCache = JSON.parse(localStorage.getItem('sports_tcg_img_cache_v7') || '{}'); } catch(e) {}
@@ -1424,7 +1436,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             s.collection = col;
             // ni carte retirée du jeu, ni carte non possédée, ni doublon : sinon l'équipe compte moins de 5 athlètes valides en PvP
             const seenDeck = new Set();
-            s.deck = Array.from({ length: 5 }, (_, i) => { const d = Array.isArray(s.deck) && s.deck[i] ? mid(s.deck[i]) : null; if (!d || !col[d] || seenDeck.has(d) || !allCardsData.some(a => a.id === d)) return null; seenDeck.add(d); return d; });
+            s.deck = Array.from({ length: 5 }, (_, i) => { const d = Array.isArray(s.deck) && s.deck[i] ? mid(s.deck[i]) : null; if (!d || !col[d] || seenDeck.has(d) || RETIRED_IDS.has(d) || !allCardsData.some(a => a.id === d)) return null; seenDeck.add(d); return d; });
             const eq = {};
             for (const [k, v] of Object.entries(s.athleteEquipments && typeof s.athleteEquipments === 'object' ? s.athleteEquipments : {})) if (Array.isArray(v)) eq[mid(k)] = v.filter(x => typeof x === 'string');
             s.athleteEquipments = eq;
@@ -1433,6 +1445,18 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             for (const [k, v] of Object.entries(s.cardLevels && typeof s.cardLevels === 'object' ? s.cardLevels : {})) { const n = Math.floor(Number(v)); if (n > 0) lv[mid(k)] = Math.min(MAX_FUSION, n); }
             s.cardLevels = lv;
             for (const k of ['packsCount', 'sportsPoints', 'lastPackTime']) { const n = Number(raw && raw[k]); s[k] = Number.isFinite(n) && n >= 0 ? Math.floor(n) : base[k]; }
+            // Cartes devenues « Retraité » : plus de note, donc ni équipement ni niveau de fusion ; on prévient une fois le joueur.
+            const seen = new Set(Array.isArray(s.retiredSeen) ? s.retiredSeen : []), fresh = [];
+            for (const id of RETIRED_IDS) {
+                delete s.athleteEquipments[id]; delete s.cardLevels[id];
+                if (s.collection[id] && !seen.has(id)) { seen.add(id); fresh.push(allCardsData.find(a => a.id === id).name); }
+            }
+            s.retiredSeen = [...seen];
+            // Athlètes retirés complètement : la carte disparaît (et sa place dans l'équipe, ses équipements, son niveau).
+            for (const d of rawData) if (REMOVED.has(d[0])) { const id = pid(d[6] || d[0]); delete s.collection[id]; delete s.athleteEquipments[id]; delete s.cardLevels[id]; if (s.favorites && typeof s.favorites === 'object') delete s.favorites[id]; }
+            // « F1 » s'appelle désormais « Sport automobile » : les albums déjà réclamés gardent leur récompense.
+            if (s.claimed && typeof s.claimed === 'object') for (const k of Object.keys(s.claimed)) if (k.startsWith('sport_F1_')) { s.claimed[k.replace('sport_F1_', 'sport_Sport automobile_')] = s.claimed[k]; delete s.claimed[k]; }
+            if (fresh.length) s.retiredNotice = fresh;
             return s;
         }
 
@@ -1471,12 +1495,19 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const o = JSON.parse(new TextDecoder().decode(b)); return o.state || o;
         }
 
+        function announceRetiredRefund() {
+            const r = userState.retiredNotice; if (!r) return;
+            delete userState.retiredNotice;
+            const who = r.length > 3 ? r.slice(0, 3).join(', ') + '…' : r.join(', ');
+            setTimeout(() => showToast(`${r.length} de tes cartes deviennent « Retraité » (${who}) : des pièces de collection que plus personne ne peut obtenir.`, 'info'), 1200);
+        }
+
         function applyImported(obj, label) {
             const o = obj && obj.state ? obj.state : obj;
             if (!o || typeof o !== 'object' || !o.collection || typeof o.collection !== 'object') throw new Error('invalide');
             const ns = migrateState(o);
             snapshot(true);
-            userState = ns; saveUser();
+            userState = ns; announceRetiredRefund(); saveUser();
             if (typeof updatePackSystem === 'function') updatePackSystem();
             showToast(label + ' : ' + Object.keys(ns.collection).length + ' cartes et ' + ns.sportsPoints + ' SP restaurés.', 'success');
         }
@@ -1567,6 +1598,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 if (best) { main = best.state; }
             }
             userState = main || migrateState({});
+            announceRetiredRefund();
             applySoundSettings();
             try {
                 const selCollection = document.getElementById('country-select-filter');
@@ -1581,7 +1613,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             if (!userState.ownedEquipments || !Array.isArray(userState.ownedEquipments)) userState.ownedEquipments = [];
             if (!userState.athleteEquipments || typeof userState.athleteEquipments !== 'object') userState.athleteEquipments = {};
             
-            document.querySelectorAll('.total-cards-label').forEach(el => el.textContent = allCardsData.filter(c => c.rarityId !== R_VINTAGE).length);
+            document.querySelectorAll('.total-cards-label').forEach(el => el.textContent = allCardsData.filter(c => !noScore(c)).length);
             initPackSystem();
             saveUser();
             renderSportTabsBar();
@@ -1653,7 +1685,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function updateGlobalStats() {
             const totalPacksEl = document.getElementById('stat-total-packs'), totalValueEl = document.getElementById('stat-collection-value'), completionRateEl = document.getElementById('stat-completion-rate'), highestRarityEl = document.getElementById('stat-highest-rarity');
             if (!totalPacksEl) return;
-            const totalCollected = Object.keys(userState.collection).filter(id => { const c = allCardsData.find(x => x.id === id); return c && c.rarityId !== R_VINTAGE; }).length;
+            const totalCollected = Object.keys(userState.collection).filter(id => { const c = allCardsData.find(x => x.id === id); return c && !noScore(c); }).length;
             const totalPossible = athletesData.length;
             const completionPct = Math.round((totalCollected / totalPossible) * 100);
             let collectionValue = 0, maxRarityFound = "Aucune", maxRarityRank = -1;
@@ -1738,7 +1770,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         function updateUI() {
             if (!checkAchievements._busy) { checkAchievements._busy = true; try { checkAchievements(); } finally { checkAchievements._busy = false; } }
-            const totalCollected = Object.keys(userState.collection).filter(id => { const c = allCardsData.find(x => x.id === id); return c && c.rarityId !== R_VINTAGE; }).length;
+            const totalCollected = Object.keys(userState.collection).filter(id => { const c = allCardsData.find(x => x.id === id); return c && !noScore(c); }).length;
             const totalCards = athletesData.length;
             document.getElementById('collection-counter-text').innerHTML = `${totalCollected} / <span class="total-cards-label">${totalCards}</span> DÉBLOQUÉS`;
             const sidebarBadge = document.getElementById('sidebar-cards-count-badge');
@@ -1833,7 +1865,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         const FUSION_COST = { [R_MYT]: 2, [R_LEG]: 3, [R_ULT]: 4, [R_RAR]: 5, [R_PEU]: 6, [R_COM]: 7 }, MAX_FUSION = 5;
         const cardLevel = id => Math.max(0, Math.min(MAX_FUSION, Math.floor(Number((userState.cardLevels || {})[id]) || 0)));
         function fuseCard(id) {
-            const a = allCardsData.find(x => x.id === id); if (!a || a.rarityId === R_VINTAGE) return;
+            const a = allCardsData.find(x => x.id === id); if (!a || noScore(a)) return;
             const cost = FUSION_COST[a.rarityId], level = cardLevel(id), count = userState.collection[id] || 0;
             if (level >= MAX_FUSION) { showToast('Cette carte est déjà au niveau maximum.', 'info'); return; }
             if (count < cost) { showToast(`Il faut ${cost} exemplaires de cette carte pour la fusionner (tu en as ${count}).`, 'warning'); return; }
@@ -1846,6 +1878,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         function getAthleteCalculatedScore(athlete) {
             if (athlete.rarityId === R_VINTAGE) return 'VINTAGE';
+            if (athlete.rarityId === R_RETIRED) return 'RETRAITÉ';
             const eqList = userState.athleteEquipments[athlete.id] || [];
             let bonus = 0;
             eqList.forEach(eqId => { const eq = equipmentDefinitions.find(e => e.id === eqId); if (eq) bonus += eq.bonus; });
@@ -2000,7 +2033,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             document.getElementById('zoom-card-wrapper').innerHTML = getCardHTML(athlete, photoUrl, isOwned, false, true, false, false);
 
             const fusePanel = document.getElementById('zoom-fusion-panel');
-            if (isOwned && athlete.rarityId !== R_VINTAGE) {
+            if (isOwned && !noScore(athlete)) {
                 const cost = FUSION_COST[athlete.rarityId], lvl = cardLevel(athlete.id), cnt = userState.collection[athlete.id] || 0, ok = cnt >= cost && lvl < MAX_FUSION;
                 fusePanel.innerHTML = `<div class="text-xs font-bold text-slate-300 flex items-center justify-between"><span><i class="fa-solid fa-wand-magic-sparkles fz-ic"></i> Fusion · niveau ${lvl}/${MAX_FUSION}</span><span class="fz-lvl">+${lvl} de note</span></div>`
                     + (lvl >= MAX_FUSION ? '<p class="text-[11px] text-emerald-400">Niveau maximum atteint.</p>'
@@ -2008,7 +2041,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 fusePanel.classList.remove('hidden');
             } else fusePanel.classList.add('hidden');
             const equipPanel = document.getElementById('zoom-equipment-panel');
-            if (isOwned && athlete.rarityId !== R_VINTAGE) {
+            if (isOwned && !noScore(athlete)) {
                 const eqList = userState.athleteEquipments[athlete.id] || [], availableForSport = equipmentDefinitions.filter(e => e.sport === athlete.sport && userState.ownedEquipments.includes(e.id));
                 let eqHtml = `<div class="text-xs font-bold text-slate-300 flex items-center justify-between"><span><i class="fa-solid fa-shirt text-cyan-400"></i> Équipements (${eqList.length}/2 max) :</span></div>`;
                 if (eqList.length > 0) {
@@ -2040,15 +2073,16 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
         function getCardHTML(athlete, imageUrl, isOwned = false, isSummary = false, isLarge = false, isNew = false, isOpeningMode = false) {
             const isVintage = athlete.rarityId === R_VINTAGE;
-            const rClass = isVintage ? 'rarity-vintage' : `rarity-${athlete.rarityId}`;
+            const isRetired = athlete.rarityId === R_RETIRED;
+            const rClass = isVintage ? 'rarity-vintage' : isRetired ? 'rarity-retired' : `rarity-${athlete.rarityId}`;
             const sIcon = sportIcons[athlete.sport] || 'fa-trophy', sizeClass = isLarge ? "w-64 sm:w-72 md:w-80" : "w-full";
-            const isHolo = athlete.rarityId >= R_ULT && !isVintage, imgSrc = imageUrl || knownPhoto(athlete.wikiSlug) || fallbackImage;
+            const isHolo = (athlete.rarityId >= R_ULT && !isVintage) || isRetired, imgSrc = imageUrl || knownPhoto(athlete.wikiSlug) || fallbackImage;
             const count = userState.collection[athlete.id] || 0, doublonsCount = Math.max(0, count - 1), spEarn = spRecycleValues[athlete.rarityId] || 1;
             const finalScore = getAthleteCalculatedScore(athlete), eqList = userState.athleteEquipments[athlete.id] || [];
             const countryCode = (athlete.country || 'fr').toLowerCase(), flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
-            const level = isOwned && !isVintage ? cardLevel(athlete.id) : 0, fav = !!(userState.favorites && userState.favorites[athlete.id]);
+            const level = isOwned && !noScore(athlete) ? cardLevel(athlete.id) : 0, fav = !!(userState.favorites && userState.favorites[athlete.id]);
             const remote = remotePhoto(athlete.wikiSlug), big = isLarge ? bigPhoto(remote) : '', alt = remote && remote !== imgSrc ? remote : '';
-            const canRecycle = count > 1 && !isSummary && isOwned && !isOpeningMode && !isVintage;
+            const canRecycle = count > 1 && !isSummary && isOwned && !isOpeningMode && !noScore(athlete);
 
             const clickAction = isOpeningMode ? `onclick="event.stopPropagation(); revealNextCardInPack()"` : (!isSummary && isOwned ? `onclick="openZoomCard('${athlete.id}')"` : '');
             const eqHTML = isOwned ? eqList.map(eqId => { const eq = equipmentDefinitions.find(e => e.id === eqId); return eq ? `<div class="pc-eq" title="${eq.name} (+${eq.bonus} OVR)">${eqSvg(eq.id)}</div>` : ''; }).join('') : '';
@@ -2069,7 +2103,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                         ${fav ? '<div class="pc-fav" title="Favori">★</div>' : ''}
                     </div>
                     <div class="pc-col pc-r">
-                        <div class="pc-b pc-score themed-border"><span class="themed-text">${isVintage ? '<i class="fa-solid fa-star"></i>' : finalScore}</span></div>
+                        <div class="pc-b pc-score themed-border"><span class="themed-text">${isVintage ? '<i class="fa-solid fa-star"></i>' : isRetired ? '<i class="fa-solid fa-medal"></i>' : finalScore}</span></div>
                         ${isNew ? '<div class="pc-new">NEW</div>' : ''}
                         ${count > 1 && !isOpeningMode ? `<div class="pc-count" title="${count} exemplaires">×${count}</div>` : ''}
                     </div>
@@ -2122,7 +2156,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             sum.innerHTML += '<div class="pv-hint">Fusion : 2 exemplaires pour une Mythique, 3 Légendaire, 4 Ultra Rare, 5 Rare, 6 Peu commune, 7 Commune. Chaque fusion donne +1 de note (niveau 5 maximum). « Tout recycler » supprime aussi les doublons dont tu aurais besoin pour fusionner.</div>';
             if (!dupesList.length) { box.innerHTML = '<div class="col-span-full py-16 text-center text-slate-500 text-sm">Tu n\'as aucun doublon.</div>'; return; }
             const fuseBtn = a => {
-                if (a.rarityId === R_VINTAGE) return '';
+                if (noScore(a)) return '';
                 const cost = FUSION_COST[a.rarityId], lvl = cardLevel(a.id), cnt = userState.collection[a.id] || 0;
                 if (lvl >= MAX_FUSION) return '<div class="text-center text-[11px] text-emerald-400 font-bold">Niveau max</div>';
                 return `<button onclick="fuseCard('${a.id}')" ${cnt >= cost ? '' : 'disabled'} class="btn-fuse w-full" title="${cost} exemplaires donnent +1 de note (niveau ${lvl} → ${lvl + 1})"><i class="fa-solid fa-wand-magic-sparkles"></i> Fusionner ${cnt}/${cost}</button>`;
@@ -2162,6 +2196,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                     if (search && !norm(athlete.name).includes(search)) return false;
                     if (currentSportTab !== 'all' && athlete.sport !== currentSportTab) return false;
                     if (currentRarityFilter !== 'all' && athlete.rarity !== currentRarityFilter) return false;
+                    if (athlete.rarityId === R_RETIRED && !(userState.collection[athlete.id] > 0)) return false; // introuvables : seulement si possédées
                     if (countryFilter !== 'all' && athlete.country !== countryFilter) return false;
                     const count = userState.collection[athlete.id] || 0;
                     if (showOwnedOnly && count === 0) return false;
@@ -2170,8 +2205,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                 });
                 filteredAthletesCache.sort((a, b) => {
                     if (sortOrder === 'name') return a.name.localeCompare(b.name);
-                    const scoreA = a.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(a);
-                    const scoreB = b.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(b);
+                    const scoreA = noScore(a) ? 101 : getAthleteCalculatedScore(a);
+                    const scoreB = noScore(b) ? 101 : getAthleteCalculatedScore(b);
                     if (sortOrder === 'asc') return (scoreA !== scoreB) ? scoreA - scoreB : a.rarityId - b.rarityId;
                     return (scoreA !== scoreB) ? scoreB - scoreA : b.rarityId - a.rarityId;
                 });
@@ -2220,6 +2255,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         function filterCards() { displayedCardLimit = 24; renderCardsCatalogue(); }
 
         function addToDeck(athleteId) {
+            if (RETIRED_IDS.has(athleteId)) { showToast('Les cartes « Retraité » sont réservées à la collection.', 'info'); return; }
             if (userState.deck.includes(athleteId)) return; // double clic avant le rafraîchissement de la liste
             const emptyIdx = userState.deck.indexOf(null);
             if (emptyIdx === -1) { showToast("Équipe complète !", "error"); return; }
@@ -2295,6 +2331,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
             let owned = allCardsData.filter(athlete => {
                 if ((userState.collection[athlete.id] || 0) <= 0) return false;
+                if (athlete.rarityId === R_RETIRED) return false; // sans note : collection uniquement
                 if (userState.deck.includes(athlete.id)) return false;
                 if (search && !norm(athlete.name).includes(search)) return false;
                 if (currentDeckSportTab !== 'all' && athlete.sport !== currentDeckSportTab) return false;
@@ -2311,8 +2348,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
 
             owned.sort((a, b) => {
                 if (sortOrder === 'name') return a.name.localeCompare(b.name);
-                const scoreA = a.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(a);
-                const scoreB = b.rarityId === R_VINTAGE ? 101 : getAthleteCalculatedScore(b);
+                const scoreA = noScore(a) ? 101 : getAthleteCalculatedScore(a);
+                const scoreB = noScore(b) ? 101 : getAthleteCalculatedScore(b);
                 if (sortOrder === 'asc') return (scoreA !== scoreB) ? scoreA - scoreB : a.rarityId - b.rarityId;
                 return (scoreA !== scoreB) ? scoreB - scoreA : b.rarityId - a.rarityId;
             });
@@ -2802,7 +2839,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         let tb = null;
         const tbKey = mode => mode === 'nation' ? 'country' : 'sport';
         const tbScore = a => { const v = getAthleteCalculatedScore(a); return typeof v === 'number' ? v : 95; };
-        const tbOwned = () => allCardsData.filter(a => (userState.collection[a.id] || 0) > 0);
+        const tbOwned = () => allCardsData.filter(a => (userState.collection[a.id] || 0) > 0 && a.rarityId !== R_RETIRED);
         function tbGroupsList(mode) {
             const k = tbKey(mode), m = {};
             tbOwned().forEach(a => { if (a[k]) m[a[k]] = (m[a[k]] || 0) + 1; });
