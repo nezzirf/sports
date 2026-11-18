@@ -1228,9 +1228,17 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
         </div>
     </div>
 
-    <script src="athletes-data.js"></script>
-    <script src="photos-data.js"></script>
+    <script src="athletes-data.js?v=2"></script>
+    <script src="photos-data.js?v=2"></script>
     <script>
+        // Pendant une mise à jour, GitHub Pages peut servir la nouvelle page avec l'ancien fichier des athlètes :
+        // on ne démarre pas à moitié (ça afficherait une collection vide), on attend puis on recharge. La sauvegarde n'est pas touchée.
+        const DATA_VERSION_NEEDED = 2;
+        if (typeof rawData !== 'undefined' && (typeof DATA_VERSION === 'undefined' || DATA_VERSION < DATA_VERSION_NEEDED)) {
+            document.body.innerHTML = '<div style="color:#e2e8f0;font-family:sans-serif;text-align:center;padding:4rem 1.5rem"><p style="font-size:20px;font-weight:800">Mise à jour du jeu en cours…</p><p style="color:#94a3b8">Ta collection est en sécurité. Le jeu se recharge tout seul dans quelques secondes.</p></div>';
+            setTimeout(() => location.reload(), 5000);
+            throw new Error('athletes-data.js pas encore à jour');
+        }
         if (typeof rawData === 'undefined') { document.body.innerHTML = '<p style="color:#fff;padding:2rem;font-family:sans-serif">Fichier <b>athletes-data.js</b> introuvable.</p>'; throw new Error('athletes-data.js manquant'); }
         
         const sportsNames = ['Football', 'Basketball', 'Cyclisme', 'Tennis', 'Sport automobile', 'Rugby', 'Athlétisme', 'Natation', 'Sports de combat', 'Handball'];

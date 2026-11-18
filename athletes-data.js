@@ -2,6 +2,8 @@
    Règles : ne jamais réordonner/insérer avant la fin des 749 premiers athlètes ; ajoute les nouveaux À LA FIN de rawData.
    Un athlète qui prend sa retraite n'est pas supprimé de rawData : on ajoute son nom dans retiredAthletes (en bas).
    Pour retirer complètement un athlète (ex. décès), ajoute son nom dans removedAthletes. */
+// Version des données : à augmenter (ici ET dans index.html, DATA_VERSION_NEEDED et ?v=) quand index.html dépend d'un ajout de ce fichier.
+const DATA_VERSION = 2;
 const S_FOOT=0, S_BASK=1, S_CYCL=2, S_TENN=3, S_F1=4, S_RUGB=5, S_ATHL=6, S_NATA=7, S_COMB=8, S_HAND=9;
         const R_COM=0, R_PEU=1, R_RAR=2, R_ULT=3, R_LEG=4, R_MYT=5, R_VINTAGE=6, R_RETIRED=7;
 
