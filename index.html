@@ -2212,6 +2212,8 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
                     return true;
                 });
                 filteredAthletesCache.sort((a, b) => {
+                    const ra = a.rarityId === R_RETIRED, rb = b.rarityId === R_RETIRED;
+                    if (ra !== rb) return ra ? 1 : -1; // les cartes « Retraité » toujours en fin de collection
                     if (sortOrder === 'name') return a.name.localeCompare(b.name);
                     const scoreA = noScore(a) ? 101 : getAthleteCalculatedScore(a);
                     const scoreB = noScore(b) ? 101 : getAthleteCalculatedScore(b);
