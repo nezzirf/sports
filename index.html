@@ -344,7 +344,7 @@
             aside nav .main-tab-btn { flex: 1; flex-direction: column; justify-content: center !important; gap: .15rem; padding: .4rem .15rem !important; min-height: 54px; font-size: 10px !important; letter-spacing: 0 !important; line-height: 1.1; text-align: center; }
             aside nav .main-tab-btn > * { margin: 0 !important; }
             aside nav .main-tab-btn i { font-size: 1.15rem; }
-            #toast-container { left: 0 !important; right: 0 !important; margin: 0 auto; top: calc(.5rem + env(safe-area-inset-top)) !important; }
+            #toast-container { left: 0 !important; right: 0 !important; margin: 0 auto; bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
             .aurora { filter: blur(40px) !important; animation: none !important; }
             .bg-dots, .bg-spot { display: none; }
             .name-banner, .pokemon-card[class*="rarity-"] .name-banner { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
@@ -755,7 +755,7 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
     <div class="bg-scene" aria-hidden="true"><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div><div class="bg-dots"></div><div class="bg-spot"></div><canvas id="bg-canvas"></canvas></div>
 
     <!-- CONTENEUR DES NOTIFICATIONS TOAST -->
-    <div id="toast-container" role="status" aria-live="polite" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm w-full px-4"></div>
+    <div id="toast-container" role="status" aria-live="polite" class="fixed z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4" style="right:1.25rem;bottom:1.25rem"></div>
 
     <!-- BARRE LATÉRALE GAUCHE -->
     <aside class="w-full md:w-72 bg-[#080b12] border-b md:border-b-0 md:border-r border-slate-800 flex flex-col z-30 shrink-0 shadow-2xl relative">
@@ -1349,12 +1349,15 @@ aside .space-y-2>div{background:linear-gradient(135deg,rgba(30,41,59,.75),rgba(8
             const toast = document.createElement('div');
             const icons = { success: 'fa-circle-check text-emerald-400', error: 'fa-circle-xmark text-rose-400', info: 'fa-circle-info text-cyan-400', warning: 'fa-triangle-exclamation text-amber-400' };
             const borders = { success: 'border-emerald-500/40', error: 'border-rose-500/40', info: 'border-cyan-500/40', warning: 'border-amber-500/40' };
-            toast.className = `pointer-events-auto bg-slate-900/95 border ${borders[type] || borders.info} text-white px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 transform transition-all duration-300 translate-y-[-10px] opacity-0 text-xs font-sport tracking-wide`;
+            // Le message ne bloque rien : les touchers passent à travers (bouton « Tout recycler », cartes…). 3 messages au plus.
+            toast.className = `pointer-events-none bg-slate-900/95 border ${borders[type] || borders.info} text-white px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 text-sm`;
+            toast.style.cssText = 'transition:opacity .3s,transform .3s;opacity:0;transform:translateY(10px)';
             toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-lg shrink-0"></i><span class="flex-1 font-medium"></span>`;
             toast.querySelector('span').textContent = message;
             container.appendChild(toast);
-            requestAnimationFrame(() => toast.classList.remove('translate-y-[-10px]', 'opacity-0'));
-            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-[-10px]'); setTimeout(() => toast.remove(), 300); }, 3500);
+            while (container.children.length > 3) container.firstElementChild.remove();
+            requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'none'; });
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 300); }, 3500);
         }
 
         let globalAudioCtx = null;
